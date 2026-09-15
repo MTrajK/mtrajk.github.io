@@ -1,0 +1,24 @@
+https://nikolamanov.com/
+How I work / 04
+
+
+From operational problem to maintained product.
+
+01 Understand
+Business requirements, users, current problems, constraints and the evidence needed to define success.
+
+02 Architect
+Product structure, database, integrations, permissions, workflows and interface direction.
+
+03 Build
+Frontend, backend, mobile, desktop, integrations and the infrastructure required to operate them.
+
+04 Launch & improve
+Testing, deployment, monitoring, maintenance and measured iteration after the product meets real users.
+
+______________________________________
+______________________________________
+
+Add here, build a prototype in the understanding phase, using AI, a quick frontend only prototype.
+Here you could also use the DAVA flow
+(the signals used there)

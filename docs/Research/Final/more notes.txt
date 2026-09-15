@@ -1,0 +1,15 @@
+Командите да се повикуваат како (во терминалот на web и npm)
+ 
+mtrajk about
+mtrajk experience
+mtrajk skills
+mtrajk contact
+
+__________________________
+__________________________
+
+
+The main personal web page idea is to contains almost no logic, so no ja framework or js logic (only if something can not be avoided anyhow).
+The idea is everything to be created using html and css, to avoid bugs.
+But however we'll need js to read from the json files, and to iterate thorough the lists from some section / category that needs a repeatable logic or elements.
+Also for the terminal, for rendering the data from the command (the same logic here will be used from the npm / bun package)

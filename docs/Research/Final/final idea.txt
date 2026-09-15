@@ -1,0 +1,97 @@
+Final idea:
+
+Mix between
+
+https://brianbeck.net/ 
+&
+https://njgerner.com/
+
+the light mode will be some nice easy and UI/UX friendly site
+	- here I'll have some AI generated anime image from my face
+the dark mode (or called "dev mode") will be a terminal (example taken from)
+	- where all these sections (Intro, About me, Experience, Strengths, How I work, Github projects, Contact) will be accessable with commands (example taken from - https://njgerner.com/)
+	- here the image will be ASCII image from the AI generated anime image from my face
+	- I should have a similar MTRAJK graphity in the terminal - like cloude, speckit, copilot and other terminal tools have one -> both in the npm package and Web site)
+
+CONCEPT
+
+Engineer / DEV / Tech
+   ↓
+Terminal
+
+
+Recruiter / Customer / Product person
+   ↓
+GUI	
+
+_____________________________________
+_____________________________________
+
+Because all the info for the site will be taken from JSON. (I'll have also JSON for english and macedonian)
+That JSON will be used in both pages, terminal and GUI (the goal is to have all text changes in the JSON, and not touch the code).
+- I could also create a NPM package CV, that will read from this public JSON!!! the same way it will read in the WEB page!!!
+
+_____________________________________
+_____________________________________
+
+Terminal examples:
+
+https://wehbsite.com/ 
+	- the best terminal UI experience - i like the drawings, like a game drawing
+
+https://brianbeck.net/ 
+	- the dark mode is terminal, the light mode is more user friendly (the dark mode is for engineers/nerds, the light mode is for customers/product/etc)
+
+https://njgerner.com/
+	- Here I like only that it has a terminal with commands 
+
+https://ahmednassar7.github.io/
+	- Here again combination of terminal and normal site 
+	- Using the terminal you can control the normal site!
+	- But the desing of the normal site looks too nerdy (i need a simple Resume design, but nice)
+
+https://murad.sh/
+	- another combination with terminal and normal site (but again too nerdy)
+
+https://terminal.jacky.sh/
+	- TOOO COMPLICATED terminal, original terminal where you need to read all the files... I need only several commands, not whole integrated termnal logic (only commands for the sections I have!)
+
+_____________________________________
+_____________________________________
+
+IDE example:
+
+https://www.bhavyachadha.com/ - SIMPLE from content viewpoint (about -> experience -> projects -> timeline -> contact) !!! I like this simplicity, but I think I don't like the IDE represented things???
+
+_____________________________________
+_____________________________________
+
+Two styles, two personas resume:
+
+https://sarakay.me/ - pro and anime?
+
+_____________________________________
+_____________________________________
+
+OS examples: (too complicated?)
+
+https://prasadkjose.com/  - linux OS
+
+https://walhamed.com/ - windows OS
+
+https://walhamed.com/ - terminal and many other things
+
+https://somyacodes.in/ - terminal + OS (I like the graphity here, I should have a similar MTRAJK - like cloude, copilot and other terminal tools have one -> both in the npm package and Web site)
+
+_____________________________________
+_____________________________________
+
+Wiki / documentation examples:
+
+https://jacky.sh/
+
+https://ctey.dev/
+
+https://jmrecondo.com/
+
+https://hussainzaidi.me/ - too much WIKI (don't like this design)
