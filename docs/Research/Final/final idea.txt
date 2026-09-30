@@ -9,9 +9,9 @@ https://njgerner.com/
 the light mode will be some nice easy and UI/UX friendly site
 	- here I'll have some AI generated anime image from my face
 the dark mode (or called "dev mode") will be a terminal (example taken from)
-	- where all these sections (Intro, About me, Experience, Strengths, How I work, Github projects, Contact) will be accessable with commands (example taken from - https://njgerner.com/)
+	- where all these sections (Intro, About me, Experience, Strengths, How I work, Github projects, Contact) will be accessible with commands (example taken from - https://njgerner.com/)
 	- here the image will be ASCII image from the AI generated anime image from my face
-	- I should have a similar MTRAJK graphity in the terminal - like cloude, speckit, copilot and other terminal tools have one -> both in the npm package and Web site)
+	- I should have a similar MTRAJK graffiti in the terminal - like claude, speckit, copilot and other terminal tools have one -> both in the npm package and Web site)
 
 CONCEPT
 
