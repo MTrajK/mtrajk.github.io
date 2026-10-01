@@ -865,19 +865,19 @@ html[data-mode="dev"] body {
   color: #a5b5be;
 }
 .terminal-window form {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
   align-items: baseline;
-  gap: 6px 12px;
+  gap: clamp(6px, 2vw, 12px);
   margin: 0;
   padding: 4px 0;
 }
 .terminal-window label {
   color: #9bccc0;
   font-size: 0.875rem;
+  white-space: nowrap;
 }
 .input-row {
-  flex: 1 1 220px;
   min-width: 0;
 }
 .command-line {
@@ -1131,7 +1131,7 @@ html[data-mode="dev"] body {
   }
   .strengths-list {
     gap: 25px;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
   .strengths-item h3 {
     font-size: 1.24rem;

@@ -134,7 +134,7 @@ The original MTRAJK wordmark and ASCII portrait are stored in common JSON. Web D
 
 Builds enforce <=10 KiB gzipped initial JS, <=40 KiB all web JS, <=30 KiB CSS, and <=256 KiB public JSON. Art is bounded and compact on mobile. Content is escaped for HTML, URLs are allowlisted, input is not evaluated, and terminal controls are rejected/stripped. No server-side contact form, automatic link opening, telemetry, or credential handling.
 
-Automated browser coverage includes Chromium, Firefox, WebKit, mobile emulation, both locales, no-JS, command history, navigation, failures, snapshot skew, axe accessibility checks, and 320 px overflow. CI defines Windows/macOS/Linux Node jobs and Bun compatibility. A workflow definition is not evidence that those hosted jobs have run; check Actions results after pushing.
+Automated browser coverage includes Chromium, Firefox, WebKit, mobile Chromium and mobile WebKit emulation, both locales, no-JS, command history, navigation, failures, snapshot skew, and axe accessibility checks. Responsive regressions cover 320–430 px phone widths, the 600 px stacking breakpoint, wider layouts, landscape rotation, and a short viewport representing reduced space with an on-screen keyboard. Strengths and How I Work stack on phones; the DEV prompt and its 16 px input stay on one row. Emulation does not replace real-device keyboard and safe-area review. CI defines Windows/macOS/Linux Node jobs and Bun compatibility. A workflow definition is not evidence that those hosted jobs have run; check Actions results after pushing.
 
 ## Release: manual owner approval required
 

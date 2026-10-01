@@ -549,6 +549,76 @@ test("both modes pass automated accessibility checks and narrow layouts do not o
   }
 });
 
+test("CV topic grids stack on phones and retain columns on wider screens", async ({ page }) => {
+  for (const locale of ["/", "/mk/"]) {
+    await page.goto(`${locale}?mode=cv`);
+    for (const width of [320, 360, 390, 430, 600, 768, 844, 1280]) {
+      await page.setViewportSize({ width, height: width === 844 ? 390 : 844 });
+      for (const selector of [".strengths-list", ".how-i-work-list"]) {
+        const items = await page.locator(`${selector} > li`).evaluateAll(nodes =>
+          nodes.map(node => {
+            const { x, y, width, height } = node.getBoundingClientRect();
+            return { x, y, width, height };
+          }),
+        );
+        expect(items.length).toBeGreaterThan(1);
+        if (width <= 600) {
+          for (let index = 1; index < items.length; index++) {
+            expect(items[index].x).toBeCloseTo(items[0].x, 0);
+            expect(items[index].width).toBeCloseTo(items[0].width, 0);
+            expect(items[index].y).toBeGreaterThanOrEqual(items[index - 1].y + items[index - 1].height);
+          }
+        } else {
+          expect(items[1].y).toBeCloseTo(items[0].y, 0);
+          expect(items[1].x).toBeGreaterThan(items[0].x);
+        }
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+});
+
+test("DEV prompt stays beside its input across phone sizes and rotation", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const locale of ["/", "/mk/"]) {
+    await page.goto(`${locale}?mode=dev`);
+    const input = page.locator("#command-input");
+    await expect(input).toBeFocused();
+    for (const viewport of [
+      { width: 320, height: 568 },
+      { width: 360, height: 740 },
+      { width: 390, height: 844 },
+      { width: 430, height: 932 },
+      { width: 844, height: 390 },
+      { width: 390, height: 360 },
+    ]) {
+      await page.setViewportSize(viewport);
+      const { label, field } = await input.evaluate(node => ({
+        label: document.querySelector("#terminal-form label").getBoundingClientRect().toJSON(),
+        field: node.getBoundingClientRect().toJSON(),
+      }));
+      expect(field.x).toBeGreaterThanOrEqual(label.x + label.width);
+      expect(field.y).toBeLessThan(label.y + label.height);
+      expect(field.y + field.height).toBeGreaterThan(label.y);
+      expect(field.width).toBeGreaterThanOrEqual(96);
+      expect(field.x + field.width).toBeLessThanOrEqual(viewport.width);
+      await expect(input).toHaveCSS("font-size", "16px");
+      await expect(input).toBeInViewport();
+      await expect(page.locator("#terminal-hint")).toBeInViewport();
+      await input.fill("mtrajk ".repeat(30));
+      await input.press("End");
+      await input.fill("exp");
+      await expect(page.locator("#ghost-suffix")).toHaveText("erience");
+      await input.press("ArrowRight");
+      await expect(input).toHaveValue("experience");
+      await input.press("Enter");
+      await expect(page.locator(".terminal-entry").last()).toContainText("Global Payments");
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      expect(await page.locator("#terminal-input-panel").evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
+    }
+  }
+});
+
 test("preview metadata, 404 and screenshots", async ({ page }, info) => {
   await page.goto("/");
   const content = await (await page.request.get("/data/v1/en.json")).json();
