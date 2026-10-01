@@ -5,7 +5,7 @@ How I work / 04
 From operational problem to maintained product.
 
 01 Understand
-Business requirements, users, current problems, constraints and the evidence needed to define success. Understanding by building quick UI protorypes using AI.
+Business requirements, users, current problems, constraints and the evidence needed to define success. Understanding by building quick UI prototypes using AI.
 
 02 Architect
 Product structure, database, integrations, permissions, workflows and interface direction.

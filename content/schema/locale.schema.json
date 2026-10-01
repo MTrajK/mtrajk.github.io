@@ -1,0 +1,90 @@
+{
+  "$id": "https://mtrajk.me/schema/locale-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "locale",
+    "name",
+    "headline",
+    "motto",
+    "meta",
+    "ui",
+    "terminal",
+    "sections",
+    "navigation"
+  ],
+  "properties": {
+    "locale": { "enum": ["en", "mk"] },
+    "name": { "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text" },
+    "headline": {
+      "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+    },
+    "motto": { "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text" },
+    "meta": { "$ref": "https://mtrajk.me/schema/public-v1#/definitions/meta" },
+    "ui": { "$ref": "https://mtrajk.me/schema/public-v1#/definitions/ui" },
+    "terminal": {
+      "$ref": "https://mtrajk.me/schema/public-v1#/definitions/terminal"
+    },
+    "navigation": {
+      "$ref": "https://mtrajk.me/schema/public-v1#/definitions/navigation"
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "kicker", "paragraphs", "items"],
+        "properties": {
+          "id": {
+            "$ref": "https://mtrajk.me/schema/public-v1#/definitions/sectionId"
+          },
+          "title": {
+            "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+          },
+          "kicker": {
+            "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+          },
+          "paragraphs": {
+            "$ref": "https://mtrajk.me/schema/public-v1#/definitions/texts"
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 30,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "title", "subtitle", "paragraphs", "bullets"],
+              "properties": {
+                "id": {
+                  "$ref": "https://mtrajk.me/schema/public-v1#/definitions/id"
+                },
+                "title": {
+                  "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+                },
+                "subtitle": {
+                  "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+                },
+                "paragraphs": {
+                  "$ref": "https://mtrajk.me/schema/public-v1#/definitions/texts"
+                },
+                "bullets": {
+                  "$ref": "https://mtrajk.me/schema/public-v1#/definitions/texts"
+                }
+              }
+            }
+          },
+          "skills": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/skill"
+            }
+          }
+        }
+      }
+    }
+  }
+}

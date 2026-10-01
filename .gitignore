@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.generated/
+packages/cli/dist/
+packages/cli/LICENSE
+packages/cli/NOTICE
+packages/cli/*.tgz
+test-results/
+playwright-report/
+.artifacts/
+.env
+.env.*

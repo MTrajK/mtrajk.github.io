@@ -1,0 +1,336 @@
+{
+  "locale": "en",
+  "name": "Meto Trajkovski",
+  "headline": "Product-minded engineer. Hands-on technical leader.",
+  "motto": "Building products that solve real problems.",
+  "meta": {
+    "title": "Meto Trajkovski — Software engineer & technical leader",
+    "description": "Product thinking, hands-on engineering, and technical leadership. Explore Meto Trajkovski's experience, approach, and open-source projects.",
+    "socialLabel": "ENGINEERING · PRODUCT · PEOPLE"
+  },
+  "ui": {
+    "cv": "CV",
+    "dev": "DEV",
+    "modeLabel": "Choose presentation",
+    "languageLabel": "Choose language",
+    "english": "EN",
+    "macedonian": "МК",
+    "skip": "Skip to content",
+    "navLabel": "Sections",
+    "draft": "Preview edition — final content and language review pending.",
+    "edition": "A PERSONAL FIELD GUIDE",
+    "role": "SOFTWARE ENGINEER & TECHNICAL LEADER",
+    "portraitPending": "Portrait in progress",
+    "portraitAlt": "Anime-inspired portrait of Meto Trajkovski",
+    "monogram": "MT",
+    "hello": "Hello, I'm",
+    "contactCta": "Let's connect",
+    "projectsCta": "Explore my work",
+    "details": "More about the work",
+    "datesPending": "Dates & title to be confirmed",
+    "present": "Present",
+    "client": "Client",
+    "skills": "Tools & practices",
+    "source": "Source code",
+    "demo": "Visit project",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "email": "Email",
+    "emailPending": "Email address awaiting confirmation. In the meantime, connect on LinkedIn.",
+    "footer": "Thoughtfully built. Intentionally simple.",
+    "backTop": "Back to top",
+    "notFoundTitle": "A path not taken.",
+    "notFoundText": "This page doesn't exist. The rest of the story is one click away.",
+    "home": "Back to the CV",
+    "terminalTitle": "A different interface. The same person.",
+    "terminalSubtitle": "Enter runs · → accepts a suggestion · Tab completes/cycles · ↑/↓ history · Esc dismisses, then Tab moves focus · Shift+Tab moves back · lang en / lang mk switches language",
+    "inputLabel": "CV command",
+    "inputPlaceholder": "mtrajk about",
+    "submit": "Run",
+    "shortcuts": "Command shortcuts",
+    "suggestions": "Command suggestions",
+    "loading": "Opening DEV mode…",
+    "loadError": "DEV mode couldn't load. Your CV is still available. Select DEV to retry, or reload this page.",
+    "transcript": "Command results",
+    "resultReady": "Result ready: {command}",
+    "cleared": "Transcript cleared.",
+    "snapshot": "Content reviewed",
+    "buildLabel": "CV / DEV",
+    "commandPrompt": "visitor@mtrajk.me:~$",
+    "unknownDates": "Selected engagements",
+    "projectIndex": "SELECTED OPEN SOURCE",
+    "hobbyLabel": "OUTSIDE THE CODE",
+    "contactLabel": "START A CONVERSATION",
+    "siteLabel": "mtrajk.me"
+  },
+  "terminal": {
+    "messages": {
+      "usage": "Usage: mtrajk <command>",
+      "hint": "Try mtrajk help. Bare commands work here too.",
+      "unknown": "Unknown command: {command}. Try mtrajk help.",
+      "invalid": "Unsupported input or arguments. Try mtrajk help.",
+      "language": "Choose a language: mtrajk lang en or mtrajk lang mk.",
+      "fallback": "Using bundled {locale} content ({date}); online content was unavailable or offline mode was selected.",
+      "fatal": "No valid CV content is available.",
+      "clearOnly": "clear is available inside the interactive CV, not as a one-shot shell command.",
+      "goodbye": "Thanks for stopping by.",
+      "cancelled": "Input cancelled.",
+      "preview": "Preview content — publication approval is pending.",
+      "version": "mtrajk {version}",
+      "languageChanged": "Language changed to {locale}.",
+      "empty": "Start with mtrajk help.",
+      "flags": "CLI: --lang en|mk · --offline · --json · --no-color · --help · --version"
+    },
+    "commandDescriptions": {
+      "help": "List commands",
+      "intro": "A quick introduction",
+      "about": "The person behind the code",
+      "experience": "Selected experience and client engagements",
+      "strengths": "What I bring to a team",
+      "skills": "Tools and engineering practices",
+      "how-i-work": "From problem to maintained product",
+      "projects": "Selected open-source projects",
+      "hobbies": "Beyond the keyboard",
+      "contact": "Get in touch",
+      "all": "Read the complete CV",
+      "lang": "Switch language: en / mk",
+      "clear": "Clear this CV transcript"
+    }
+  },
+  "sections": [
+    {
+      "id": "intro",
+      "title": "Introduction",
+      "kicker": "01 / THE INTRODUCTION",
+      "paragraphs": [
+        "I'm a software engineer and technical leader building complex products with .NET, Python, and JavaScript/TypeScript. I connect product thinking with hands-on engineering—from understanding the problem to supporting the product in production."
+      ],
+      "items": []
+    },
+    {
+      "id": "about",
+      "title": "The person behind the code.",
+      "kicker": "02 / ABOUT",
+      "paragraphs": [
+        "I'm a product-minded software engineer with more than a decade of experience building complex products, primarily with .NET, Python, and JavaScript/TypeScript.",
+        "For over five years, I've combined hands-on engineering with technical leadership, working closely with developers, QA, product, and architecture stakeholders.",
+        "I care about understanding the problem, choosing the right technology, and building systems that remain reliable and maintainable as they grow.",
+        "I lead by example, support the people around me, and value clean code, testing, and continuous improvement.",
+        "Recently, I've been exploring how AI-assisted engineering can improve delivery speed and quality without lowering architectural or testing standards."
+      ],
+      "items": []
+    },
+    {
+      "id": "experience",
+      "title": "Selected experience.",
+      "kicker": "03 / CAREER HIGHLIGHTS",
+      "paragraphs": [
+        "A few selected engagements from my career—not a complete work history. These examples span payment systems and dental software, with employers and clients shown separately."
+      ],
+      "items": [
+        {
+          "id": "endava-payments",
+          "title": "Reliable payment systems",
+          "subtitle": "Technical leadership & hands-on delivery",
+          "paragraphs": [
+            "Developing and upgrading .NET payment solutions for Global Payments on a platform that processes billions of dollars annually. The work supports high-volume, mission-critical financial operations, where reliability, scalability, and safe releases matter.",
+            "Cross-functional delivery alongside engineering, QA, product, and architecture stakeholders."
+          ],
+          "bullets": [
+            "Lead work from requirements and solution design through testing, release coordination, and post-release support.",
+            "Establish maintainable architecture, code quality, and testing practices.",
+            "Mentor engineers and collaborate with globally distributed teams."
+          ]
+        },
+        {
+          "id": "inscale-3shape",
+          "title": "Engineering in three dimensions",
+          "subtitle": "Dental CAD/CAM software",
+          "paragraphs": [
+            ".NET software for Frame Design, Anatomy Design, and TRIOS, working with complex architectures and algorithms for 3D-space problems."
+          ],
+          "bullets": [
+            "Worked across three dental software products.",
+            "Developed algorithms for geometric problems in 3D space.",
+            "3Shape was a client of Inscale in Skopje."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "strengths",
+      "title": "More than a technology stack.",
+      "kicker": "04 / STRENGTHS",
+      "paragraphs": [
+        "Good engineering connects the product, the people, and the details that make it work."
+      ],
+      "items": [
+        {
+          "id": "product",
+          "title": "Start with the problem",
+          "subtitle": "Product thinking",
+          "paragraphs": [
+            "Understand who we're building for and why. Connect technical choices to the user's problem, not the other way around."
+          ],
+          "bullets": []
+        },
+        {
+          "id": "leadership",
+          "title": "Lead from the work",
+          "subtitle": "Hands-on leadership",
+          "paragraphs": [
+            "Stay close to the technology, support the team, and help people do their best work. Lead by example."
+          ],
+          "bullets": []
+        },
+        {
+          "id": "architecture",
+          "title": "Build for what comes next",
+          "subtitle": "Architecture & quality",
+          "paragraphs": [
+            "Clean code, thoughtful architecture, testing, and continuous improvement make complex systems easier to live with."
+          ],
+          "bullets": []
+        },
+        {
+          "id": "adaptability",
+          "title": "Keep learning. Keep improving.",
+          "subtitle": "Adaptability & practical AI",
+          "paragraphs": [
+            "Choose the right tools for the problem. Explore AI-assisted delivery without compromising engineering judgment."
+          ],
+          "bullets": []
+        }
+      ],
+      "skills": [
+        {
+          "title": "Languages & platforms",
+          "values": ["C# / .NET", "Python", "JavaScript / TypeScript"]
+        },
+        {
+          "title": "Engineering",
+          "values": ["Architecture", "Algorithms", "Testing", "Integrations"]
+        },
+        {
+          "title": "Delivery & leadership",
+          "values": [
+            "Cross-functional teams",
+            "Mentoring",
+            "Agile",
+            "AI-assisted prototyping"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "how-i-work",
+      "title": "From operational problem to maintained product.",
+      "kicker": "05 / HOW I WORK",
+      "paragraphs": [],
+      "items": [
+        {
+          "id": "understand",
+          "title": "Understand",
+          "subtitle": "Find the right problem",
+          "paragraphs": [
+            "Clarify users, business goals, current problems, constraints, and what success looks like. Use quick AI-assisted UI prototypes to test understanding before committing to a solution."
+          ],
+          "bullets": []
+        },
+        {
+          "id": "architect",
+          "title": "Architect",
+          "subtitle": "Give the solution structure",
+          "paragraphs": [
+            "Shape the product, data model, integrations, permissions, workflows, and interface direction around the problem and its constraints."
+          ],
+          "bullets": []
+        },
+        {
+          "id": "build",
+          "title": "Build",
+          "subtitle": "Turn intent into working software",
+          "paragraphs": [
+            "Deliver the frontend, backend, integrations, and supporting infrastructure the product needs, including mobile or desktop where appropriate."
+          ],
+          "bullets": []
+        },
+        {
+          "id": "improve",
+          "title": "Launch & improve",
+          "subtitle": "The release is a beginning",
+          "paragraphs": [
+            "Test, deploy, monitor, maintain, and improve the product using evidence from real users and production operation."
+          ],
+          "bullets": []
+        }
+      ]
+    },
+    {
+      "id": "projects",
+      "title": "Built to learn. Shared to help.",
+      "kicker": "06 / SELECTED WORK",
+      "paragraphs": [
+        "A selection of my pet projects—not the full list. These projects were built before AI-assisted coding and written manually. Small experiments, useful tools, and learning in public, built outside the day job."
+      ],
+      "items": [
+        {
+          "id": "coding-problems",
+          "title": "Coding Problems",
+          "subtitle": "A practical algorithms notebook",
+          "paragraphs": [
+            "Python solutions and curated resources for learning algorithms and data structures. Written to make the ideas approachable across languages."
+          ],
+          "bullets": []
+        },
+        {
+          "id": "virus-spreading",
+          "title": "Virus Spreading",
+          "subtitle": "Making an invisible problem visible",
+          "paragraphs": [
+            "An interactive vanilla JavaScript simulation exploring how different parameters affect spreading and flattening the curve. An educational visualization, not an epidemiological prediction tool."
+          ],
+          "bullets": []
+        },
+        {
+          "id": "sledi-pratki",
+          "title": "SlediPratki",
+          "subtitle": "One place to follow a package",
+          "paragraphs": [
+            "A Chrome extension built to track postal shipments in Macedonia, with background updates and notifications. A project from my open-source collection; current service availability is not guaranteed."
+          ],
+          "bullets": []
+        }
+      ]
+    },
+    {
+      "id": "hobbies",
+      "title": "Discipline, one step at a time.",
+      "kicker": "07 / BEYOND THE KEYBOARD",
+      "paragraphs": [
+        "Running is how I practice discipline: showing up early in the morning or late in the evening, even when motivation is low.",
+        "Away from the run, I'm usually learning something new about engineering, technology, or product development."
+      ],
+      "items": []
+    },
+    {
+      "id": "contact",
+      "title": "Let's build something useful.",
+      "kicker": "08 / CONTACT",
+      "paragraphs": [
+        "Have an interesting problem, a product idea, or a different perspective? I'd be happy to connect."
+      ],
+      "items": []
+    }
+  ],
+  "navigation": {
+    "intro": "Intro",
+    "about": "About",
+    "experience": "Experience",
+    "strengths": "Strengths",
+    "how-i-work": "Approach",
+    "projects": "Projects",
+    "hobbies": "Beyond work",
+    "contact": "Contact"
+  }
+}

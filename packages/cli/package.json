@@ -1,0 +1,30 @@
+{
+  "name": "mtrajk",
+  "version": "0.1.0-preview.1",
+  "description": "Meto Trajkovski's bilingual CV, from your terminal.",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "mtrajk": "./dist/cli.js"
+  },
+  "files": [
+    "dist/cli.js",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "homepage": "https://mtrajk.me",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MTrajK/mtrajk.github.io.git",
+    "directory": "packages/cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

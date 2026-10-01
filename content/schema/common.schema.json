@@ -1,0 +1,128 @@
+{
+  "$id": "https://mtrajk.me/schema/common-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "updatedAt",
+    "siteUrl",
+    "profile",
+    "approvals",
+    "sectionOrder",
+    "records",
+    "contactLinks",
+    "artwork"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "updatedAt": {
+      "$ref": "https://mtrajk.me/schema/public-v1#/definitions/date"
+    },
+    "siteUrl": { "const": "https://mtrajk.me" },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "username", "email", "portrait"],
+      "properties": {
+        "name": {
+          "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+        },
+        "username": { "const": "mtrajk" },
+        "email": {
+          "$ref": "https://mtrajk.me/schema/public-v1#/properties/profile/properties/email"
+        },
+        "portrait": {
+          "$ref": "https://mtrajk.me/schema/public-v1#/properties/profile/properties/portrait"
+        }
+      }
+    },
+    "approvals": {
+      "type": "object",
+      "required": [
+        "content",
+        "translation",
+        "experience",
+        "contact",
+        "portrait",
+        "package"
+      ],
+      "minProperties": 6,
+      "maxProperties": 6,
+      "additionalProperties": { "type": "boolean" }
+    },
+    "sectionOrder": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "https://mtrajk.me/schema/public-v1#/definitions/sectionId"
+      }
+    },
+    "records": {
+      "type": "object",
+      "required": [
+        "intro",
+        "about",
+        "experience",
+        "strengths",
+        "how-i-work",
+        "projects",
+        "hobbies",
+        "contact"
+      ],
+      "minProperties": 8,
+      "maxProperties": 8,
+      "additionalProperties": {
+        "type": "array",
+        "maxItems": 30,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "tags", "links"],
+          "properties": {
+            "id": {
+              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/id"
+            },
+            "organization": {
+              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+            },
+            "client": {
+              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+            },
+            "period": {
+              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/period"
+            },
+            "tags": {
+              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/texts"
+            },
+            "links": { "$ref": "#/definitions/links" }
+          }
+        }
+      }
+    },
+    "contactLinks": { "$ref": "#/definitions/links" },
+    "artwork": {
+      "$ref": "https://mtrajk.me/schema/public-v1#/definitions/artwork"
+    }
+  },
+  "definitions": {
+    "links": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["labelKey", "url"],
+        "properties": {
+          "labelKey": {
+            "enum": ["source", "demo", "github", "linkedin", "email"]
+          },
+          "url": {
+            "$ref": "https://mtrajk.me/schema/public-v1#/definitions/link/properties/url"
+          }
+        }
+      }
+    }
+  }
+}
