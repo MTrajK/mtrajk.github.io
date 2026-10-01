@@ -24,6 +24,22 @@ test("both languages resolve deterministically, and unfinished content blocks re
   );
 });
 
+test("one common domain drives all generated website and terminal URLs", async () => {
+  const data = await sources();
+  const previousDomain = data.common.domain;
+  data.common.domain = "mtrajk.test";
+  for (const content of await loadContents(data)) {
+    assert.equal(content.siteUrl, "https://mtrajk.test");
+    assert.equal(content.ui.siteLabel, "mtrajk.test");
+    assert.equal(content.ui.commandPrompt, "visitor@mtrajk.test:~$");
+    const html = renderPage(content, { css: "/style.css", js: "/main.js" });
+    assert.ok(html.includes("https://mtrajk.test"));
+    assert.ok(!html.includes(previousDomain));
+  }
+  data.common.domain = "https://mtrajk.test/path";
+  await assert.rejects(loadContents(data));
+});
+
 test("selected experience omits dates and retired clients across CV and CLI", async () => {
   for (const content of await loadContents()) {
     const result = executeCommand("experience", content);
@@ -213,16 +229,17 @@ test("public loader bounds responses and validates remote locale/version/schema"
   const [content] = await loadContents();
   const { public: validate } = await validators();
   const options = { locale: "en", validate, version: content.contentVersion };
+  const endpoint = `${content.siteUrl}/data/v1/en.json`;
   const fetcher = async () => new Response(JSON.stringify(content));
   assert.deepEqual(
-    await fetchContent("https://mtrajk.me/data/v1/en.json", {
+    await fetchContent(endpoint, {
       ...options,
       fetcher,
     }),
     content,
   );
   await assert.rejects(
-    fetchContent("https://mtrajk.me/data/v1/en.json", {
+    fetchContent(endpoint, {
       ...options,
       fetcher,
       locale: "mk",
@@ -230,7 +247,7 @@ test("public loader bounds responses and validates remote locale/version/schema"
     /mismatch/,
   );
   await assert.rejects(
-    fetchContent("https://mtrajk.me/data/v1/en.json", {
+    fetchContent(endpoint, {
       ...options,
       fetcher,
       version: "old",
@@ -245,14 +262,14 @@ test("public loader bounds responses and validates remote locale/version/schema"
     new Response("{}", { headers: { "content-length": "300000" } }),
   ]) {
     await assert.rejects(
-      fetchContent("https://mtrajk.me/data/v1/en.json", {
+      fetchContent(endpoint, {
         ...options,
         fetcher: async () => response,
       }),
     );
   }
   await assert.rejects(
-    fetchContent("https://mtrajk.me/data/v1/en.json", {
+    fetchContent(endpoint, {
       ...options,
       timeout: 5,
       fetcher: async (_url, { signal }) =>

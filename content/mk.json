@@ -60,12 +60,12 @@
     "cleared": "Приказот е исчистен.",
     "snapshot": "Последен преглед на содржината",
     "buildLabel": "CV / DEV",
-    "commandPrompt": "visitor@mtrajk.me:~$",
+    "commandPrompt": "visitor@{domain}:~$",
     "unknownDates": "Избрани ангажмани",
     "projectIndex": "ИЗБРАНИ ПРОЕКТИ СО ОТВОРЕН КОД",
     "hobbyLabel": "НАДВОР ОД КОДОТ",
     "contactLabel": "ДА ЗАПОЧНЕМЕ РАЗГОВОР",
-    "siteLabel": "mtrajk.me"
+    "siteLabel": "{domain}"
   },
   "terminal": {
     "messages": {

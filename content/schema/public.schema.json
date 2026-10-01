@@ -1,5 +1,5 @@
 {
-  "$id": "https://mtrajk.me/schema/public-v1",
+  "$id": "urn:mtrajk:schema:public:v1",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -22,7 +22,11 @@
     "contentVersion": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "locale": { "enum": ["en", "mk"] },
     "updatedAt": { "$ref": "#/definitions/date" },
-    "siteUrl": { "const": "https://mtrajk.me" },
+    "siteUrl": {
+      "type": "string",
+      "pattern": "^https://(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$",
+      "maxLength": 261
+    },
     "preview": { "type": "boolean" },
     "profile": {
       "type": "object",

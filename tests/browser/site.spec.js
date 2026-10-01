@@ -196,6 +196,9 @@ test("static CV and localized navigation work without JavaScript", async ({
     ["/mk/", "Мето"],
   ]) {
     await page.goto(path);
+    const content = await (
+      await page.request.get(`/data/v1/${path === "/" ? "en" : "mk"}.json`)
+    ).json();
     await expect(page.locator("h1").first()).toContainText(name);
     await expect(page.locator("#cv-view>section")).toHaveCount(8);
     await expect(
@@ -206,7 +209,7 @@ test("static CV and localized navigation work without JavaScript", async ({
     ).toBeDisabled();
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `https://mtrajk.me${path}`,
+      `${content.siteUrl}${path}`,
     );
   }
   await page.locator('a[data-locale="en"]').click();

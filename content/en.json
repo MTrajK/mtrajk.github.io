@@ -60,12 +60,12 @@
     "cleared": "Transcript cleared.",
     "snapshot": "Content reviewed",
     "buildLabel": "CV / DEV",
-    "commandPrompt": "visitor@mtrajk.me:~$",
+    "commandPrompt": "visitor@{domain}:~$",
     "unknownDates": "Selected engagements",
     "projectIndex": "SELECTED OPEN SOURCE",
     "hobbyLabel": "OUTSIDE THE CODE",
     "contactLabel": "START A CONVERSATION",
-    "siteLabel": "mtrajk.me"
+    "siteLabel": "{domain}"
   },
   "terminal": {
     "messages": {

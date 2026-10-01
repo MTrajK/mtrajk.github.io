@@ -103,7 +103,7 @@ await writeFile(
   resolve(output, "robots.txt"),
   contents[0].preview
     ? "User-agent: *\nDisallow: /\n"
-    : "User-agent: *\nAllow: /\nSitemap: https://mtrajk.me/sitemap.xml\n",
+    : `User-agent: *\nAllow: /\nSitemap: ${contents[0].siteUrl}/sitemap.xml\n`,
 );
 await writeFile(
   resolve(output, "sitemap.xml"),

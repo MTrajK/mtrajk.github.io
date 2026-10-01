@@ -1,11 +1,11 @@
 {
-  "$id": "https://mtrajk.me/schema/common-v1",
+  "$id": "urn:mtrajk:schema:common:v1",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schemaVersion",
     "updatedAt",
-    "siteUrl",
+    "domain",
     "profile",
     "approvals",
     "sectionOrder",
@@ -16,23 +16,27 @@
   "properties": {
     "schemaVersion": { "const": 1 },
     "updatedAt": {
-      "$ref": "https://mtrajk.me/schema/public-v1#/definitions/date"
+      "$ref": "urn:mtrajk:schema:public:v1#/definitions/date"
     },
-    "siteUrl": { "const": "https://mtrajk.me" },
+    "domain": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$",
+      "maxLength": 253
+    },
     "profile": {
       "type": "object",
       "additionalProperties": false,
       "required": ["name", "username", "email", "portrait"],
       "properties": {
         "name": {
-          "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+          "$ref": "urn:mtrajk:schema:public:v1#/definitions/text"
         },
         "username": { "const": "mtrajk" },
         "email": {
-          "$ref": "https://mtrajk.me/schema/public-v1#/properties/profile/properties/email"
+          "$ref": "urn:mtrajk:schema:public:v1#/properties/profile/properties/email"
         },
         "portrait": {
-          "$ref": "https://mtrajk.me/schema/public-v1#/properties/profile/properties/portrait"
+          "$ref": "urn:mtrajk:schema:public:v1#/properties/profile/properties/portrait"
         }
       }
     },
@@ -56,7 +60,7 @@
       "maxItems": 8,
       "uniqueItems": true,
       "items": {
-        "$ref": "https://mtrajk.me/schema/public-v1#/definitions/sectionId"
+        "$ref": "urn:mtrajk:schema:public:v1#/definitions/sectionId"
       }
     },
     "records": {
@@ -82,19 +86,19 @@
           "required": ["id", "tags", "links"],
           "properties": {
             "id": {
-              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/id"
+              "$ref": "urn:mtrajk:schema:public:v1#/definitions/id"
             },
             "organization": {
-              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+              "$ref": "urn:mtrajk:schema:public:v1#/definitions/text"
             },
             "client": {
-              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/text"
+              "$ref": "urn:mtrajk:schema:public:v1#/definitions/text"
             },
             "period": {
-              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/period"
+              "$ref": "urn:mtrajk:schema:public:v1#/definitions/period"
             },
             "tags": {
-              "$ref": "https://mtrajk.me/schema/public-v1#/definitions/texts"
+              "$ref": "urn:mtrajk:schema:public:v1#/definitions/texts"
             },
             "links": { "$ref": "#/definitions/links" }
           }
@@ -103,7 +107,7 @@
     },
     "contactLinks": { "$ref": "#/definitions/links" },
     "artwork": {
-      "$ref": "https://mtrajk.me/schema/public-v1#/definitions/artwork"
+      "$ref": "urn:mtrajk:schema:public:v1#/definitions/artwork"
     }
   },
   "definitions": {
@@ -119,7 +123,7 @@
             "enum": ["source", "demo", "github", "linkedin", "email"]
           },
           "url": {
-            "$ref": "https://mtrajk.me/schema/public-v1#/definitions/link/properties/url"
+            "$ref": "urn:mtrajk:schema:public:v1#/definitions/link/properties/url"
           }
         }
       }

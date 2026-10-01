@@ -19,13 +19,20 @@ export async function validators() {
     code: { source: true, esm: true },
     ownProperties: true,
   });
-  for (const name of ["public", "common", "locale"])
-    ajv.addSchema(await readJson(`content/schema/${name}.schema.json`));
+  const schemas = Object.fromEntries(
+    await Promise.all(
+      ["public", "common", "locale"].map(async (name) => [
+        name,
+        await readJson(`content/schema/${name}.schema.json`),
+      ]),
+    ),
+  );
+  for (const schema of Object.values(schemas)) ajv.addSchema(schema);
   return {
     ajv,
-    public: ajv.getSchema("https://mtrajk.me/schema/public-v1"),
-    common: ajv.getSchema("https://mtrajk.me/schema/common-v1"),
-    locale: ajv.getSchema("https://mtrajk.me/schema/locale-v1"),
+    public: ajv.getSchema(schemas.public.$id),
+    common: ajv.getSchema(schemas.common.$id),
+    locale: ajv.getSchema(schemas.locale.$id),
   };
 }
 export function check(validate, data, label) {
@@ -70,11 +77,17 @@ export function resolveContent(common, locale) {
         : section.paragraphs;
     return { ...section, paragraphs, items, links: sectionLinks };
   });
+  const ui = Object.fromEntries(
+    Object.entries(locale.ui).map(([key, value]) => [
+      key,
+      value.replaceAll("{domain}", common.domain),
+    ]),
+  );
   const payload = {
     schemaVersion: common.schemaVersion,
     locale: locale.locale,
     updatedAt: common.updatedAt,
-    siteUrl: common.siteUrl,
+    siteUrl: `https://${common.domain}`,
     preview: !Object.values(common.approvals).every(Boolean),
     profile: {
       ...common.profile,
@@ -83,7 +96,7 @@ export function resolveContent(common, locale) {
       motto: locale.motto,
     },
     meta: locale.meta,
-    ui: locale.ui,
+    ui,
     terminal: locale.terminal,
     navigation: locale.navigation,
     sections,

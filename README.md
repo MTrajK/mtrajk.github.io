@@ -1,6 +1,6 @@
 # mtrajk.github.io
 
-Meto Trajkovski's bilingual, JSON-authored CV: a warm static CV, an interactive DEV presentation, and a matching Node/Bun CLI. Built for GitHub Pages at https://mtrajk.me with semantic HTML, plain CSS, and vanilla JavaScript. No application framework, backend, tracking, runtime AI, or simulated shell.
+Meto Trajkovski's bilingual, JSON-authored CV: a warm static CV, an interactive DEV presentation, and a matching Node/Bun CLI. Built for GitHub Pages at the domain configured in `content/common.json`, with semantic HTML, plain CSS, and vanilla JavaScript. No application framework, backend, tracking, runtime AI, or simulated shell.
 
 ## Current status
 
@@ -65,7 +65,7 @@ All application copy, labels, errors, metadata, and artwork are authored in JSON
 
 ## Editing content
 
-1. Edit language-independent links, dates, identifiers, asset references, and record order in `content/common.json`.
+1. Edit the primary hostname once in `content/common.json` under `domain` (hostname only, without a scheme, path, or trailing slash). Builds derive the HTTPS origin, canonical/social/sitemap URLs, terminal prompt, site label, and CLI content endpoint from it. External GitHub, LinkedIn, and project URLs remain explicit links. Edit other language-independent links, dates, identifiers, asset references, and record order in the same file.
 2. Edit matching English/Macedonian text in `content/en.json` and `content/mk.json`. Keep section/item IDs identical across all three files. No arbitrary HTML/Markdown is accepted.
 3. A repeatable record requires a common record (`id`, `tags`, `links`) and matching localized items (`id`, `title`, `subtitle`, `paragraphs`, `bullets`). Arrays determine item order; `sectionOrder` determines section order.
 4. Selected experience is ordered editorially and does not display employment dates or job titles. No employment period is required for publication. The schema still accepts optional legacy `period` data and validates its consistency, but renderers omit it.
@@ -140,7 +140,7 @@ Automated browser coverage includes Chromium, Firefox, WebKit, mobile Chromium a
 
 1. Confirm all missing facts and publication permissions; remove preview wording from the actual copy and review Macedonian. Confirm the approved portrait/ASCII and email; set remaining approvals only after review. Employment dates and job titles are not required.
 2. Run `npm run validate:release`, `npm run check`, and `npm run test:e2e`. Review visual design and keyboard/screen-reader use. Check public project links before launch.
-3. Confirm domain ownership in GitHub before DNS changes. Select GitHub Actions in Pages settings and set `mtrajk.me`. Custom Actions deployment does not need a repository CNAME file.
+3. Confirm ownership of the domain in `content/common.json` before DNS changes. Select GitHub Actions in Pages settings and set that configured domain. Custom Actions deployment does not need a repository CNAME file.
 4. Inspect DNS. Preserve MX/TXT/SPF/DKIM/DMARC records. Set the apex ALIAS/ANAME to `mtrajk.github.io` or use GitHub's currently documented A records. Configure www CNAME to `mtrajk.github.io`. Never use a wildcard DNS record. Enable HTTPS after certificate readiness.
 5. Configure the `github-pages` environment with appropriate owner approvals. Manually run the Pages workflow on master with confirmation `DEPLOY`. It validates/tests before uploading only `dist`.
 6. Verify root/Macedonian pages, HTTPS, www redirect, metadata, assets, 404, deep links, and both public locale endpoints. User-site custom domains also affect project sites: verify Virus Spreading and SlediPratki and their original github.io links/assets. Do not alter unrelated repositories without approval.

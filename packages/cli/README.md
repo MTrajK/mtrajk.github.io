@@ -1,6 +1,6 @@
 # mtrajk
 
-A bilingual CV for Meto Trajkovski, using the same content and commands as the CV/DEV website at https://mtrajk.me.
+A bilingual CV for Meto Trajkovski, using the same content and commands as the CV/DEV website.
 
 This is an unpublished preview. Package name ownership, content, portrait, translations, and publication still require owner approval. The package is intentionally marked private.
 

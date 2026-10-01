@@ -14,17 +14,18 @@ export function createContentLoader(
   const cache = new Map();
   return async (locale) => {
     if (cache.has(locale)) return cache.get(locale);
+    const snapshot = assertContent(snapshots[locale], validate, locale);
     let content;
     if (!offline) {
       try {
         content = await fetchContent(
-          `https://mtrajk.me/data/v1/${locale}.json`,
+          `${snapshot.siteUrl}/data/v1/${locale}.json`,
           { locale, validate, fetcher, timeout },
         );
       } catch {}
     }
     if (!content) {
-      content = assertContent(snapshots[locale], validate, locale);
+      content = snapshot;
       notice(
         interpolate(content.terminal.messages.fallback, {
           locale,
