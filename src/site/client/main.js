@@ -113,7 +113,9 @@ async function setMode(
     });
   if (mode === "dev") terminal.focus();
   else if (focus) {
-    const target = document.querySelector(`#${currentSection()} h1, #${currentSection()} h2`);
+    const target = document.querySelector(
+      `#${currentSection()} h1, #${currentSection()} h2`,
+    );
     if (target instanceof HTMLElement) {
       target.tabIndex = -1;
       target.focus({ preventScroll: true });

@@ -189,25 +189,37 @@ test("inline completion accepts, cycles, preserves history and provides keyboard
   ).toBeVisible();
 });
 
-test("prompt stays at the viewport bottom and focused after commands and clear", async ({ page }) => {
+test("prompt stays at the viewport bottom and focused after commands and clear", async ({
+  page,
+}) => {
   for (const path of ["/", "/mk/"]) {
     await page.goto(`${path}?mode=dev`);
     const input = page.locator("#command-input");
     await expect(input).toBeFocused();
     const panel = page.locator("#terminal-input-panel");
     const initial = await panel.boundingBox();
-    const viewport = await page.evaluate(() => ({ top: visualViewport?.offsetTop ?? 0, height: visualViewport?.height ?? innerHeight }));
-    expect(initial.y + initial.height).toBeCloseTo(viewport.top + viewport.height, 0);
+    const viewport = await page.evaluate(() => ({
+      top: visualViewport?.offsetTop ?? 0,
+      height: visualViewport?.height ?? innerHeight,
+    }));
+    expect(initial.y + initial.height).toBeCloseTo(
+      viewport.top + viewport.height,
+      0,
+    );
     await expect(panel).toHaveCSS("border-top-style", "solid");
-    await input.fill("all"); await input.press("Enter");
+    await input.fill("all");
+    await input.press("Enter");
     await expect(input).toBeFocused();
     await expect(page.locator("#terminal-hint")).toBeInViewport();
     const afterOutput = await panel.boundingBox();
     expect(afterOutput.y).toBeCloseTo(initial.y, 0);
     const output = page.locator("#terminal-output");
-    await output.evaluate(node => { node.scrollTop = 0; });
+    await output.evaluate((node) => {
+      node.scrollTop = 0;
+    });
     expect((await panel.boundingBox()).y).toBeCloseTo(initial.y, 0);
-    await input.fill("clear"); await input.press("Enter");
+    await input.fill("clear");
+    await input.press("Enter");
     await expect(input).toBeFocused();
     expect((await panel.boundingBox()).y).toBeCloseTo(initial.y, 0);
     await expect(page.locator(".terminal-entry")).toHaveCount(0);
@@ -215,6 +227,65 @@ test("prompt stays at the viewport bottom and focused after commands and clear",
     await output.click({ position: { x: 12, y: 110 } });
     await expect(input).toBeFocused();
   }
+});
+
+test("prompt remains visible on short and narrow viewports without stealing selection or link focus", async ({
+  page,
+}) => {
+  await page.goto("/?mode=dev");
+  const input = page.locator("#command-input");
+  await expect(input).toBeFocused();
+  await input.fill("all");
+  await input.press("Enter");
+  for (const viewport of [
+    { width: 320, height: 480 },
+    { width: 844, height: 390 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await expect(input).toBeInViewport();
+    await expect(page.locator("#terminal-hint")).toBeInViewport();
+    await expect
+      .poll(async () => {
+        const panel = await page.locator("#terminal-input-panel").boundingBox();
+        const bottom = await page.evaluate(
+          () => visualViewport.offsetTop + visualViewport.height,
+        );
+        return Math.abs(panel.y + panel.height - bottom);
+      })
+      .toBeLessThan(1);
+    const output = await page.locator("#terminal-output").boundingBox();
+    const panel = await page.locator("#terminal-input-panel").boundingBox();
+    expect(output.y + output.height).toBeCloseTo(panel.y, 0);
+    expect(
+      await page.evaluate(
+        () => document.scrollingElement.scrollHeight <= innerHeight + 1,
+      ),
+    ).toBe(true);
+  }
+  const link = page.locator("#transcript a").first();
+  await link.focus();
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(link).toBeFocused();
+  const output = page.locator("#terminal-output");
+  await output.focus();
+  const selected = await output.evaluate((node) => {
+    const range = document.createRange();
+    range.selectNodeContents(
+      node.querySelector(".terminal-entry:last-child .command-echo"),
+    );
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    node.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return selection.toString();
+  });
+  expect(selected).toContain("all");
+  await expect(output).toBeFocused();
+  await page.evaluate(() => window.getSelection().removeAllRanges());
+  await page.getByRole("button", { name: "CV", exact: true }).click();
+  await expect(page.locator("#cv-view")).toBeVisible();
+  await openDev(page);
+  await expect(input).toBeFocused();
 });
 
 test("DEV is a full-width terminal with one vertical scroll and only the floating toggle", async ({
@@ -252,15 +323,16 @@ test("DEV is a full-width terminal with one vertical scroll and only the floatin
     return {
       width: main.width,
       viewport: document.documentElement.clientWidth,
-      nested: nested.map(node => node.id),
+      nested: nested.map((node) => node.id),
       transcriptFits: transcript.scrollHeight <= transcript.clientHeight + 1,
-      pageScrolls: document.scrollingElement.scrollHeight > window.innerHeight + 1,
+      pageScrolls:
+        document.scrollingElement.scrollHeight > window.innerHeight + 1,
     };
   });
   expect(dimensions.width).toBeCloseTo(dimensions.viewport, 0);
-  expect(dimensions.nested).toBe(0);
+  expect(dimensions.nested).toEqual(["terminal-output"]);
   expect(dimensions.transcriptFits).toBe(true);
-  expect(dimensions.pageScrolls).toBe(true);
+  expect(dimensions.pageScrolls).toBe(false);
   await expect(page.locator("#dev-controls")).toHaveCSS("position", "fixed");
   await page.locator("#command-input").fill("clear");
   await page.locator("#command-input").press("Enter");

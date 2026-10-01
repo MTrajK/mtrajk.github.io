@@ -77,7 +77,7 @@ No GitHub API is called by visitors. Repository metrics are currently omitted. I
 
 English lives at `/`, Macedonian at `/mk/`; the route selects language. There is no automatic locale redirect. UI command tokens remain English. Mode precedence is valid query parameter, saved preference, then CV. Only mode is persisted; command history is session-only. Blocked storage or DEV loading errors keep the CV readable.
 
-DEV is a full-screen terminal with a single document scrollbar. The CV header, navigation, language links, preview banner, and footer are hidden; the same CV/DEV controls move to a floating top-right position and return to the header in CV mode. There are no terminal shortcut or submit buttons. Enter executes the typed command; `lang en` / `lang mk` switches language.
+DEV is a full-screen terminal with a single scrollable output region. The input and help text stay in a separate, bordered bottom panel, including after `clear` and viewport resizing. The prompt receives focus when DEV opens, after commands, and when clicking non-interactive terminal space; text selection, links, and keyboard focus navigation remain available. The CV header, navigation, language links, preview banner, and footer are hidden; the same CV/DEV controls move to a floating top-right position and return to the header in CV mode. There are no terminal shortcut or submit buttons. Enter executes the typed command; `lang en` / `lang mk` switches language.
 
 Command completion follows common shell conventions: inline suggestions accepted with Right Arrow at the end of the input, Tab completion/cycling, Up/Down history, and Escape dismissal. Shift+Tab always navigates focus backwards; Escape followed by Tab leaves the input normally. Completion does not execute commands, replace selected/mid-line text, or intercept IME composition. The shared completion vocabulary also serves the native readline CLI.
 
@@ -126,7 +126,7 @@ npm run assets:portrait -- "C:/path/to/approved-image.png"
 
 By default, the offline Sharp script writes a stripped/optimized WebP and 56-/32-column ASCII arrays under ignored `.artifacts/portrait/`, without changing content or approvals. After owner approval, add `--apply` to write `assets/portrait/portrait.webp`, update the shared JSON artwork/path, and mark portrait approval. Add `--move-source` only when explicitly relocating the supplied image: it preserves the original under `assets/portrait/source.<extension>` and refuses to overwrite an existing source. The current approved original is `assets/portrait/source.jpeg`; regenerate it with `npm run assets:portrait -- assets/portrait/source.jpeg --apply`. No image conversion runs in the browser or CLI. The site build copies only the referenced WebP, not the original source image.
 
-The original MTRAJK wordmark and ASCII portrait are stored in common JSON and shared across web and CLI. The monogram remains a fallback only when no portrait is configured. The build creates localized social-preview PNGs and a favicon using approved identity text, with no third-party fonts or image requests.
+The original MTRAJK wordmark and ASCII portrait are stored in common JSON. Web DEV displays only the wordmark; the ASCII portrait remains available to the CLI, and the CV keeps the image portrait. The monogram remains a fallback only when no portrait is configured. The build creates localized social-preview PNGs and a favicon using approved identity text, with no third-party fonts or image requests.
 
 ## Performance and safety
 

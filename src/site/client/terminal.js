@@ -61,8 +61,14 @@ export async function createTerminal(config, onSection) {
     if (!active()) return;
     const viewport = window.visualViewport;
     const unscaled = viewport && viewport.scale === 1;
-    document.documentElement.style.setProperty("--terminal-height", `${unscaled ? viewport.height : window.innerHeight}px`);
-    document.documentElement.style.setProperty("--terminal-top", `${unscaled ? viewport.offsetTop : 0}px`);
+    document.documentElement.style.setProperty(
+      "--terminal-height",
+      `${unscaled ? viewport.height : window.innerHeight}px`,
+    );
+    document.documentElement.style.setProperty(
+      "--terminal-top",
+      `${unscaled ? viewport.offsetTop : 0}px`,
+    );
   }
   function focusPrompt() {
     if (!active()) return;
@@ -70,14 +76,27 @@ export async function createTerminal(config, onSection) {
     input.focus({ preventScroll: true });
   }
   function restoreFocus() {
-    if (document.activeElement === document.body || document.activeElement === input) focusPrompt();
+    if (
+      document.activeElement === document.body ||
+      document.activeElement === input
+    )
+      focusPrompt();
   }
-  terminalView.addEventListener("click", event => {
-    if (!(event.target instanceof Element) || event.target.closest("a, button, input, textarea, select, summary, [contenteditable]") || window.getSelection()?.toString()) return;
+  terminalView.addEventListener("click", (event) => {
+    if (
+      !(event.target instanceof Element) ||
+      event.target.closest(
+        "a, button, input, textarea, select, summary, [contenteditable]",
+      ) ||
+      window.getSelection()?.toString()
+    )
+      return;
     focusPrompt();
   });
   window.addEventListener("focus", restoreFocus);
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) restoreFocus(); });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) restoreFocus();
+  });
   window.addEventListener("resize", syncViewport);
   window.visualViewport?.addEventListener("resize", syncViewport);
   window.visualViewport?.addEventListener("scroll", syncViewport);
