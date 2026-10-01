@@ -39,33 +39,6 @@ if (
     .png()
     .toBuffer();
   const image = sharp(square);
-  const convert = async (width) => {
-    const height = Math.round(width * 0.48);
-    const { data } = await image
-      .clone()
-      .resize(width, height, { fit: "fill" })
-      .flatten({ background: "#ffffff" })
-      .greyscale()
-      .raw()
-      .toBuffer({ resolveWithObject: true });
-    const ramp = "@%#*+=-:. ";
-    return Array.from({ length: height }, (_, row) =>
-      Array.from(
-        { length: width },
-        (_, col) =>
-          ramp[
-            Math.min(
-              ramp.length - 1,
-              Math.floor((data[row * width + col] / 256) * ramp.length),
-            )
-          ],
-      ).join(""),
-    );
-  };
-  const artwork = {
-    portrait: await convert(56),
-    portraitCompact: await convert(32),
-  };
   await mkdir(directory, { recursive: true });
   await image
     .clone()
@@ -74,7 +47,6 @@ if (
   if (apply) {
     const common = await readJson("content/common.json");
     common.profile.portrait = "/assets/portrait/portrait.webp";
-    common.artwork = { ...common.artwork, ...artwork };
     common.approvals.portrait = true;
     await writeFile(
       resolve(root, "content/common.json"),
@@ -82,15 +54,11 @@ if (
     );
     if (moveSource && source !== archive) await rename(source, archive);
     console.log(
-      `Applied the approved portrait and shared ASCII artwork.${moveSource ? ` Source preserved at ${archive}.` : ""}`,
+      `Applied the approved portrait.${moveSource ? ` Source preserved at ${archive}.` : ""}`,
     );
   } else {
-    await writeFile(
-      resolve(directory, "ascii.json"),
-      JSON.stringify(artwork, null, 2),
-    );
     console.log(
-      "Prepared private review outputs in .artifacts/portrait. Public content and approvals are unchanged. Use --apply only with owner approval.",
+      "Prepared a private review portrait in .artifacts/portrait. Public content and approvals are unchanged. Use --apply only with owner approval.",
     );
   }
 }

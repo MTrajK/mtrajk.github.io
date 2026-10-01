@@ -97,7 +97,7 @@ test("approved selected experience can be released without employment periods", 
   assert.ok(contents.every((content) => !content.preview));
 });
 
-test("approved portrait is relocated, optimized, and shared as ASCII", async () => {
+test("approved image portrait is relocated and optimized", async () => {
   const [content] = await loadContents();
   assert.equal(content.profile.portrait, "/assets/portrait/portrait.webp");
   await access(new URL("../assets/portrait/source.jpeg", import.meta.url));
@@ -108,14 +108,7 @@ test("approved portrait is relocated, optimized, and shared as ASCII", async () 
     (await stat(new URL("../assets/portrait/portrait.webp", import.meta.url)))
       .size < 102400,
   );
-  assert.ok(content.artwork.portrait.length > 0);
-  assert.ok(content.artwork.portrait.every((line) => line.length === 56));
-  assert.ok(
-    content.artwork.portraitCompact.every((line) => line.length === 32),
-  );
-  assert.ok(
-    renderBanner(content, 80).includes(content.artwork.portrait.join("\n")),
-  );
+  assert.equal(renderBanner(content, 80), `${content.artwork.wordmark.join("\n")}\n`);
 });
 
 test("static HTML and command results share facts, and content cannot inject markup", async () => {

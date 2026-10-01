@@ -57,8 +57,6 @@ export interface Content {
   artwork: {
     wordmark: string[];
     compact: string[];
-    portrait: string[];
-    portraitCompact: string[];
     scene: string[];
   };
   sections: Section[];

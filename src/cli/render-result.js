@@ -84,10 +84,5 @@ export function renderBanner(content, width = 80) {
   )
     ? content.artwork.wordmark
     : content.artwork.compact;
-  const portrait =
-    width >= 60 ? content.artwork.portrait : content.artwork.portraitCompact;
-  const fittingPortrait = portrait.every((line) => line.length <= width)
-    ? portrait
-    : [];
-  return `${[...wordmark, "", ...fittingPortrait].map(cleanText).join("\n")}\n`;
+  return `${wordmark.map(cleanText).join("\n")}\n`;
 }

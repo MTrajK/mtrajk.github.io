@@ -116,12 +116,7 @@ export async function loadContents({
       throw new Error(
         `Release blocked; owner approval required: ${pending.join(", ")}`,
       );
-    if (
-      !common.profile.email ||
-      !common.profile.portrait ||
-      !common.artwork.portrait.length ||
-      !common.artwork.portraitCompact.length
-    )
+    if (!common.profile.email || !common.profile.portrait)
       throw new Error("Release requires approved email and portrait assets");
     await readFile(
       new URL(`../${common.profile.portrait.slice(1)}`, import.meta.url),

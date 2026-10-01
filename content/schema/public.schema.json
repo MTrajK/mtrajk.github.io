@@ -339,18 +339,10 @@
     "artwork": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "wordmark",
-        "compact",
-        "portrait",
-        "portraitCompact",
-        "scene"
-      ],
+      "required": ["wordmark", "compact", "scene"],
       "properties": {
         "wordmark": { "$ref": "#/definitions/art" },
         "compact": { "$ref": "#/definitions/art" },
-        "portrait": { "$ref": "#/definitions/art" },
-        "portraitCompact": { "$ref": "#/definitions/art" },
         "scene": { "$ref": "#/definitions/art" }
       }
     },
