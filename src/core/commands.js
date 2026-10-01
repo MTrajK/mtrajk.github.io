@@ -55,7 +55,7 @@ export function safeUrl(value) {
     return false;
   }
 }
-export function getCompletions(input) {
+export function getCompletions(input, extraCommands = []) {
   if (
     typeof input !== "string" ||
     input.length > MAX_INPUT ||
@@ -74,6 +74,7 @@ export function getCompletions(input) {
         ...commands.filter((command) => command !== "lang"),
         ...locales.map((locale) => `lang ${locale}`),
         ...aliases.keys(),
+        ...extraCommands,
       ];
   const candidates = prefix
     ? choices

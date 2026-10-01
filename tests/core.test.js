@@ -32,6 +32,16 @@ test("completion offers only executable commands, aliases, and locale arguments"
       assert.ok(!parseCommand(candidate).error);
 });
 
+test("CV mode switching is a web-only command, not a native CLI command", async () => {
+  assert.equal(parseCommand("cv").error, "unknown");
+  assert.ok(!getCompletions("c").includes("cv"));
+  assert.ok(getCompletions("c", ["cv"]).includes("cv"));
+  for (const content of await loadContents()) {
+    assert.equal(executeCommand("cv", content).type, "error");
+    assert.ok(!executeCommand("help", content).items.some(item => item.command === "cv"));
+  }
+});
+
 test("small command grammar rejects shell syntax, prototype names, and excessive input", () => {
   for (const value of [
     "about; echo hi",

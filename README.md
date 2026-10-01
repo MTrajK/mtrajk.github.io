@@ -6,7 +6,7 @@ Meto Trajkovski's bilingual, JSON-authored CV: a warm static CV, an interactive 
 
 This is a working **preview, not a published release**. The owner's portrait and confirmed email are integrated. Experience is a curated selection of Global Payments and 3Shape engagements, not a complete work history; employment dates and job titles are intentionally omitted. Projects are a selection of personal projects, not a complete portfolio. Final editorial/Macedonian review, npm ownership, and publication authorization remain owner tasks.
 
-Preview pages show a notice and are marked `noindex`; robots disallows crawling. `npm run validate:release` intentionally fails until the approval/data gates are satisfied. The CLI package is intentionally `private: true`. Deployment and publication workflows are manual and require explicit confirmation. Nothing deploys on a pull request or ordinary push.
+Preview pages are marked `noindex` and robots disallows crawling; the visible CV preview banner is intentionally omitted. `npm run validate:release` intentionally fails until the approval/data gates are satisfied. The CLI package is intentionally `private: true`. Deployment and publication workflows are manual and require explicit confirmation. Nothing deploys on a pull request or ordinary push.
 
 ## Development
 
@@ -18,7 +18,7 @@ npm run build
 npm run preview
 ```
 
-Open http://127.0.0.1:4173. Use `/mk/` for Macedonian and `/?mode=dev#experience` for a DEV deep link. `npm run dev` builds and serves; it is deliberately not a watcher. Rebuild after source/JSON changes. The preview server binds to loopback and serves only `dist`.
+Open http://127.0.0.1:4173. Use `/mk/` for Macedonian and `/?mode=dev` to open DEV. Mode switches reset section hashes and start at the introduction; DEV commands do not update the URL. `npm run dev` builds and serves; it is deliberately not a watcher. Rebuild after source/JSON changes. The preview server binds to loopback and serves only `dist`.
 
 ```sh
 npm run validate:content
@@ -77,7 +77,9 @@ No GitHub API is called by visitors. Repository metrics are currently omitted. I
 
 English lives at `/`, Macedonian at `/mk/`; the route selects language. There is no automatic locale redirect. UI command tokens remain English. Mode precedence is valid query parameter, saved preference, then CV. Only mode is persisted; command history is session-only. Blocked storage or DEV loading errors keep the CV readable.
 
-DEV is a full-screen terminal with a single scrollable output region. The input and help text stay in a separate, bordered bottom panel, including after `clear` and viewport resizing. The prompt receives focus when DEV opens, after commands, and when clicking non-interactive terminal space; text selection, links, and keyboard focus navigation remain available. The CV header, navigation, language links, preview banner, and footer are hidden; the same CV/DEV controls move to a floating top-right position and return to the header in CV mode. There are no terminal shortcut or submit buttons. Enter executes the typed command; `lang en` / `lang mk` switches language.
+DEV is a full-screen terminal with a single scrollable output region. The input and help text stay in a separate, bordered bottom panel, including after `clear` and viewport resizing. Each entry into DEV starts a fresh session with a labeled installation simulation and percentage progress; it never downloads or installs an npm package. Input is disabled until the animation completes, switching to CV cancels it, and reduced-motion preferences skip the timed animation. The prompt then receives focus, including after commands and when clicking non-interactive terminal space; text selection, links, and keyboard focus navigation remain available. Each result scrolls to its emphasized command line rather than its end. The CV header, navigation, language links, and footer are hidden; the same CV/DEV controls move to a floating top-right position and return to the header in CV mode. There are no terminal shortcut or submit buttons. Enter executes the typed command; `lang en` / `lang mk` switches language. The web-only `cv` / `mtrajk cv` command returns to the top of the localized CV and appears in web help/completion, never in native CLI help/completion.
+
+CV content is generated into static HTML and needs no blocking content loader. Its navigation uses `aria-current="location"` and an underline to track the visible section while scrolling.
 
 Command completion follows common shell conventions: inline suggestions accepted with Right Arrow at the end of the input, Tab completion/cycling, Up/Down history, and Escape dismissal. Shift+Tab always navigates focus backwards; Escape followed by Tab leaves the input normally. Completion does not execute commands, replace selected/mid-line text, or intercept IME composition. The shared completion vocabulary also serves the native readline CLI.
 

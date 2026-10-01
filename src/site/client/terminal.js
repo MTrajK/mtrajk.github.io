@@ -1,15 +1,10 @@
 import validate from "../../../.generated/validate.js";
 import { fetchContent } from "../../core/content.js";
 import { executeCommand } from "../../core/execute-command.js";
-import {
-  getCompletions,
-  interpolate,
-  sectionForCommand,
-} from "../../core/commands.js";
-import { parseCommand } from "../../core/parse-command.js";
+import { getCompletions, interpolate, MAX_INPUT } from "../../core/commands.js";
 import { element, renderResult } from "./render-result.js";
 
-export async function createTerminal(config, onSection) {
+export async function createTerminal(config, onCv) {
   let content;
   const options = {
     locale: config.locale,
@@ -69,9 +64,15 @@ export async function createTerminal(config, onSection) {
       "--terminal-top",
       `${unscaled ? viewport.offsetTop : 0}px`,
     );
+    const style = getComputedStyle(output);
+    if (output instanceof HTMLElement)
+      output.style.setProperty(
+        "--output-space",
+        `${Math.max(0, output.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom))}px`,
+      );
   }
   function focusPrompt() {
-    if (!active()) return;
+    if (!active() || input.disabled) return;
     syncViewport();
     input.focus({ preventScroll: true });
   }
@@ -105,11 +106,16 @@ export async function createTerminal(config, onSection) {
   const ghostPrefix = document.querySelector("#ghost-prefix");
   const ghostSuffix = document.querySelector("#ghost-suffix");
   const completionStatus = document.querySelector("#completion-status");
+  const installation = element("div", "", "terminal-install");
+  installation.id = "terminal-install";
+  installation.hidden = true;
+  output.prepend(installation);
   const history = [];
   let cursor = 0;
   let draft = "";
-  let lastSection = "intro";
   let started = false;
+  let startupTimer = 0;
+  let startupVersion = 0;
   let dismissed = false;
   let cycle = [];
   let cycleIndex = -1;
@@ -119,8 +125,8 @@ export async function createTerminal(config, onSection) {
     input.selectionEnd === input.value.length;
   function refreshSuggestion() {
     suggestion =
-      !dismissed && atEnd() && document.activeElement === input
-        ? (getCompletions(input.value)[0] ?? "")
+      !input.disabled && !dismissed && atEnd() && document.activeElement === input
+        ? (getCompletions(input.value, ["cv"])[0] ?? "")
         : "";
     ghostPrefix.textContent = suggestion ? input.value : "";
     ghostSuffix.textContent = suggestion.slice(input.value.length);
@@ -139,9 +145,83 @@ export async function createTerminal(config, onSection) {
     input.setSelectionRange(value.length, value.length);
     refreshSuggestion();
   }
-  function run(command, { remember = true, navigate = true } = {}) {
+  function leave() {
+    clearTimeout(startupTimer);
+    startupVersion++;
+    input.disabled = false;
+    terminalView.removeAttribute("aria-busy");
+  }
+  function enter() {
+    leave();
+    const version = startupVersion;
     started = true;
+    input.value = "";
+    input.disabled = true;
+    history.length = 0;
+    cursor = 0;
+    draft = "";
+    resetCompletion();
+    refreshSuggestion();
+    transcript.replaceChildren();
+    welcome.setAttribute("hidden", "");
+    installation.hidden = false;
+    terminalView.setAttribute("aria-busy", "true");
+    status.textContent = content.ui.installDemo;
+    const meter = element("pre", "", "install-meter");
+    meter.setAttribute("role", "progressbar");
+    meter.setAttribute("aria-label", content.ui.installProgress);
+    meter.setAttribute("aria-valuemin", "0");
+    meter.setAttribute("aria-valuemax", "100");
+    const label = element("p", content.ui.installProgress, "install-label");
+    installation.replaceChildren(
+      element("p", `${content.ui.commandPrompt} npm install mtrajk`, "command-echo"),
+      element("p", content.ui.installDemo),
+      label,
+      meter,
+    );
+    let percent = 0;
+    const update = () => {
+      meter.setAttribute("aria-valuenow", String(percent));
+      meter.textContent = `[${"#".repeat(percent / 5)}${"-".repeat(20 - percent / 5)}] ${percent}%`;
+    };
+    const finish = () => {
+      if (version !== startupVersion || !active()) return;
+      label.textContent = content.ui.installReady;
+      input.disabled = false;
+      terminalView.removeAttribute("aria-busy");
+      welcome.removeAttribute("hidden");
+      run("mtrajk intro", { remember: false });
+      output.scrollTop = 0;
+      status.textContent = content.ui.installReady;
+      focusPrompt();
+    };
+    const tick = () => {
+      if (version !== startupVersion || !active()) return;
+      percent += 5;
+      update();
+      startupTimer = window.setTimeout(percent === 100 ? finish : tick, percent === 100 ? 120 : 60);
+    };
+    syncViewport();
+    output.scrollTop = 0;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      percent = 100;
+      update();
+      finish();
+    } else {
+      update();
+      startupTimer = window.setTimeout(tick, 60);
+    }
+  }
+  function run(command, { remember = true } = {}) {
+    if (!active() || input.disabled) return;
+    if (command.length <= MAX_INPUT && /^[ \t]*(?:mtrajk[ \t]+)?cv[ \t]*$/i.test(command)) {
+      input.value = "";
+      onCv();
+      return;
+    }
     const result = executeCommand(command, content);
+    if (result.type === "help")
+      result.items = [...result.items, { command: "cv", description: content.ui.webCv }];
     if (remember && command.trim()) {
       history.push(command);
       if (history.length > 100) history.shift();
@@ -154,13 +234,14 @@ export async function createTerminal(config, onSection) {
         location.origin,
       );
       next.searchParams.set("mode", "dev");
-      next.hash = lastSection;
       location.assign(next.href);
       return;
     }
     if (result.type === "clear") {
       transcript.replaceChildren();
       welcome.setAttribute("hidden", "");
+      installation.hidden = true;
+      output.scrollTop = 0;
       status.textContent = content.ui.cleared;
     } else {
       const entry = element("article", "", "terminal-entry");
@@ -172,16 +253,12 @@ export async function createTerminal(config, onSection) {
       while (transcript.children.length > 50)
         transcript.firstElementChild.remove();
       status.textContent = interpolate(content.ui.resultReady, { command });
-      const section = sectionForCommand(parseCommand(command).command);
-      if (config.sectionIds.includes(section)) {
-        lastSection = section;
-        if (navigate) onSection(section);
-      }
+      syncViewport();
+      output.scrollTop += entry.getBoundingClientRect().top - output.getBoundingClientRect().top - parseFloat(getComputedStyle(output).paddingTop);
     }
     input.value = "";
     resetCompletion();
     refreshSuggestion();
-    output.scrollTop = output.scrollHeight;
     if (remember) focusPrompt();
   }
   form.addEventListener("submit", (event) => {
@@ -199,7 +276,7 @@ export async function createTerminal(config, onSection) {
       return;
     }
     if (event.key === "Tab" && !event.shiftKey && !dismissed && atEnd()) {
-      if (!cycle.length) cycle = getCompletions(input.value);
+      if (!cycle.length) cycle = getCompletions(input.value, ["cv"]);
       if (!cycle.length) return;
       event.preventDefault();
       cycleIndex = (cycleIndex + 1) % cycle.length;
@@ -264,11 +341,9 @@ export async function createTerminal(config, onSection) {
     ghost.scrollLeft = input.scrollLeft;
   });
   return {
-    run,
+    enter,
+    leave,
     focus: focusPrompt,
-    get section() {
-      return lastSection;
-    },
     get started() {
       return started;
     },

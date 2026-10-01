@@ -4,7 +4,129 @@ import AxeBuilder from "@axe-core/playwright";
 const openDev = async (page) => {
   await page.getByRole("button", { name: "DEV", exact: true }).click();
   await expect(page.locator("#dev-view")).toBeVisible();
+  await expect(page.locator("#command-input")).toBeEnabled();
 };
+
+test("DEV installation simulation disables input, repeats, and cancels cleanly", async ({ page }) => {
+  await page.goto("/?mode=cv#projects");
+  await page.clock.install();
+  await page.clock.pauseAt(new Date());
+  const input = page.locator("#command-input");
+  const dev = page.getByRole("button", { name: "DEV", exact: true });
+  const cv = page.getByRole("button", { name: "CV", exact: true });
+  await dev.click();
+  await expect(page.locator("#terminal-install")).toContainText("npm install mtrajk");
+  await expect(page.locator("#terminal-install")).toContainText("simulation");
+  await expect(input).toBeDisabled();
+  await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "0");
+  await expect(page).toHaveURL(/\/\?mode=dev$/);
+  await page.locator("#terminal-form").dispatchEvent("submit");
+  await expect(page.locator(".terminal-entry")).toHaveCount(0);
+  await page.clock.runFor(600);
+  await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "50");
+  await page.clock.runFor(900);
+  await expect(input).toBeEnabled();
+  await expect(input).toBeFocused();
+  await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "100");
+  await cv.click();
+  await expect(page).toHaveURL(/:\d+\/$/);
+  await dev.click();
+  await expect(input).toBeDisabled();
+  await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "0");
+  await cv.click();
+  await page.clock.runFor(3000);
+  await expect(page.locator("#cv-view")).toBeVisible();
+  await expect(page.locator(".terminal-entry")).toHaveCount(0);
+  await dev.click();
+  await page.clock.runFor(1500);
+  await expect(input).toBeEnabled();
+});
+
+test("web CV command has help and completion while results start at their command", async ({ page }) => {
+  await page.goto("/?mode=dev#projects");
+  const input = page.locator("#command-input");
+  await expect(input).toBeFocused();
+  await expect(page).toHaveURL(/\/\?mode=dev$/);
+  for (const command of ["all", "help", "contact"]) {
+    await input.fill(command);
+    await input.press("Enter");
+    const entry = page.locator(".terminal-entry").last();
+    await expect(entry.locator(".command-echo")).toBeInViewport();
+    const position = await entry.evaluate(node => {
+      const output = document.querySelector("#terminal-output");
+      return node.getBoundingClientRect().top - output.getBoundingClientRect().top - parseFloat(getComputedStyle(output).paddingTop);
+    });
+    expect(Math.abs(position)).toBeLessThan(2);
+    await expect(entry.locator(".command-echo")).toHaveCSS("font-weight", "600");
+    if (command === "help") await expect(entry.locator("dt").last()).toHaveText("cv");
+  }
+  await input.fill("cv extra");
+  await input.press("Enter");
+  await expect(page.locator(".terminal-error").last()).toBeVisible();
+  await input.fill("mtrajk c");
+  await input.press("Tab");
+  await input.press("Tab");
+  await input.press("Tab");
+  await expect(input).toHaveValue("mtrajk cv");
+  await input.press("Enter");
+  await expect(page.locator("#cv-view")).toBeVisible();
+  await expect(page).toHaveURL(/:\d+\/$/);
+  expect(await page.evaluate(() => scrollY)).toBe(0);
+});
+
+test("CV has no preview banner and underlines the section in view", async ({ page }) => {
+  await page.goto("/?mode=cv");
+  await expect(page.locator(".preview-banner")).toHaveCount(0);
+  const current = page.locator('.section-nav a[aria-current="location"]');
+  await expect(current).toHaveCount(0);
+  for (const section of ["experience", "projects", "contact"]) {
+    await page.locator(`.section-nav a[data-section="${section}"]`).click();
+    await expect(current).toHaveAttribute("data-section", section);
+    await expect(current).toHaveCSS("text-decoration-line", "underline");
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(current).toHaveCount(0);
+});
+
+test("reduced motion skips the timed animation and bare cv preserves the locale", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const path of ["/", "/mk/"]) {
+    await page.goto(`${path}?mode=dev#experience`);
+    const input = page.locator("#command-input");
+    await expect(input).toBeFocused();
+    await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "100");
+    await expect(page.locator("#dev-view")).not.toHaveAttribute("aria-busy", "true");
+    await input.fill("help");
+    await input.press("Enter");
+    await expect(page.locator(".help-list dt").last()).toHaveText("cv");
+    await input.fill("cv");
+    await input.press("Enter");
+    await expect(page.locator("#cv-view")).toBeVisible();
+    expect(new URL(page.url()).pathname).toBe(path);
+    expect(new URL(page.url()).search).toBe("");
+    expect(new URL(page.url()).hash).toBe("");
+  }
+});
+
+test("returning to CV cancels a pending DEV content load", async ({ page }) => {
+  await page.goto("/?mode=cv#experience");
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route("**/data/v1/**", async route => {
+    await gate;
+    await route.continue();
+  });
+  await page.getByRole("button", { name: "DEV", exact: true }).click();
+  await expect(page.locator("#mode-status")).toContainText("Opening DEV");
+  await page.getByRole("button", { name: "CV", exact: true }).click();
+  release();
+  await expect(page.locator("#cv-view")).toBeVisible();
+  await expect(page.locator("#dev-view")).toBeHidden();
+  await expect(page).toHaveURL(/:\d+\/$/);
+  await openDev(page);
+  await expect(page.locator("#command-input")).toBeFocused();
+  await expect(page.locator("#terminal-install")).toHaveCount(1);
+});
 
 test("Back restores the original CV even after DEV becomes the saved preference", async ({
   page,
@@ -343,7 +465,7 @@ test("DEV is a full-width terminal with one vertical scroll and only the floatin
   await expect(page.locator("#mode-slot .mode-controls")).toBeVisible();
 });
 
-test("mode precedence, context, locale links and history remain predictable", async ({
+test("mode precedence, clean URLs, locale links and history remain predictable", async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -352,12 +474,12 @@ test("mode precedence, context, locale links and history remain predictable", as
   await page.goto("/?mode=cv#projects");
   await expect(page.locator("#cv-view")).toBeVisible();
   await openDev(page);
-  await expect(page.locator(".terminal-entry").last()).toContainText(
-    "Coding Problems",
-  );
+  await expect(page).toHaveURL(/\/\?mode=dev$/);
+  await expect(page.locator(".terminal-entry").last()).toContainText("mtrajk intro");
+  await expect(page.locator(".terminal-entry").last()).not.toContainText("Coding Problems");
   await page.locator("#command-input").fill("mtrajk lang mk");
   await page.locator("#command-input").press("Enter");
-  await expect(page).toHaveURL(/\/mk\/\?mode=dev#projects/);
+  await expect(page).toHaveURL(/\/mk\/\?mode=dev$/);
   await expect(page.locator("#dev-view")).toBeVisible();
   await page.getByRole("button", { name: "CV", exact: true }).click();
   await expect(page.locator("#cv-view")).toBeVisible();

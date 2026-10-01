@@ -263,6 +263,10 @@
         "submit",
         "shortcuts",
         "suggestions",
+        "webCv",
+        "installDemo",
+        "installProgress",
+        "installReady",
         "loading",
         "loadError",
         "transcript",
@@ -277,8 +281,8 @@
         "contactLabel",
         "siteLabel"
       ],
-      "minProperties": 53,
-      "maxProperties": 53,
+      "minProperties": 57,
+      "maxProperties": 57,
       "additionalProperties": { "$ref": "#/definitions/text" }
     },
     "terminal": {
