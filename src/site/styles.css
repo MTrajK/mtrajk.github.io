@@ -631,6 +631,12 @@ summary {
 .section-contact {
   padding-bottom: 80px;
 }
+.section-content > .contact-email {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  overflow-wrap: anywhere;
+}
 .contact-links {
   display: flex;
   flex-wrap: wrap;

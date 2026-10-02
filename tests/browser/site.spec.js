@@ -157,9 +157,10 @@ test("portrait, email, and selected experience stay consistent in both modes", a
         portrait.evaluate((image) => image.complete && image.naturalWidth > 0),
       )
       .toBe(true);
-    await expect(page.locator("#contact")).toContainText(
-      "mtrajk [at] outlook.com",
-    );
+    const contactEmail = page.locator("#contact .contact-email");
+    await expect(contactEmail).toContainText("mtrajk [at] outlook.com");
+    await expect(contactEmail).toHaveCSS("text-decoration-line", "underline");
+    await expect(contactEmail.locator("a")).toHaveCount(0);
     await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
     await expect(page.locator("#experience .experience-item")).toHaveCount(2);
     await expect(page.locator("#experience .period")).toHaveCount(0);

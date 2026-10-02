@@ -45,6 +45,16 @@ export function renderSection(section, content) {
   const list = section.items.length
     ? `<ol class="${section.id}-list">${section.items.map((item, index) => renderItem(item, section, index, content)).join("")}</ol>`
     : "";
+  const contactEmail =
+    section.id === "contact" && profile.email
+      ? `${ui.email}: ${profile.email}`
+      : "";
+  const copy = section.paragraphs
+    .map(
+      (value) =>
+        `<p${value === contactEmail ? ' class="contact-email"' : ""}>${e(value)}</p>`,
+    )
+    .join("");
   const contact =
     section.id === "contact"
       ? `<div class="contact-links">${links(section.links)}</div>${!profile.email ? `<p class="pending-note">${e(ui.emailPending)}</p>` : ""}`
@@ -53,7 +63,7 @@ export function renderSection(section, content) {
     section.id === "hobbies"
       ? `<pre class="hobby-scene" aria-hidden="true">${e(content.artwork.scene.join("\n"))}</pre>`
       : "";
-  return `<section id="${section.id}" class="cv-section section-${section.id}" aria-labelledby="${section.id}-title"><header class="section-heading"><p class="eyebrow">${e(section.kicker)}</p><h2 id="${section.id}-title">${e(section.title)}</h2></header><div class="section-content">${paragraphs(section.paragraphs)}${list}${skillGroups}${scene}${contact}</div></section>`;
+  return `<section id="${section.id}" class="cv-section section-${section.id}" aria-labelledby="${section.id}-title"><header class="section-heading"><p class="eyebrow">${e(section.kicker)}</p><h2 id="${section.id}-title">${e(section.title)}</h2></header><div class="section-content">${copy}${list}${skillGroups}${scene}${contact}</div></section>`;
 }
 function head(content, assets, notFound) {
   const path = content.locale === "en" ? "/" : "/mk/";
