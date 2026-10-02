@@ -148,6 +148,9 @@ test("portrait, email, and selected experience stay consistent in both modes", a
       await page.request.get(`/data/v1/${path === "/" ? "en" : "mk"}.json`)
     ).json();
     const portrait = page.locator(".portrait img");
+    const howIWork = page.locator('.hero-actions a[href="#how-i-work"]');
+    await expect(howIWork).toHaveText(content.ui.howIWorkCta + " ↓");
+    await expect(page.locator('.hero-actions a[href="#projects"]')).toHaveCount(0);
     await expect(portrait).toHaveAttribute("src", content.profile.portrait);
     await expect
       .poll(() =>
