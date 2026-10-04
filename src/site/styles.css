@@ -1171,6 +1171,9 @@ html[data-mode="dev"] body {
   .skill-groups {
     gap: 18px;
   }
+  .hobby-scene {
+    display: none;
+  }
   .projects-item {
     padding-left: 36px;
   }
