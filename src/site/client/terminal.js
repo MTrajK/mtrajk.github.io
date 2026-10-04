@@ -3,6 +3,7 @@ import { fetchContent } from "../../core/content.js";
 import { executeCommand } from "../../core/execute-command.js";
 import { getCompletions, interpolate, MAX_INPUT } from "../../core/commands.js";
 import { element, renderResult } from "./render-result.js";
+import { createReveal, revealUnits } from "../../core/reveal.js";
 
 export async function createTerminal(config, onCv) {
   let content;
@@ -120,6 +121,14 @@ export async function createTerminal(config, onCv) {
   let cycle = [];
   let cycleIndex = -1;
   let suggestion = "";
+  let answer;
+  const motion = matchMedia("(prefers-reduced-motion: reduce)");
+  motion.addEventListener("change", () => {
+    if (motion.matches) answer?.reveal.finish();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) answer?.reveal.finish();
+  });
   const atEnd = () =>
     input.selectionStart === input.value.length &&
     input.selectionEnd === input.value.length;
@@ -145,7 +154,58 @@ export async function createTerminal(config, onCv) {
     input.setSelectionRange(value.length, value.length);
     refreshSuggestion();
   }
+  function cancelAnswer() {
+    if (!answer) return;
+    answer.reveal.cancel();
+    answer.response.removeAttribute("aria-busy");
+    answer.response.style.removeProperty("min-height");
+    answer.skip.remove();
+    answer = undefined;
+  }
+  function revealAnswer(response, command) {
+    const parts = [];
+    const walker = document.createTreeWalker(response, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      parts.push({ node, units: revealUnits(node.textContent) });
+    }
+    const length = parts.reduce((total, part) => total + part.units.length, 0);
+    response.style.minHeight = `${response.getBoundingClientRect().height}px`;
+    response.setAttribute("aria-busy", "true");
+    const links = [...response.querySelectorAll("a")];
+    for (const link of links) link.hidden = true;
+    for (const part of parts) part.node.textContent = "";
+    const skip = element("button", content.ui.showAnswer, "terminal-skip");
+    skip.setAttribute("type", "button");
+    skip.addEventListener("click", () => {
+      answer?.reveal.finish();
+      focusPrompt();
+    });
+    response.before(skip);
+    status.textContent = interpolate(content.ui.revealing, { command });
+    answer = {
+      response,
+      skip,
+      reveal: createReveal(length, position => {
+        for (const part of parts) {
+          const count = Math.min(position, part.units.length);
+          part.node.textContent = part.units.slice(0, count).join("");
+          position -= count;
+        }
+      }, () => {
+        const focused = document.activeElement === skip;
+        response.removeAttribute("aria-busy");
+        response.style.removeProperty("min-height");
+        for (const link of links) link.hidden = false;
+        skip.remove();
+        answer = undefined;
+        status.textContent = interpolate(content.ui.resultReady, { command });
+        if (focused) focusPrompt();
+      }),
+    };
+  }
   function leave() {
+    cancelAnswer();
     clearTimeout(startupTimer);
     startupVersion++;
     input.disabled = false;
@@ -220,6 +280,8 @@ export async function createTerminal(config, onCv) {
       return;
     }
     const result = executeCommand(command, content);
+    if (result.type === "clear" || result.type === "language") cancelAnswer();
+    else answer?.reveal.finish();
     if (result.type === "help")
       result.items = [...result.items, { command: "cv", description: content.ui.webCv }];
     if (remember && command.trim()) {
@@ -245,14 +307,18 @@ export async function createTerminal(config, onCv) {
       status.textContent = content.ui.cleared;
     } else {
       const entry = element("article", "", "terminal-entry");
+      const response = renderResult(result, content);
+      response.className = "terminal-response";
       entry.append(
         element("p", `${content.ui.commandPrompt} ${command}`, "command-echo"),
-        renderResult(result, content),
+        response,
       );
       transcript.append(entry);
       while (transcript.children.length > 50)
         transcript.firstElementChild.remove();
-      status.textContent = interpolate(content.ui.resultReady, { command });
+      if (result.type === "sections" && result.command !== "all" && !motion.matches)
+        revealAnswer(response, command);
+      else status.textContent = interpolate(content.ui.resultReady, { command });
       syncViewport();
       output.scrollTop += entry.getBoundingClientRect().top - output.getBoundingClientRect().top - parseFloat(getComputedStyle(output).paddingTop);
     }
@@ -263,12 +329,14 @@ export async function createTerminal(config, onCv) {
   }
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    run(input.value);
+    if (answer && !input.value.trim()) answer.reveal.finish();
+    else run(input.value);
   });
   input.addEventListener("keydown", (event) => {
     if (event.isComposing || event.ctrlKey || event.metaKey || event.altKey)
       return;
     if (event.key === "Escape") {
+      answer?.reveal.finish();
       dismissed = true;
       cycle = [];
       cycleIndex = -1;

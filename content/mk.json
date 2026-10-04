@@ -57,6 +57,8 @@
     "loadError": "DEV приказот не се вчита. CV-то е достапно. Изберете DEV за повторен обид или освежете ја страницата.",
     "transcript": "Резултати од командите",
     "resultReady": "Резултатот е подготвен: {command}",
+    "revealing": "Се прикажува одговорот: {command}. Притиснете Escape или Прикажи го целиот одговор за да ја прескокнете анимацијата.",
+    "showAnswer": "Прикажи го целиот одговор",
     "cleared": "Приказот е исчистен.",
     "snapshot": "Последен преглед на содржината",
     "buildLabel": "CV / DEV",
@@ -83,7 +85,8 @@
       "version": "mtrajk {version}",
       "languageChanged": "Јазикот е променет во {locale}.",
       "empty": "Започнете со mtrajk help.",
-      "flags": "CLI: --lang en|mk · --offline · --json · --no-color · --help · --version"
+      "revealHint": "Одговорите се прикажуваат постепено. Esc ја прескокнува анимацијата; Ctrl+C ја откажува; пишувањето го прикажува целиот одговор. Користете --no-animation за веднаш да се прикажат одговорите.",
+      "flags": "CLI: --lang en|mk · --offline · --json · --no-color · --no-animation · --help · --version"
     },
     "commandDescriptions": {
       "help": "Листа на команди",

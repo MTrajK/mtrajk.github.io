@@ -275,6 +275,8 @@
         "loadError",
         "transcript",
         "resultReady",
+        "revealing",
+        "showAnswer",
         "cleared",
         "snapshot",
         "buildLabel",
@@ -285,8 +287,8 @@
         "contactLabel",
         "siteLabel"
       ],
-      "minProperties": 57,
-      "maxProperties": 57,
+      "minProperties": 59,
+      "maxProperties": 59,
       "additionalProperties": { "$ref": "#/definitions/text" }
     },
     "terminal": {
@@ -311,10 +313,11 @@
             "version",
             "languageChanged",
             "empty",
+            "revealHint",
             "flags"
           ],
-          "minProperties": 15,
-          "maxProperties": 15,
+          "minProperties": 16,
+          "maxProperties": 16,
           "additionalProperties": { "$ref": "#/definitions/text" }
         },
         "commandDescriptions": {

@@ -57,6 +57,8 @@
     "loadError": "DEV mode couldn't load. Your CV is still available. Select DEV to retry, or reload this page.",
     "transcript": "Command results",
     "resultReady": "Result ready: {command}",
+    "revealing": "Revealing answer: {command}. Press Escape or select Show full answer to skip.",
+    "showAnswer": "Show full answer",
     "cleared": "Transcript cleared.",
     "snapshot": "Content reviewed",
     "buildLabel": "CV / DEV",
@@ -83,7 +85,8 @@
       "version": "mtrajk {version}",
       "languageChanged": "Language changed to {locale}.",
       "empty": "Start with mtrajk help.",
-      "flags": "CLI: --lang en|mk · --offline · --json · --no-color · --help · --version"
+      "revealHint": "Answers reveal progressively. Esc skips; Ctrl+C cancels; typing finishes the answer. Use --no-animation for instant output.",
+      "flags": "CLI: --lang en|mk · --offline · --json · --no-color · --no-animation · --help · --version"
     },
     "commandDescriptions": {
       "help": "List commands",

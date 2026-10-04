@@ -105,7 +105,9 @@ node packages/cli/dist/cli.js
 
 Commands: `help`, `intro`, `about`, `experience`, `strengths`, `skills`, `how-i-work`, `projects`, `hobbies`, `contact`, `all`, `lang en`, `lang mk`, and interactive `clear`. Aliases: `whoami`, `work`, `github`. Web/REPL also accept the `mtrajk` prefix.
 
-Flags: `--lang`, `--offline`, `--json`, `--no-color`, `--help`, `--version`. `NO_COLOR` disables color. `--json` emits only result data on stdout; diagnostics use stderr. Invalid usage exits 2; unavailable/corrupt content without a usable fallback exits 1. No-argument piped use prints intro/help and exits instead of hanging. TTY use starts a small readline prompt with history, completion, Ctrl+C, and Ctrl+D.
+Flags: `--lang`, `--offline`, `--json`, `--no-color`, `--no-animation`, `--help`, `--version`. `NO_COLOR` disables color. `--json` emits only result data on stdout; diagnostics use stderr. Invalid usage exits 2; unavailable/corrupt content without a usable fallback exits 1. No-argument piped use prints intro/help and exits instead of hanging. TTY use starts a small readline prompt with history, completion, Ctrl+C, and Ctrl+D.
+
+Narrative DEV answers reveal in small Unicode-safe chunks, completing within about 1.2 seconds. Web users can select **Show full answer**, press Escape, or press Enter with an empty prompt to skip; a new command completes the previous answer, while `clear` or leaving DEV cancels it. Reduced-motion preferences bypass the effect. Interactive CLI sessions use the same pacing: Escape skips, typing finishes the current answer before echoing input, and Ctrl+C cancels without exiting. Use `--no-animation` for instant interactive output. CLI one-shot commands, pipes, JSON, CI, and dumb terminals are always instant; help, errors, skills, `all`, and ASCII artwork are also instant in both interfaces.
 
 The npm name `mtrajk` is proposed, **not reserved or verified**. Confirm ownership before removing `private`. The same package runs under Node/npm and Bun; `bunx --bun` forces Bun rather than following the Node shebang. Do not advertise `npx mtrajk` as this project until the approved package is actually published.
 

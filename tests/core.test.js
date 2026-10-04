@@ -9,6 +9,38 @@ import {
   getCompletions,
 } from "../src/core/commands.js";
 import { loadContents } from "../scripts/content.mjs";
+import { createReveal, revealUnits } from "../src/core/reveal.js";
+
+test("reveal units preserve graphemes, Macedonian, and complete ANSI colors", () => {
+  assert.deepEqual(revealUnits("\x1b[36me\u0301\u{1d11e}\nМ\x1b[0m"), [
+    "\x1b[36m", "e\u0301", "\u{1d11e}", "\n", "М", "\x1b[0m",
+  ]);
+});
+
+test("progressive reveal is bounded, skippable, and cancellable", context => {
+  context.mock.timers.enable({ apis: ["setTimeout"] });
+  const positions = [];
+  let completed = 0;
+  const first = createReveal(1000, position => positions.push(position), () => completed++);
+  assert.deepEqual(positions, []);
+  context.mock.timers.tick(24);
+  assert.deepEqual(positions, [20]);
+  first.finish();
+  assert.equal(positions.at(-1), 1000);
+  first.finish();
+  context.mock.timers.tick(1200);
+  assert.equal(completed, 1);
+  const cancelled = createReveal(1000, position => positions.push(position), () => completed++);
+  cancelled.cancel();
+  cancelled.finish();
+  context.mock.timers.tick(1200);
+  assert.equal(positions.length, 2);
+  assert.equal(completed, 1);
+  createReveal(100000, position => positions.push(position), () => completed++);
+  for (let tick = 0; tick < 50; tick++) context.mock.timers.tick(24);
+  assert.equal(positions.at(-1), 100000);
+  assert.equal(completed, 2);
+});
 
 test("completion offers only executable commands, aliases, and locale arguments", () => {
   assert.deepEqual(getCompletions("mtrajk a"), ["mtrajk about", "mtrajk all"]);

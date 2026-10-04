@@ -42,6 +42,96 @@ test("DEV installation simulation disables input, repeats, and cancels cleanly",
   await expect(input).toBeEnabled();
 });
 
+for (const path of ["/", "/mk/"]) {
+  test(`DEV answers reveal progressively, skip, and cancel in ${path}`, async ({ page }) => {
+    await page.goto(`${path}?mode=dev`);
+    const input = page.locator("#command-input");
+    await expect(input).toBeFocused();
+    const content = await (await page.request.get(`/data/v1/${path === "/" ? "en" : "mk"}.json`)).json();
+    const now = new Date("2026-01-01T00:00:00Z");
+    await page.clock.install({ time: now });
+    await page.clock.pauseAt(new Date(now.getTime() + 10000));
+    await input.press("Escape");
+    const run = async command => {
+      await input.fill(command);
+      await input.press("Enter");
+      return page.locator(".terminal-response").nth(await page.locator(".terminal-response").count() - 1);
+    };
+    const response = await run("about");
+    await expect(response).toHaveAttribute("aria-busy", "true");
+    await expect(response).toHaveText("");
+    await expect(input).toBeEnabled();
+    const status = await page.locator("#terminal-status").textContent();
+    await page.clock.runFor(24);
+    const partial = await response.textContent();
+    expect(partial.length).toBeGreaterThan(0);
+    await page.clock.runFor(120);
+    expect((await response.textContent()).length).toBeGreaterThan(partial.length);
+    await expect(page.locator("#terminal-status")).toHaveText(status);
+    const output = page.locator("#terminal-output");
+    await output.evaluate(node => { node.scrollTop = 0; });
+    await page.clock.runFor(1200);
+    await expect(response).not.toHaveAttribute("aria-busy", "true");
+    await expect(response.locator("p")).toHaveText(content.sections.find(section => section.id === "about").paragraphs);
+    expect(await output.evaluate(node => node.scrollTop)).toBe(0);
+    const skipped = await run("experience");
+    await expect(skipped).toHaveAttribute("aria-busy", "true");
+    await page.getByRole("button", { name: content.ui.showAnswer, exact: true }).click();
+    await expect(skipped).not.toHaveAttribute("aria-busy", "true");
+    await expect(skipped).toContainText("Global Payments");
+    await expect(input).toBeFocused();
+    const previous = await run("about");
+    await page.clock.runFor(24);
+    const next = await run("contact");
+    await expect(previous).not.toHaveAttribute("aria-busy", "true");
+    await expect(previous.locator("p")).toHaveText(content.sections.find(section => section.id === "about").paragraphs);
+    await expect(next).toHaveAttribute("aria-busy", "true");
+    await input.press("Enter");
+    await expect(next).not.toHaveAttribute("aria-busy", "true");
+    await expect(next.locator("a").first()).toBeVisible();
+    const escaped = await run("about");
+    await input.press("Escape");
+    await expect(escaped).not.toHaveAttribute("aria-busy", "true");
+    const reduced = await run("about");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(reduced).not.toHaveAttribute("aria-busy", "true");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    for (const command of ["all", "help", "unknown"]) {
+      const instant = await run(command);
+      await expect(instant).not.toHaveAttribute("aria-busy", "true");
+      expect((await instant.textContent()).length).toBeGreaterThan(0);
+    }
+    await run("about");
+    await run("clear");
+    await page.clock.runFor(1500);
+    await expect(page.locator(".terminal-entry")).toHaveCount(0);
+    const cancelled = await run("about");
+    await page.clock.runFor(24);
+    const beforeLeave = await cancelled.textContent();
+    await page.getByRole("button", { name: "CV", exact: true }).click();
+    await page.clock.runFor(1500);
+    await expect(page.locator("#cv-view")).toBeVisible();
+    await expect(cancelled).toHaveText(beforeLeave);
+    await expect(cancelled).not.toHaveAttribute("aria-busy", "true");
+    await expect(page.locator(".terminal-skip")).toHaveCount(0);
+  });
+}
+
+test("reduced motion renders DEV answers immediately in both languages", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const path of ["/", "/mk/"]) {
+    await page.goto(`${path}?mode=dev`);
+    const input = page.locator("#command-input");
+    await expect(input).toBeFocused();
+    await input.fill("about");
+    await input.press("Enter");
+    const response = page.locator(".terminal-response").last();
+    await expect(response).not.toHaveAttribute("aria-busy", "true");
+    await expect(response.locator("p").first()).not.toHaveText("");
+    await expect(page.locator(".terminal-skip")).toHaveCount(0);
+  }
+});
+
 test("web CV command has help and completion while results start at their command", async ({ page }) => {
   await page.goto("/?mode=dev#projects");
   const input = page.locator("#command-input");

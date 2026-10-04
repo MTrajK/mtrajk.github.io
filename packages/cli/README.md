@@ -18,12 +18,14 @@ The last command starts an interactive prompt only with terminal input/output. O
 
 Commands: `help`, `intro`, `about`, `experience`, `strengths`, `skills`, `how-i-work`, `projects`, `hobbies`, `contact`, `all`, `lang en`, `lang mk`, and interactive `clear`. Bare commands and the optional `mtrajk` prefix work in the prompt. Aliases: `whoami`, `work`, `github`.
 
-Flags: `--lang en|mk`, `--offline`, `--json`, `--no-color`, `--help`, `--version`. `NO_COLOR` is respected. Diagnostics go to stderr; `--json` writes only JSON to stdout. Unknown input exits with status 2; unrecoverable content errors with status 1. A valid offline fallback is success.
+Flags: `--lang en|mk`, `--offline`, `--json`, `--no-color`, `--no-animation`, `--help`, `--version`. `NO_COLOR` is respected. Diagnostics go to stderr; `--json` writes only JSON to stdout. Unknown input exits with status 2; unrecoverable content errors with status 1. A valid offline fallback is success.
 
 Requires Node 24 or later. The same tarball can run with Bun. `bunx` normally follows the Node shebang; `bunx --bun` requests the Bun runtime. No install scripts, runtime dependencies, telemetry, or shell execution.
 
 Online commands fetch fixed HTTPS locale endpoints under `/data/v1/` with a two-second timeout and a 256 KiB limit. Invalid/unavailable remote data falls back to bundled snapshots. `--offline` suppresses content requests but cannot eliminate an initial npm package download. Fallback snapshots age until the next package release; the diagnostic includes their review date.
 
-The CLI never opens links automatically. ASCII art appears on interactive startup and TTY introductions, not in machine-readable output.
+Interactive narrative answers reveal in fast Unicode-safe chunks. Escape skips the reveal; typing finishes the answer before accepting input; Ctrl+C cancels the current reveal without exiting. Use `--no-animation` for instant answers. One-shot commands, pipes, JSON, CI, dumb terminals, help, errors, skills, and `all` remain instant.
+
+The CLI never opens links automatically. ASCII art appears immediately on interactive startup and TTY introductions, not in machine-readable output.
 
 Apache-2.0. See LICENSE.

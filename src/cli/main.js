@@ -8,6 +8,7 @@ import {
 import { executeCommand } from "../core/execute-command.js";
 import { renderBanner, renderText } from "./render-result.js";
 import { createContentLoader } from "./load-content.js";
+import { createReveal, revealUnits } from "../core/reveal.js";
 
 export function parseArgs(args) {
   const options = {
@@ -15,6 +16,7 @@ export function parseArgs(args) {
     offline: false,
     json: false,
     noColor: false,
+    noAnimation: false,
     help: false,
     version: false,
     command: [],
@@ -29,6 +31,7 @@ export function parseArgs(args) {
     } else if (arg === "--offline") options.offline = true;
     else if (arg === "--json") options.json = true;
     else if (arg === "--no-color") options.noColor = true;
+    else if (arg === "--no-animation") options.noAnimation = true;
     else if (arg === "--help") options.help = true;
     else if (arg === "--version") options.version = true;
     else if (arg.startsWith("-") || /\s/.test(arg)) options.error = true;
@@ -118,9 +121,10 @@ export async function runCli(
         display(executeCommand("help", content));
       return 0;
     }
+    const animate = !options.noAnimation && !env.CI && env.TERM !== "dumb";
     output.write(renderBanner(content, settings.width));
-    display(executeCommand("intro", content));
     output.write(`${content.terminal.messages.hint}\n`);
+    if (animate) output.write(`${content.terminal.messages.revealHint}\n`);
     const rl = createInterface({
       input,
       output,
@@ -128,30 +132,89 @@ export async function runCli(
       historySize: 100,
       completer: (line) => [getCompletions(line), line],
     });
+    const lines = rl[Symbol.asyncIterator]();
+    let reveal;
+    let resolveReveal;
+    let closed = false;
+    let promptShown = false;
     const prompt = () => {
+      if (closed) return;
       rl.setPrompt(`${content.ui.commandPrompt} `);
       rl.prompt();
     };
+    const showPrompt = () => {
+      if (promptShown) promptShown = false;
+      else prompt();
+    };
+    const displayInteractive = async (result) => {
+      if (!animate || result.type !== "sections" || result.command === "all") {
+        display(result);
+        return;
+      }
+      const units = revealUnits(renderText(result, content, settings));
+      let position = 0;
+      await new Promise(resolve => {
+        resolveReveal = resolve;
+        reveal = createReveal(units.length, end => {
+          const chunk = units.slice(position, end).join("");
+          position = end;
+          output.write(chunk);
+        }, () => {
+          reveal = undefined;
+          resolveReveal = undefined;
+          resolve(undefined);
+        });
+      });
+    };
+    const cancelReveal = () => {
+      if (!reveal) return false;
+      reveal.cancel();
+      reveal = undefined;
+      output.write(`${settings.color ? "\x1b[0m" : ""}\n`);
+      const resolve = resolveReveal;
+      resolveReveal = undefined;
+      resolve(undefined);
+      return true;
+    };
+    const skipReveal = (_text, key) => {
+      if (!reveal || (key?.ctrl && ["c", "d"].includes(key.name))) return;
+      reveal.finish();
+      promptShown = true;
+      prompt();
+    };
+    input.prependListener("keypress", skipReveal);
+    rl.on("close", () => {
+      closed = true;
+      cancelReveal();
+    });
     rl.on("SIGINT", () => {
-      if (rl.line) {
+      if (cancelReveal()) output.write(`${content.terminal.messages.cancelled}\n`);
+      else if (rl.line) {
         rl.write(null, { ctrl: true, name: "e" });
         rl.write(null, { ctrl: true, name: "u" });
         output.write(`\n${content.terminal.messages.cancelled}\n`);
         prompt();
       } else rl.close();
     });
-    prompt();
-    for await (const line of rl) {
-      const next = executeCommand(line, content);
-      if (next.type === "clear") output.write("\x1b[2J\x1b[H");
-      else if (next.type === "language") {
-        locale = next.locale;
-        content = await load(locale);
-        output.write(
-          `${interpolate(content.terminal.messages.languageChanged, { locale })}\n`,
-        );
-      } else display(next);
-      prompt();
+    try {
+      await displayInteractive(executeCommand("intro", content));
+      showPrompt();
+      for await (const line of lines) {
+        const next = executeCommand(line, content);
+        if (next.type === "clear") output.write("\x1b[2J\x1b[H");
+        else if (next.type === "language") {
+          locale = next.locale;
+          content = await load(locale);
+          output.write(
+            `${interpolate(content.terminal.messages.languageChanged, { locale })}\n`,
+          );
+        } else await displayInteractive(next);
+        showPrompt();
+      }
+    } finally {
+      input.removeListener("keypress", skipReveal);
+      cancelReveal();
+      rl.close();
     }
     output.write(`\n${content.terminal.messages.goodbye}\n`);
     return 0;

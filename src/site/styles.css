@@ -855,6 +855,19 @@ html[data-mode="dev"] body {
 .terminal-entry .terminal-error {
   color: #f3b7a4;
 }
+.terminal-skip {
+  padding: 6px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #698d89;
+  border-radius: 3px;
+  background: #1b2833;
+  color: #c1f4e5;
+  font: inherit;
+  font-size: 0.75rem;
+}
+.terminal-skip:hover {
+  background: #34434c;
+}
 .terminal-entry .terminal-skills {
   color: #a5b5be;
 }

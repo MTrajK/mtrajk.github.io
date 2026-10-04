@@ -10,12 +10,13 @@ import { executeCommand } from "../src/core/execute-command.js";
 const snapshots = Object.fromEntries(
   (await loadContents()).map((content) => [content.locale, content]),
 );
-function capture() {
+function capture(onWrite = () => {}) {
   let stdout = "",
     stderr = "";
   const output = new Writable({
     write(chunk, _encoding, callback) {
       stdout += chunk.toString();
+      onWrite(stdout, chunk.toString());
       callback();
     },
   });
@@ -88,6 +89,127 @@ test(
   },
 );
 
+for (const locale of ["en", "mk"]) {
+  test(`interactive ${locale} answers stream, skip, and finish before new input`, { timeout: 5000 }, async () => {
+    const content = snapshots[locale];
+    const partial = [];
+    let step = 0;
+    const io = capture((text, chunk) => {
+      if ((step === 0 || step === 2) && chunk.startsWith("\x1b[36m")) {
+        partial.push(chunk);
+        const first = step === 0;
+        step++;
+        setImmediate(() => first
+          ? io.input.write("\x1b")
+          : io.input.write("help\n"));
+      } else if (step === 1 && text.includes(content.ui.commandPrompt)) {
+        step = 2;
+        setImmediate(() => io.input.write("about\n"));
+      } else if (step === 3 && text.includes(executeCommand("help", content).title)) {
+        step = 4;
+        setImmediate(() => io.input.write("\u0004"));
+      }
+    });
+    Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
+    Object.assign(io.output, { isTTY: true, columns: 60 });
+    assert.equal(await runCli(["--offline", "--lang", locale], {
+      ...io, snapshots, version: "0.1.0", env: {},
+    }), 0);
+    assert.equal(step, 4);
+    for (const [index, command] of ["intro", "about"].entries()) {
+      const full = renderText(executeCommand(command, content), content, { width: 60, color: true });
+      assert.ok(partial[index].length < full.length);
+      assert.ok(io.stdout.includes(full));
+    }
+    assert.ok(io.stdout.includes(content.terminal.messages.goodbye));
+    assert.equal(io.input.listenerCount("keypress"), 0);
+    io.input.destroy();
+    io.output.destroy();
+  });
+}
+
+test("Ctrl+C cancels a streaming answer without closing the CLI", { timeout: 5000 }, async () => {
+  let step = 0;
+  const io = capture((text, chunk) => {
+    if (step === 0 && chunk.startsWith("\x1b[36m")) {
+      step = 1;
+      setImmediate(() => io.input.write("\u0003"));
+    } else if (step === 1 && text.includes(snapshots.en.terminal.messages.cancelled)) {
+      step = 2;
+      setImmediate(() => io.input.write("help\n"));
+    } else if (step === 2 && text.includes(executeCommand("help", snapshots.en).title)) {
+      step = 3;
+      setImmediate(() => io.input.write("\u0004"));
+    }
+  });
+  Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
+  Object.assign(io.output, { isTTY: true, columns: 60 });
+  assert.equal(await runCli(["--offline"], { ...io, snapshots, version: "0.1.0", env: {} }), 0);
+  assert.equal(step, 3);
+  assert.ok(io.stdout.includes("\x1b[0m\n"));
+  assert.ok(!io.stdout.includes(snapshots.en.profile.motto));
+  assert.ok(io.stdout.includes(snapshots.en.terminal.messages.goodbye));
+  assert.equal(io.input.listenerCount("keypress"), 0);
+  io.input.destroy();
+  io.output.destroy();
+});
+
+test("closing the terminal cancels reveal timers and removes input listeners", { timeout: 5000 }, async () => {
+  let closing = false;
+  const io = capture((_text, chunk) => {
+    if (!closing && chunk.startsWith("\x1b[36m")) {
+      closing = true;
+      setImmediate(() => io.input.write("\u0004"));
+    }
+  });
+  Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
+  Object.assign(io.output, { isTTY: true, columns: 60 });
+  assert.equal(await runCli(["--offline"], { ...io, snapshots, version: "0.1.0", env: {} }), 0);
+  const completed = io.stdout;
+  await new Promise(resolve => setTimeout(resolve, 50));
+  assert.equal(io.stdout, completed);
+  assert.ok(completed.includes(snapshots.en.terminal.messages.goodbye));
+  assert.equal(io.input.listenerCount("keypress"), 0);
+  io.input.destroy();
+  io.output.destroy();
+});
+
+test("animation opt-out, CI, and dumb terminals print interactive answers instantly", { timeout: 5000 }, async () => {
+  for (const [args, env] of [
+    [["--offline", "--no-animation"], { NO_COLOR: "" }],
+    [["--offline"], { NO_COLOR: "", CI: "1" }],
+    [["--offline"], { TERM: "dumb" }],
+  ]) {
+    const writes = [];
+    let closed = false;
+    const io = capture((text, chunk) => {
+      writes.push(chunk);
+      if (!closed && text.includes(snapshots.en.ui.commandPrompt)) {
+        closed = true;
+        setImmediate(() => io.input.write("\u0004"));
+      }
+    });
+    Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
+    Object.assign(io.output, { isTTY: true, columns: 60 });
+    assert.equal(await runCli(args, { ...io, snapshots, version: "0.1.0", env }), 0);
+    assert.ok(writes.includes(renderText(executeCommand("intro", snapshots.en), snapshots.en, { width: 60 })));
+    assert.ok(!io.stdout.includes(snapshots.en.terminal.messages.revealHint));
+    io.input.destroy();
+    io.output.destroy();
+  }
+});
+
+test("one-shot TTY commands remain instant", async () => {
+  const writes = [];
+  const io = capture((_text, chunk) => writes.push(chunk));
+  Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
+  Object.assign(io.output, { isTTY: true, columns: 60 });
+  assert.equal(await runCli(["about", "--offline"], {
+    ...io, snapshots, version: "0.1.0", env: { NO_COLOR: "" },
+  }), 0);
+  assert.deepEqual(writes, [renderText(executeCommand("about", snapshots.en), snapshots.en, { width: 60 })]);
+});
+
 test("corrupt offline snapshots fail clearly without leaking stack traces", async () => {
   const io = capture();
   const corrupted = { ...snapshots, en: { ...snapshots.en, schemaVersion: 2 } };
@@ -105,6 +227,8 @@ test("corrupt offline snapshots fail clearly without leaking stack traces", asyn
 
 test("CLI flags reject unsupported and ambiguous input", () => {
   assert.equal(parseArgs(["about", "--lang", "mk"]).locale, "mk");
+  assert.equal(parseArgs(["--no-animation"]).error, false);
+  assert.equal(parseArgs(["--no-animation"]).noAnimation, true);
   for (const args of [
     ["--lang"],
     ["--lang", "fr"],
