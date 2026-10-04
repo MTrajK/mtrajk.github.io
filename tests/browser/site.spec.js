@@ -88,6 +88,52 @@ test("CV has no preview banner and underlines the section in view", async ({ pag
   await expect(current).toHaveCount(0);
 });
 
+for (const reducedMotion of ["no-preference", "reduce"]) {
+  test(`phone navigation keeps the active section visible with ${reducedMotion} motion`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion });
+    for (const path of ["/", "/mk/"]) {
+      await page.goto(`${path}?mode=cv`);
+      const nav = page.locator(".section-nav");
+      for (const width of [320, 390, 600]) {
+        await page.setViewportSize({ width, height: 844 });
+        const rows = await nav.locator("a").evaluateAll(links =>
+          links.map(link => link.getBoundingClientRect().top),
+        );
+        expect(new Set(rows).size).toBe(1);
+        for (const section of ["contact", "how-i-work", "about"]) {
+          const scroll = await page.evaluate(id => {
+            const target = document.getElementById(id);
+            const header = document.querySelector(".site-header");
+            window.scrollTo(0, scrollY + target.getBoundingClientRect().top - header.getBoundingClientRect().height - 8);
+            return scrollY;
+          }, section);
+          const active = nav.locator('a[aria-current="location"]');
+          await expect(active).toHaveAttribute("data-section", section);
+          await expect(active).toHaveCSS("text-decoration-line", "underline");
+          await expect.poll(() => active.evaluate(link => {
+            const item = link.getBoundingClientRect();
+            const menu = link.parentElement.getBoundingClientRect();
+            return item.left >= menu.left - 1 && item.right <= menu.right + 1;
+          })).toBe(true);
+          if (section === "contact")
+            await expect.poll(() => nav.evaluate(node =>
+              Math.abs(node.scrollLeft - (node.scrollWidth - node.clientWidth)),
+            )).toBeLessThanOrEqual(1);
+          if (section === "about")
+            await expect.poll(() => nav.evaluate(node => node.scrollLeft)).toBeLessThanOrEqual(1);
+          expect(await page.evaluate(() => scrollY)).toBeCloseTo(scroll, 0);
+        }
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      }
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await expect(nav.locator('a[aria-current="location"]')).toHaveAttribute("data-section", "contact");
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await expect(nav.locator('a[aria-current="location"]')).toHaveCount(0);
+      await expect.poll(() => nav.evaluate(node => node.scrollLeft)).toBeLessThanOrEqual(1);
+    }
+  });
+}
+
 test("reduced motion skips the timed animation and bare cv preserves the locale", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const path of ["/", "/mk/"]) {

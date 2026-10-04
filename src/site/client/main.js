@@ -9,7 +9,8 @@ const modeControls = document.querySelector(".mode-controls");
 const modeSlot = document.querySelector("#mode-slot");
 const floatingControls = document.querySelector("#dev-controls");
 const sections = [...document.querySelectorAll("#cv-view>section")];
-const navigation = [...document.querySelectorAll(".section-nav a")];
+const sectionNav = document.querySelector(".section-nav");
+const navigation = [...sectionNav.querySelectorAll("a")];
 const header = document.querySelector(".site-header");
 let terminal;
 let initialization;
@@ -45,6 +46,20 @@ function updateLocaleLinks() {
     link.setAttribute("href", `${url.pathname}${url.search}${url.hash}`);
   }
 }
+function revealNavigation(link) {
+  if (!link || sectionNav.scrollWidth <= sectionNav.clientWidth) return;
+  const menu = sectionNav.getBoundingClientRect();
+  const item = link.getBoundingClientRect();
+  const offset = item.left < menu.left + 4 ? item.left - menu.left - 4
+    : item.right > menu.right - 4 ? item.right - menu.right + 4 : 0;
+  const left = link === navigation[0] ? 0
+    : link === navigation.at(-1) ? sectionNav.scrollWidth - sectionNav.clientWidth
+    : sectionNav.scrollLeft + offset;
+  sectionNav.scrollTo({
+    left,
+    behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+  });
+}
 function updateNavigation() {
   scrollFrame = 0;
   if (activeMode !== "cv") return;
@@ -52,11 +67,13 @@ function updateNavigation() {
   let section = sections.filter((node) => node.getBoundingClientRect().top <= boundary).at(-1);
   if (window.scrollY > 0 && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2)
     section = sections.at(-1);
+  const previous = navigation.find(link => link.hasAttribute("aria-current"));
+  const current = navigation.find(link => link.getAttribute("data-section") === section?.id);
   for (const link of navigation) {
-    if (link.getAttribute("data-section") === section?.id)
-      link.setAttribute("aria-current", "location");
+    if (link === current) link.setAttribute("aria-current", "location");
     else link.removeAttribute("aria-current");
   }
+  if (current !== previous) revealNavigation(current ?? navigation[0]);
 }
 function scheduleNavigation() {
   if (!scrollFrame) scrollFrame = requestAnimationFrame(updateNavigation);
@@ -142,6 +159,10 @@ window.addEventListener("hashchange", () => {
   scheduleNavigation();
 });
 window.addEventListener("scroll", scheduleNavigation, { passive: true });
-window.addEventListener("resize", scheduleNavigation);
+window.addEventListener("resize", () => {
+  if (activeMode === "cv")
+    revealNavigation(navigation.find(link => link.hasAttribute("aria-current")) ?? navigation[0]);
+  scheduleNavigation();
+});
 new ResizeObserver(scheduleNavigation).observe(cv);
 void setMode(preferredMode());

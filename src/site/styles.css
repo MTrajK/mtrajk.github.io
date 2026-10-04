@@ -1010,6 +1010,11 @@ html[data-mode="dev"] body {
   body {
     font-size: 15px;
   }
+  section,
+  h1,
+  h2 {
+    scroll-margin-top: 140px;
+  }
   .preview-banner {
     font-size: 0.62rem;
     line-height: 1.6;
@@ -1040,13 +1045,23 @@ html[data-mode="dev"] body {
     font-size: 0.65rem;
   }
   .section-nav {
-    gap: 4px 18px;
-    padding-block: 5px;
-    font-size: 0.66rem;
-    min-height: 62px;
+    flex-wrap: nowrap;
+    gap: 18px;
+    overflow-x: auto;
+    padding: 4px;
+    font-size: 0.8rem;
+    min-height: 52px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
   }
   .section-nav a {
-    padding-block: 4px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 4px;
+    white-space: nowrap;
+    outline-offset: 2px;
   }
   .hero {
     grid-template-columns: minmax(0, 1fr);
