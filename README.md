@@ -18,7 +18,7 @@ npm run build
 npm run preview
 ```
 
-Open http://127.0.0.1:4173. Use `/mk/` for Macedonian and `/?mode=dev` to open DEV. Mode switches reset section hashes and start at the introduction; DEV commands do not update the URL. `npm run dev` builds and serves; it is deliberately not a watcher. Rebuild after source/JSON changes. The preview server binds to loopback and serves only `dist`.
+Open http://127.0.0.1:5180. Use `/mk/` for Macedonian and `/?mode=dev` to open DEV. Mode switches reset section hashes and start at the introduction; DEV commands do not update the URL. `npm run dev` builds and serves; it is deliberately not a watcher. Rebuild after source/JSON changes. The preview server binds to loopback and serves only `dist`.
 
 ```sh
 npm run validate:content

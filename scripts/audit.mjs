@@ -25,7 +25,7 @@ try {
     ["mk", "/mk/?mode=cv"],
     ["dev", "/?mode=dev"],
   ]) {
-    const result = await lighthouse(`http://127.0.0.1:4173${path}`, {
+    const result = await lighthouse(`http://127.0.0.1:5180${path}`, {
       port,
       output: "json",
       logLevel: "error",

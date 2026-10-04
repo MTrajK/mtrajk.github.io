@@ -4,7 +4,7 @@ import { resolve, extname, sep } from "node:path";
 import { root } from "./content.mjs";
 
 const directory = resolve(root, "dist");
-const port = Number(process.env.PORT || 4173);
+const port = Number(process.env.PORT || 5180);
 const types = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
