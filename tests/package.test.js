@@ -39,6 +39,20 @@ test("generated pages, snapshots, and CLI do not retain the raw contact address"
     );
 });
 
+test("the built social image is an unchanged copy of the approved static JPEG", async () => {
+  const path = "assets/social/meto-trajkovski-social-card.jpg";
+  const source = await readFile(resolve(root, path));
+  const output = await readFile(resolve(root, "dist", path));
+  assert.deepEqual(output, source);
+  assert.ok(output.length < 102400);
+  for (const page of ["dist/index.html", "dist/mk/index.html"]) {
+    const html = await readFile(resolve(root, page), "utf8");
+    assert.ok(html.includes(path));
+    assert.ok(!html.includes("/assets/social-en.png"));
+    assert.ok(!html.includes("/assets/social-mk.png"));
+  }
+});
+
 test("packed CLI installs outside the monorepo and has no undeclared runtime dependencies", async () => {
   const fixture = await mkdtemp(resolve(tmpdir(), "mtrajk-package-"));
   try {

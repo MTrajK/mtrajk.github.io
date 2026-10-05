@@ -1141,6 +1141,40 @@ test("DEV prompt stays beside its input across phone sizes and rotation", async 
   }
 });
 
+test("social cards expose fixed artwork and localized JSON descriptions without JavaScript", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  try {
+    for (const path of ["/", "/mk/"]) {
+      await page.goto(path);
+      const content = await (await page.request.get(`/data/v1/${path === "/" ? "en" : "mk"}.json`)).json();
+      const imagePath = "/assets/social/meto-trajkovski-social-card.jpg";
+      for (const [attribute, prefix] of [["property", "og"], ["name", "twitter"]]) {
+        await expect(page.locator(`meta[${attribute}="${prefix}:title"]`)).toHaveAttribute("content", "Meto Trajkovski — Product-Minded Software Engineer & Technical Leader");
+        await expect(page.locator(`meta[${attribute}="${prefix}:description"]`)).toHaveAttribute("content", content.profile.headline);
+        await expect(page.locator(`meta[${attribute}="${prefix}:image"]`)).toHaveAttribute("content", `${content.siteUrl}${imagePath}`);
+        await expect(page.locator(`meta[${attribute}="${prefix}:image:alt"]`)).toHaveAttribute("content", "Anime-inspired portrait of Meto Trajkovski beside his name.");
+      }
+      await expect(page).toHaveTitle(content.meta.title);
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", content.meta.description);
+      await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", `${content.siteUrl}${path}`);
+      await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", content.ui.siteLabel);
+      await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute("content", "1200");
+      await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute("content", "630");
+      await expect(page.locator('meta[property="og:image:type"]')).toHaveAttribute("content", "image/jpeg");
+      await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+      const image = await page.request.get(imagePath);
+      expect(image.ok()).toBe(true);
+      expect(image.headers()["content-type"]).toBe("image/jpeg");
+      const bytes = await image.body();
+      expect([...bytes.subarray(0, 2)]).toEqual([255, 216]);
+      expect(bytes.length).toBeLessThan(102400);
+    }
+  } finally {
+    await context.close();
+  }
+});
+
 test("preview metadata, 404 and screenshots", async ({ page }, info) => {
   await page.goto("/");
   const content = await (await page.request.get("/data/v1/en.json")).json();

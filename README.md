@@ -61,7 +61,7 @@ content/common.json + content/en.json / content/mk.json
 - `packages/cli/`: standalone package assembly; the core is not separately published.
 - `dist/`, `.generated/`, package dist, test outputs, and private asset-review outputs are generated/ignored. Do not hand-edit generated content.
 
-All application copy, labels, errors, metadata, and artwork are authored in JSON. Commands, IDs, punctuation, and presentation logic are protocol/code. Existing records can be added/reordered by content edits. A new layout/interaction type still requires code.
+Application copy, labels, errors, SEO metadata, and ASCII artwork are authored in JSON. The social-preview title, image path, dimensions, and image alt text are fixed presentation constants in `src/site/templates/page.js`; social descriptions use each locale's JSON headline. Commands, IDs, punctuation, and presentation logic are protocol/code. Existing records can be added/reordered by content edits. A new layout/interaction type still requires code.
 
 ## Editing content
 
@@ -132,7 +132,7 @@ npm run assets:portrait -- "C:/path/to/approved-image.png"
 
 By default, the offline Sharp script writes a stripped/optimized WebP under ignored `.artifacts/portrait/`, without changing content or approvals. After owner approval, add `--apply` to write `assets/portrait/portrait.webp`, update the shared JSON image path, and mark portrait approval. Add `--move-source` only when explicitly relocating the supplied image: it preserves the original under `assets/portrait/source.<extension>` and refuses to overwrite an existing source. The current approved original is `assets/portrait/source.jpeg`; regenerate it with `npm run assets:portrait -- assets/portrait/source.jpeg --apply`. No image conversion runs in the browser or CLI. The site build copies only the referenced WebP, not the original source image.
 
-The original MTRAJK wordmark is stored in common JSON and shared by web DEV and the CLI. The CV uses the image portrait, with the monogram as a fallback when no portrait is configured. The build creates localized social-preview PNGs and a favicon using approved identity text, with no third-party fonts or image requests.
+The original MTRAJK wordmark is stored in common JSON and shared by web DEV and the CLI. The CV uses the image portrait, with the monogram as a fallback when no portrait is configured. The approved static 1200 × 630 JPEG social card lives at `assets/social/meto-trajkovski-social-card.jpg` (about 43 KiB) and is copied unchanged by the build. Both locales share the fixed title “Meto Trajkovski — Product-Minded Software Engineer & Technical Leader” and image; Open Graph and Twitter descriptions are generated from the localized `headline` in JSON, while the browser title and SEO description continue to use localized `meta` values. Rebuild and deploy after editing those values; social platforms may cache previews. Image dimensions, MIME type, alt text, site name, and alternate locale metadata are included. Preview crawling restrictions remain unchanged. A favicon is generated from approved identity text, with no third-party fonts or image requests.
 
 ## Performance and safety
 

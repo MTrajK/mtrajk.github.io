@@ -6,12 +6,12 @@ import {
   readdir,
   unlink,
 } from "node:fs/promises";
-import { resolve, basename } from "node:path";
+import { resolve, basename, dirname } from "node:path";
 import { gzipSync } from "node:zlib";
 import { build } from "esbuild";
 import sharp from "sharp";
 import { root, loadContents, digest } from "./content.mjs";
-import { renderPage, escapeHtml } from "../src/site/templates/page.js";
+import { renderPage, socialPreview } from "../src/site/templates/page.js";
 import "./generate-validator.mjs";
 
 const contents = await loadContents({
@@ -58,6 +58,13 @@ const assets = {
 const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2d6556"/><text x="15" y="43" fill="#f7f5ef" font-family="monospace" font-size="38">${contents[0].profile.username[0]}</text></svg>`;
 await writeFile(resolve(output, "assets/favicon.svg"), icon);
 await cp(resolve(root, "NOTICE"), resolve(output, "NOTICE.txt"));
+const socialSource = resolve(root, socialPreview.path.slice(1));
+const socialTarget = resolve(output, socialPreview.path.slice(1));
+const socialMetadata = await sharp(socialSource).metadata();
+if (socialMetadata.format !== "jpeg" || socialMetadata.width !== socialPreview.width || socialMetadata.height !== socialPreview.height)
+  throw new Error("Social image must match the configured JPEG dimensions");
+await mkdir(dirname(socialTarget), { recursive: true });
+await cp(socialSource, socialTarget);
 for (const content of contents) {
   const json = JSON.stringify(content);
   await writeFile(resolve(output, `data/v1/${content.locale}.json`), json);
@@ -69,11 +76,6 @@ for (const content of contents) {
     resolve(output, content.locale === "en" ? "index.html" : "mk/index.html"),
     renderPage(content, assets),
   );
-  const e = escapeHtml;
-  const social = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="#f7f5ef"/><path d="M80 100H1120M80 530H1120" stroke="#d9dcd1" stroke-width="2"/><text x="80" y="160" fill="#2d6556" font-size="22" font-family="sans-serif">${e(content.meta.socialLabel)}</text><text x="75" y="310" fill="#292d2a" font-family="serif" font-size="85">${e(content.profile.name)}</text><text x="80" y="395" fill="#2d6556" font-family="serif" font-size="32">${e(content.profile.motto)}</text><text x="80" y="500" fill="#62675f" font-family="monospace" font-size="25">${e(content.ui.siteLabel)} / ${e(content.ui.buildLabel)}</text></svg>`;
-  await sharp(Buffer.from(social))
-    .png()
-    .toFile(resolve(output, `assets/social-${content.locale}.png`));
   if (content.profile.portrait) {
     const source = resolve(root, content.profile.portrait.slice(1));
     const target = resolve(output, content.profile.portrait.slice(1));

@@ -6,6 +6,14 @@ export const escapeHtml = (value) =>
         char
       ],
   );
+export const socialPreview = Object.freeze({
+  title: "Meto Trajkovski — Product-Minded Software Engineer & Technical Leader",
+  path: "/assets/social/meto-trajkovski-social-card.jpg",
+  width: 1200,
+  height: 630,
+  type: "image/jpeg",
+  alt: "Anime-inspired portrait of Meto Trajkovski beside his name.",
+});
 const e = escapeHtml;
 const paragraphs = (values) =>
   values.map((value) => `<p>${e(value)}</p>`).join("");
@@ -79,7 +87,40 @@ function head(content, assets, notFound) {
       .links.filter((link) => link.url.startsWith("https:"))
       .map((link) => link.url),
   }).replace(/</g, "\\u003c");
-  return `<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${e(title)}</title><meta name="description" content="${e(content.meta.description)}"><meta name="theme-color" content="#f7f5ef"><meta name="color-scheme" content="light dark">${content.preview || notFound ? '<meta name="robots" content="noindex,nofollow">' : ""}<link rel="canonical" href="${canonical}"><link rel="alternate" hreflang="en" href="${content.siteUrl}/"><link rel="alternate" hreflang="mk" href="${content.siteUrl}/mk/"><link rel="alternate" hreflang="x-default" href="${content.siteUrl}/"><meta property="og:type" content="website"><meta property="og:title" content="${e(title)}"><meta property="og:description" content="${e(content.meta.description)}"><meta property="og:url" content="${canonical}"><meta property="og:locale" content="${content.locale === "mk" ? "mk_MK" : "en_US"}"><meta property="og:image" content="${content.siteUrl}/assets/social-${content.locale}.png"><meta property="og:image:alt" content="${e(content.profile.name)} — ${e(content.profile.headline)}"><meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="${assets.css}"><script type="application/ld+json">${structured}</script>`;
+  const image = `${content.siteUrl}${socialPreview.path}`;
+  return [
+    '<meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width,initial-scale=1">',
+    `<title>${e(title)}</title>`,
+    `<meta name="description" content="${e(content.meta.description)}">`,
+    '<meta name="theme-color" content="#f7f5ef">',
+    '<meta name="color-scheme" content="light dark">',
+    content.preview || notFound ? '<meta name="robots" content="noindex,nofollow">' : "",
+    `<link rel="canonical" href="${canonical}">`,
+    `<link rel="alternate" hreflang="en" href="${content.siteUrl}/">`,
+    `<link rel="alternate" hreflang="mk" href="${content.siteUrl}/mk/">`,
+    `<link rel="alternate" hreflang="x-default" href="${content.siteUrl}/">`,
+    '<meta property="og:type" content="website">',
+    `<meta property="og:title" content="${e(socialPreview.title)}">`,
+    `<meta property="og:description" content="${e(content.profile.headline)}">`,
+    `<meta property="og:url" content="${canonical}">`,
+    `<meta property="og:site_name" content="${e(content.ui.siteLabel)}">`,
+    `<meta property="og:locale" content="${content.locale === "mk" ? "mk_MK" : "en_US"}">`,
+    `<meta property="og:locale:alternate" content="${content.locale === "mk" ? "en_US" : "mk_MK"}">`,
+    `<meta property="og:image" content="${e(image)}">`,
+    `<meta property="og:image:type" content="${socialPreview.type}">`,
+    `<meta property="og:image:width" content="${socialPreview.width}">`,
+    `<meta property="og:image:height" content="${socialPreview.height}">`,
+    `<meta property="og:image:alt" content="${e(socialPreview.alt)}">`,
+    '<meta name="twitter:card" content="summary_large_image">',
+    `<meta name="twitter:title" content="${e(socialPreview.title)}">`,
+    `<meta name="twitter:description" content="${e(content.profile.headline)}">`,
+    `<meta name="twitter:image" content="${e(image)}">`,
+    `<meta name="twitter:image:alt" content="${e(socialPreview.alt)}">`,
+    '<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">',
+    `<link rel="stylesheet" href="${assets.css}">`,
+    `<script type="application/ld+json">${structured}</script>`,
+  ].join("");
 }
 export function renderPage(content, assets, { notFound = false } = {}) {
   const { ui } = content;

@@ -40,6 +40,33 @@ test("one common domain drives all generated website and terminal URLs", async (
   await assert.rejects(loadContents(data));
 });
 
+test("social metadata keeps its title and image fixed while descriptions follow the JSON headline", async () => {
+  const socialTitle = "Meto Trajkovski — Product-Minded Software Engineer & Technical Leader";
+  for (const original of await loadContents()) {
+    const content = structuredClone(original);
+    content.profile.headline = `${original.profile.headline} A "JSON" headline & <plain text>.`;
+    content.meta.title = "A different browser title";
+    const html = renderPage(content, { css: "/style.css", js: "/main.js" });
+    const meta = (key, attribute = "property") => html.match(new RegExp(`<meta ${attribute}="${key}" content="([^"]*)">`))?.[1];
+    for (const [attribute, prefix] of [["property", "og"], ["name", "twitter"]]) {
+      assert.equal(meta(`${prefix}:title`, attribute), escapeHtml(socialTitle));
+      assert.equal(meta(`${prefix}:description`, attribute), escapeHtml(content.profile.headline));
+      assert.equal(meta(`${prefix}:image`, attribute), `${content.siteUrl}/assets/social/meto-trajkovski-social-card.jpg`);
+      assert.equal(meta(`${prefix}:image:alt`, attribute), "Anime-inspired portrait of Meto Trajkovski beside his name.");
+    }
+    assert.equal(meta("description", "name"), escapeHtml(content.meta.description));
+    assert.ok(html.includes("<title>A different browser title</title>"));
+    assert.equal(meta("og:type"), "website");
+    assert.equal(meta("og:site_name"), content.ui.siteLabel);
+    assert.equal(meta("og:url"), `${content.siteUrl}${content.locale === "en" ? "/" : "/mk/"}`);
+    assert.equal(meta("og:locale:alternate"), content.locale === "en" ? "mk_MK" : "en_US");
+    assert.equal(meta("og:image:width"), "1200");
+    assert.equal(meta("og:image:height"), "630");
+    assert.equal(meta("og:image:type"), "image/jpeg");
+    assert.equal(meta("twitter:card", "name"), "summary_large_image");
+  }
+});
+
 test("selected experience omits dates and retired clients across CV and CLI", async () => {
   for (const content of await loadContents()) {
     const result = executeCommand("experience", content);
