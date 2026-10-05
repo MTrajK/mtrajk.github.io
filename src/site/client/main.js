@@ -46,6 +46,13 @@ function updateLocaleLinks() {
     link.setAttribute("href", `${url.pathname}${url.search}${url.hash}`);
   }
 }
+function updateModeLabels() {
+  const ui = activeMode === "dev" ? terminal.ui : config.ui;
+  const locale = activeMode === "dev" ? terminal.locale : config.locale;
+  modeControls.setAttribute("aria-label", ui.modeLabel);
+  modeControls.setAttribute("lang", locale);
+  floatingControls.setAttribute("lang", locale);
+}
 function revealNavigation(link) {
   if (!link || sectionNav.scrollWidth <= sectionNav.clientWidth) return;
   const menu = sectionNav.getBoundingClientRect();
@@ -78,7 +85,7 @@ function updateNavigation() {
 function scheduleNavigation() {
   if (!scrollFrame) scrollFrame = requestAnimationFrame(updateNavigation);
 }
-async function setMode(mode, { push = false, focus = false } = {}) {
+async function setMode(mode, { push = false, focus = false, fromHistory = false } = {}) {
   const request = ++transition;
   if (mode === "dev") {
     status.textContent = config.ui.loading;
@@ -86,6 +93,9 @@ async function setMode(mode, { push = false, focus = false } = {}) {
       initialization ??= import("./terminal.js").then((module) =>
         module.createTerminal(config, () => {
           void setMode("cv", { push: true, focus: true });
+        }, () => {
+          updateModeLabels();
+          updateLocaleLinks();
         }),
       );
       terminal = await initialization;
@@ -96,6 +106,19 @@ async function setMode(mode, { push = false, focus = false } = {}) {
     }
   }
   if (request !== transition) return;
+  if (mode === "dev" && fromHistory) {
+    const locale = new URL(location.href).searchParams.get("terminalLang");
+    await terminal.restoreLanguage(["en", "mk"].includes(locale) ? locale : config.locale);
+    if (request !== transition) return;
+  }
+  if (mode === "cv" && push && activeMode === "dev" && terminal.locale !== config.locale) {
+    const url = new URL(terminal.locale === "mk" ? "/mk/" : "/", location.origin);
+    url.searchParams.set("mode", "cv");
+    terminal.leave();
+    saveMode("cv");
+    location.assign(url.href);
+    return;
+  }
   const changed = activeMode !== mode;
   const entering = mode === "dev" && (changed || !terminal.started);
   status.textContent = "";
@@ -120,6 +143,8 @@ async function setMode(mode, { push = false, focus = false } = {}) {
   const reset = changed || push || entering;
   const url = reset ? new URL(location.pathname, location.origin) : new URL(location.href);
   if (reset && mode === "dev") url.searchParams.set("mode", "dev");
+  if (mode === "dev") terminal.applyLocaleUrl(url);
+  updateModeLabels();
   history[push ? "pushState" : "replaceState"](
     { ...history.state, mtrajkMode: mode }, "", url,
   );
@@ -152,7 +177,7 @@ for (const button of controls) {
   });
 }
 window.addEventListener("popstate", () => {
-  void setMode(preferredMode(true));
+  void setMode(preferredMode(true), { fromHistory: true });
 });
 window.addEventListener("hashchange", () => {
   updateLocaleLinks();

@@ -18,7 +18,7 @@ npm run build
 npm run preview
 ```
 
-Open http://127.0.0.1:5180. Use `/mk/` for Macedonian and `/?mode=dev` to open DEV. Mode switches reset section hashes and start at the introduction; DEV commands do not update the URL. `npm run dev` builds and serves; it is deliberately not a watcher. Rebuild after source/JSON changes. The preview server binds to loopback and serves only `dist`.
+Open http://127.0.0.1:5180. Use `/mk/` for Macedonian and `/?mode=dev` to open DEV. Mode switches reset section hashes and start at the introduction. DEV section commands do not update the URL; `lang en` / `lang mk` update only the `terminalLang` query parameter without navigating. `npm run dev` builds and serves; it is deliberately not a watcher. Rebuild after source/JSON changes. The preview server binds to loopback and serves only `dist`.
 
 ```sh
 npm run validate:content
@@ -108,6 +108,8 @@ Commands: `help`, `intro`, `about`, `experience`, `strengths`, `skills`, `how-i-
 Flags: `--lang`, `--offline`, `--json`, `--no-color`, `--no-animation`, `--help`, `--version`. `NO_COLOR` disables color. `--json` emits only result data on stdout; diagnostics use stderr. Invalid usage exits 2; unavailable/corrupt content without a usable fallback exits 1. No-argument piped use prints intro/help and exits instead of hanging. TTY use starts a small readline prompt with history, completion, Ctrl+C, and Ctrl+D.
 
 Narrative DEV answers reveal in small Unicode-safe chunks, completing within about 1.2 seconds. Web users can select **Show full answer**, press Escape, or press Enter with an empty prompt to skip; a new command completes the previous answer, while `clear` or leaving DEV cancels it. Reduced-motion preferences bypass the effect. Interactive CLI sessions use the same pacing: Escape skips, typing finishes the current answer before echoing input, and Ctrl+C cancels without exiting. Use `--no-animation` for instant interactive output. CLI one-shot commands, pipes, JSON, CI, and dumb terminals are always instant; help, errors, skills, `all`, and ASCII artwork are also instant in both interfaces.
+
+Web terminal language changes preserve the transcript, history, and input focus. Like other commands, explicit `lang` commands scroll the terminal to their confirmation or error; restoring a terminal language from browser history preserves the reading position. Existing entries retain their language; instructions, accessible labels, and future answers use the selected language. The current CV page and pathname stay unchanged while in DEV. Returning with the CV button or `cv` command adopts the terminal's selected language: if it differs from the page locale, the matching `/` or `/mk/` CV page opens with `mode=cv`; if it is unchanged, CV is shown in place without navigation. `/?mode=dev&terminalLang=mk` and `/mk/?mode=dev&terminalLang=en` restore the terminal language on refresh; the query parameter is omitted when it matches the page locale. Both locale snapshots are version-pinned, cached, and prefetched in DEV. A failed switch leaves the current language usable; subsequent commands wait for a pending switch, and a newer language command takes precedence.
 
 The npm name `mtrajk` is proposed, **not reserved or verified**. Confirm ownership before removing `private`. The same package runs under Node/npm and Bun; `bunx --bun` forces Bun rather than following the Node shebang. Do not advertise `npx mtrajk` as this project until the approved package is actually published.
 

@@ -608,6 +608,304 @@ test("DEV is a full-width terminal with one vertical scroll and only the floatin
   await expect(page.locator("#mode-slot .mode-controls")).toBeVisible();
 });
 
+for (const exit of ["button", "command"]) {
+  test(`returning to CV follows the selected language using the ${exit}`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const [initial, selected] of [["en", "mk"], ["mk", "en"], ["en", "en"], ["mk", "mk"]]) {
+      const initialPath = initial === "mk" ? "/mk/" : "/";
+      const selectedPath = selected === "mk" ? "/mk/" : "/";
+      await page.goto(`${initialPath}?mode=cv`);
+      await expect(page.locator("#cv-view")).toBeVisible();
+      await page.evaluate(() => { document.documentElement.dataset.cvSessionMarker = "original-page"; });
+      const content = await (await page.request.get(`/data/v1/${selected}.json`)).json();
+      await openDev(page);
+      const input = page.locator("#command-input");
+      if (selected !== initial) {
+        await input.fill(`lang ${selected}`);
+        await input.press("Enter");
+        await expect(page.locator("#dev-view")).toHaveAttribute("lang", selected);
+      }
+      if (exit === "button") await page.getByRole("button", { name: "CV", exact: true }).click();
+      else {
+        await input.fill("cv");
+        await input.press("Enter");
+      }
+      await expect(page.locator("#cv-view")).toBeVisible();
+      await expect(page.locator("#dev-view")).toBeHidden();
+      await expect(page.locator("html")).toHaveAttribute("lang", selected);
+      await expect(page.locator("html")).toHaveAttribute("data-mode", "cv");
+      expect(new URL(page.url()).pathname).toBe(selectedPath);
+      expect(new URL(page.url()).searchParams.has("terminalLang")).toBe(false);
+      await expect(page.locator("#about-title")).toHaveText(content.sections.find(section => section.id === "about").title);
+      await expect(page.locator(`.languages a[data-locale="${selected}"]`)).toHaveAttribute("aria-current", "page");
+      await expect(page).toHaveTitle(content.meta.title);
+      if (selected === initial)
+        await expect(page.locator("html")).toHaveAttribute("data-cv-session-marker", "original-page");
+      await page.reload();
+      await expect(page.locator("#cv-view")).toBeVisible();
+      await expect(page.locator("html")).toHaveAttribute("lang", selected);
+    }
+  });
+}
+
+test("terminal language switches in place and CV adopts it only when leaving DEV", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [path, initial, selected] of [["/", "en", "mk"], ["/mk/", "mk", "en"]]) {
+    await page.goto(`${path}?mode=dev`);
+    const input = page.locator("#command-input");
+    await expect(input).toBeFocused();
+    const content = await (await page.request.get(`/data/v1/${selected}.json`)).json();
+    await input.fill("all");
+    await input.press("Enter");
+    const previous = await page.locator("#transcript").textContent();
+    const count = await page.locator(".terminal-entry").count();
+    const output = page.locator("#terminal-output");
+    await output.evaluate(node => { node.scrollTop = 0; });
+    await page.evaluate(() => {
+      const root = document.documentElement;
+      root.dataset.sessionMarker = "same-document";
+      root.dataset.cvFlashed = "false";
+      new MutationObserver(records => {
+        if (root.dataset.mode !== "dev" || records.some(record => record.oldValue === "cv"))
+          root.dataset.cvFlashed = "true";
+      }).observe(root, { attributes: true, attributeFilter: ["data-mode"], attributeOldValue: true });
+    });
+    const languageCommand = `${initial === "en" ? "mtrajk " : ""}lang ${selected}`;
+    await input.fill(languageCommand);
+    await input.press("Enter");
+    await expect(page).toHaveURL(new RegExp(`${path.replaceAll("/", "\\/")}\\?mode=dev&terminalLang=${selected}$`));
+    await expect(page.locator("html")).toHaveAttribute("data-session-marker", "same-document");
+    await expect(page.locator("html")).toHaveAttribute("data-cv-flashed", "false");
+    await expect(page.locator(".terminal-entry").first()).toHaveAttribute("lang", initial);
+    await expect(page.locator("html")).toHaveAttribute("lang", initial);
+    await expect(page.locator("#dev-view")).toHaveAttribute("lang", selected);
+    await expect(page.locator("#cv-view")).toBeHidden();
+    await expect(page.locator("#terminal-hint")).toHaveText(`${content.terminal.messages.hint} ${content.ui.terminalSubtitle}`);
+    await expect(input).toHaveAccessibleName(content.ui.inputLabel);
+    await expect(input).toBeFocused();
+    const languageEntry = page.locator(".terminal-entry").last();
+    await expect(languageEntry.locator(".command-echo")).toBeInViewport();
+    await expect(languageEntry.locator(".terminal-response")).toBeInViewport();
+    const position = await languageEntry.evaluate(node => {
+      const output = document.querySelector("#terminal-output");
+      return node.getBoundingClientRect().top - output.getBoundingClientRect().top - parseFloat(getComputedStyle(output).paddingTop);
+    });
+    expect(Math.abs(position)).toBeLessThan(2);
+    expect((await page.locator("#transcript").textContent()).startsWith(previous)).toBe(true);
+    await expect(page.locator(".terminal-entry")).toHaveCount(count + 1);
+    await expect(page.locator(".terminal-entry").last()).toHaveAttribute("lang", selected);
+    await expect(page.locator(".terminal-entry").last()).toContainText(content.terminal.messages.languageChanged.replace("{locale}", selected));
+    await input.press("ArrowUp");
+    await expect(input).toHaveValue(languageCommand);
+    await input.press("ArrowUp");
+    await expect(input).toHaveValue("all");
+    await input.fill("about");
+    await input.press("Enter");
+    await expect(page.locator(".terminal-entry").last()).toHaveAttribute("lang", selected);
+    await expect(page.locator(".terminal-entry").last().locator("h2")).toHaveText(content.sections.find(section => section.id === "about").title);
+    await page.reload();
+    await expect(input).toBeFocused();
+    await expect(page.locator("#dev-view")).toHaveAttribute("lang", selected);
+    await expect(page.locator("#terminal-hint")).toHaveText(`${content.terminal.messages.hint} ${content.ui.terminalSubtitle}`);
+    await input.fill("cv");
+    await input.press("Enter");
+    await expect(page.locator("#cv-view")).toBeVisible();
+    expect(new URL(page.url()).pathname).toBe(selected === "mk" ? "/mk/" : "/");
+    await expect(page.locator("#intro-title")).toContainText(selected === "en" ? "Meto" : "Мето");
+  }
+});
+
+test("terminal language switches finish progressive answers and localize new reveal controls", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/?mode=dev");
+  const input = page.locator("#command-input");
+  await expect(input).toBeFocused();
+  const en = await (await page.request.get("/data/v1/en.json")).json();
+  const mk = await (await page.request.get("/data/v1/mk.json")).json();
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  const now = new Date("2026-01-01T00:00:00Z");
+  await page.clock.install({ time: now });
+  await page.clock.pauseAt(new Date(now.getTime() + 10000));
+  await input.fill("about");
+  await input.press("Enter");
+  const previous = page.locator(".terminal-entry").nth(1);
+  await page.clock.runFor(24);
+  await expect(previous.locator(".terminal-response")).toHaveAttribute("aria-busy", "true");
+  await input.fill("lang mk");
+  await input.press("Enter");
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "mk");
+  await expect(previous.locator(".terminal-response")).not.toHaveAttribute("aria-busy", "true");
+  await expect(previous.locator(".terminal-response p")).toHaveText(en.sections.find(section => section.id === "about").paragraphs);
+  await expect(previous).toHaveAttribute("lang", "en");
+  await input.fill("about");
+  await input.press("Enter");
+  await expect(page.getByRole("button", { name: mk.ui.showAnswer, exact: true })).toBeVisible();
+  await expect(page.locator(".terminal-entry").last()).toHaveAttribute("lang", "mk");
+  await input.press("Escape");
+  await expect(page.locator(".terminal-entry").last().locator(".terminal-response p")).toHaveText(mk.sections.find(section => section.id === "about").paragraphs);
+});
+
+test("slow terminal language loads queue responses and preserve input drafts", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const now = new Date("2026-01-01T00:00:00Z");
+  await page.clock.install({ time: now });
+  await page.clock.pauseAt(new Date(now.getTime() + 10000));
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  let requests = 0;
+  await page.route(/\/data\/v1\/mk(?:\.[a-f0-9]+)?\.json$/, async route => {
+    requests++;
+    await gate;
+    await route.continue();
+  });
+  await page.goto("/?mode=dev");
+  const input = page.locator("#command-input");
+  await expect(input).toBeFocused();
+  const content = await (await page.request.get("/data/v1/mk.json")).json();
+  const count = await page.locator(".terminal-entry").count();
+  for (const command of ["lang mk", "about", "help"]) {
+    await input.fill(command);
+    await input.press("Enter");
+  }
+  await input.fill("draft");
+  await expect(input).toBeEnabled();
+  await expect(page.locator(".terminal-entry")).toHaveCount(count);
+  release();
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "mk");
+  await expect(page.locator(".terminal-entry")).toHaveCount(count + 3);
+  await expect(page.locator(".terminal-entry").nth(count + 1).locator("h2")).toHaveText(content.sections.find(section => section.id === "about").title);
+  for (const entry of [count, count + 1, count + 2])
+    await expect(page.locator(".terminal-entry").nth(entry)).toHaveAttribute("lang", "mk");
+  await expect(input).toHaveValue("draft");
+  await expect(input).toBeFocused();
+  expect(requests).toBe(1);
+});
+
+test("the latest terminal language request wins and late loads cannot change CV mode", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const now = new Date("2026-01-01T00:00:00Z");
+  await page.clock.install({ time: now });
+  await page.clock.pauseAt(new Date(now.getTime() + 10000));
+  let release;
+  let gate = new Promise(resolve => { release = resolve; });
+  const pattern = /\/data\/v1\/mk(?:\.[a-f0-9]+)?\.json$/;
+  await page.route(pattern, async route => { await gate; await route.continue(); });
+  await page.goto("/?mode=dev");
+  const input = page.locator("#command-input");
+  await expect(input).toBeFocused();
+  for (const command of ["lang mk", "about", "lang en"]) {
+    await input.fill(command);
+    await input.press("Enter");
+  }
+  await expect(page.locator(".terminal-entry").last().locator("h2")).toHaveText("The person behind the code.");
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "en");
+  await expect(page).toHaveURL(/\/\?mode=dev$/);
+  const before = await page.locator("#transcript").textContent();
+  release();
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.mode)).toBe("dev");
+  await input.fill("lang mk");
+  await input.press("Enter");
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "mk");
+  expect((await page.locator("#transcript").textContent()).startsWith(before)).toBe(true);
+  gate = new Promise(resolve => { release = resolve; });
+  await page.goto("/?mode=dev");
+  await expect(input).toBeFocused();
+  for (const command of ["lang mk", "about"]) {
+    await input.fill(command);
+    await input.press("Enter");
+  }
+  await page.getByRole("button", { name: "CV", exact: true }).click();
+  await expect(page.locator("#cv-view")).toBeVisible();
+  release();
+  await page.unrouteAll({ behavior: "wait" });
+  await openDev(page);
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "en");
+  await expect(page).toHaveURL(/\/\?mode=dev$/);
+  await expect(page.locator(".terminal-entry")).toHaveCount(1);
+});
+
+test("failed or mismatched terminal translations keep the session usable and allow retry", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const pattern = /\/data\/v1\/mk(?:\.[a-f0-9]+)?\.json$/;
+  const original = await (await page.request.get("/data/v1/mk.json")).json();
+  for (const failure of ["network", "version", "locale"]) {
+    await page.route(pattern, async route => {
+      if (failure === "network") await route.abort();
+      else await route.fulfill({ json: {
+        ...original,
+        ...(failure === "version" ? { contentVersion: "0".repeat(64) } : { locale: "en" }),
+      } });
+    });
+    await page.goto("/?mode=dev");
+    const input = page.locator("#command-input");
+    await expect(input).toBeFocused();
+    await input.fill("all");
+    await input.press("Enter");
+    await input.fill("lang mk");
+    await input.press("Enter");
+    await expect(page.locator(".terminal-error").last()).toContainText("Couldn't change the terminal language");
+    await expect(page.locator(".terminal-error").last()).toBeInViewport();
+    const position = await page.locator(".terminal-entry").last().evaluate(node => {
+      const output = document.querySelector("#terminal-output");
+      return node.getBoundingClientRect().top - output.getBoundingClientRect().top - parseFloat(getComputedStyle(output).paddingTop);
+    });
+    expect(Math.abs(position)).toBeLessThan(2);
+    await expect(page.locator("#dev-view")).toHaveAttribute("lang", "en");
+    await expect(page).toHaveURL(/\/\?mode=dev$/);
+    await input.fill("about");
+    await input.press("Enter");
+    await expect(page.locator(".terminal-entry").last().locator("h2")).toHaveText("The person behind the code.");
+    await page.unroute(pattern);
+    await input.fill("lang mk");
+    await input.press("Enter");
+    await expect(page.locator("#dev-view")).toHaveAttribute("lang", "mk");
+    await expect(input).toBeFocused();
+  }
+  await page.route(pattern, route => route.abort());
+  await page.goto("/?mode=dev&terminalLang=mk");
+  await expect(page.locator("#command-input")).toBeFocused();
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "en");
+  await expect(page.locator(".terminal-error").last()).toContainText("Couldn't change the terminal language");
+  await expect(page).toHaveURL(/\/\?mode=dev$/);
+});
+
+test("terminal language URLs and browser history restore matching CV locales", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/mk/?mode=dev&terminalLang=en");
+  const input = page.locator("#command-input");
+  await expect(input).toBeFocused();
+  await expect(page.locator("html")).toHaveAttribute("lang", "mk");
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#terminal-hint")).toContainText("Enter runs");
+  await page.goto("/?mode=dev&terminalLang=invalid");
+  await expect(input).toBeFocused();
+  await expect(page).toHaveURL(/\/\?mode=dev$/);
+  await input.fill("lang mk");
+  await input.press("Enter");
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "mk");
+  await page.getByRole("button", { name: "CV", exact: true }).click();
+  await openDev(page);
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "mk");
+  await input.fill("lang en");
+  await input.press("Enter");
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "en");
+  await page.getByRole("button", { name: "CV", exact: true }).click();
+  await expect(page.locator("#cv-view")).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page.goBack();
+  await expect(input).toBeFocused();
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "en");
+  await page.goBack();
+  await expect(page.locator("#cv-view")).toBeVisible();
+  await page.goBack();
+  await expect(input).toBeFocused();
+  await expect(page.locator("#dev-view")).toHaveAttribute("lang", "mk");
+  await expect(page).toHaveURL(/\/\?mode=dev&terminalLang=mk$/);
+  await page.goForward();
+  await expect(page.locator("#cv-view")).toBeVisible();
+  await expect(page.locator("#intro-title")).toContainText("Мето");
+});
+
 test("mode precedence, clean URLs, locale links and history remain predictable", async ({
   page,
 }) => {
@@ -622,7 +920,7 @@ test("mode precedence, clean URLs, locale links and history remain predictable",
   await expect(page.locator(".terminal-entry").last()).not.toContainText("Coding Problems");
   await page.locator("#command-input").fill("mtrajk lang mk");
   await page.locator("#command-input").press("Enter");
-  await expect(page).toHaveURL(/\/mk\/\?mode=dev$/);
+  await expect(page).toHaveURL(/\/\?mode=dev&terminalLang=mk$/);
   await expect(page.locator("#dev-view")).toBeVisible();
   await page.getByRole("button", { name: "CV", exact: true }).click();
   await expect(page.locator("#cv-view")).toBeVisible();

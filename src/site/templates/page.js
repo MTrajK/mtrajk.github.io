@@ -88,6 +88,7 @@ export function renderPage(content, assets, { notFound = false } = {}) {
   const bootstrap = JSON.stringify({
     locale: content.locale,
     contentVersion: content.contentVersion,
+    contentVersions: assets.contentVersions ?? { [content.locale]: content.contentVersion },
     dataUrl: `/data/v1/${content.locale}.${content.contentVersion}.json`,
     ui,
     sectionIds: content.sections.map((s) => s.id),

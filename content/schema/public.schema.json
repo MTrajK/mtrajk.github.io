@@ -273,6 +273,8 @@
         "installReady",
         "loading",
         "loadError",
+        "languageLoading",
+        "languageError",
         "transcript",
         "resultReady",
         "revealing",
@@ -287,8 +289,8 @@
         "contactLabel",
         "siteLabel"
       ],
-      "minProperties": 59,
-      "maxProperties": 59,
+      "minProperties": 61,
+      "maxProperties": 61,
       "additionalProperties": { "$ref": "#/definitions/text" }
     },
     "terminal": {

@@ -5,24 +5,42 @@ import { getCompletions, interpolate, MAX_INPUT } from "../../core/commands.js";
 import { element, renderResult } from "./render-result.js";
 import { createReveal, revealUnits } from "../../core/reveal.js";
 
-export async function createTerminal(config, onCv) {
-  let content;
-  const options = {
-    locale: config.locale,
-    version: config.contentVersion,
-    validate,
-  };
-  try {
-    content = await fetchContent(
-      new URL(config.dataUrl, location.origin).href,
-      options,
-    );
-  } catch {
-    content = await fetchContent(
-      new URL(`/data/v1/${config.locale}.json`, location.origin).href,
-      options,
-    );
+export async function createTerminal(config, onCv, onLanguage = () => {}) {
+  const versions = config.contentVersions ?? { [config.locale]: config.contentVersion };
+  const cache = new Map();
+  function loadLocale(locale) {
+    if (cache.has(locale)) return cache.get(locale);
+    const pending = (async () => {
+      const version = versions[locale];
+      if (!version) throw new Error("Missing locale snapshot");
+      const options = { locale, version, validate };
+      try {
+        return await fetchContent(
+          new URL(`/data/v1/${locale}.${version}.json`, location.origin).href,
+          options,
+        );
+      } catch {
+        return fetchContent(new URL(`/data/v1/${locale}.json`, location.origin).href, options);
+      }
+    })().catch(error => {
+      if (cache.get(locale) === pending) cache.delete(locale);
+      throw error;
+    });
+    cache.set(locale, pending);
+    return pending;
   }
+  let content = await loadLocale(config.locale);
+  let initialLanguageError = false;
+  const preferred = new URL(location.href).searchParams.get("terminalLang");
+  if (["en", "mk"].includes(preferred) && preferred !== content.locale) {
+    try {
+      content = await loadLocale(preferred);
+    } catch {
+      initialLanguageError = true;
+    }
+  }
+  for (const locale of ["en", "mk"])
+    if (locale !== content.locale) void loadLocale(locale).catch(() => {});
   const welcome = document.querySelector("#terminal-welcome");
   const wide = element(
     "pre",
@@ -122,6 +140,10 @@ export async function createTerminal(config, onCv) {
   let cycleIndex = -1;
   let suggestion = "";
   let answer;
+  let languageVersion = 0;
+  let languageChange;
+  let commandQueue = Promise.resolve();
+  let queuedCommands = 0;
   const motion = matchMedia("(prefers-reduced-motion: reduce)");
   motion.addEventListener("change", () => {
     if (motion.matches) answer?.reveal.finish();
@@ -153,6 +175,99 @@ export async function createTerminal(config, onCv) {
     input.value = value;
     input.setSelectionRange(value.length, value.length);
     refreshSuggestion();
+  }
+  function updateTerminalUi() {
+    terminalView.setAttribute("lang", content.locale);
+    document.querySelector("#dev-title").textContent = content.ui.terminalTitle;
+    document.querySelector("#terminal-input-panel").setAttribute("lang", content.locale);
+    form.querySelector("label .sr-only").textContent = content.ui.inputLabel;
+    form.querySelector("label [aria-hidden]").textContent = content.ui.commandPrompt;
+    output.setAttribute("aria-label", content.ui.transcript);
+    document.querySelector("#terminal-hint").textContent =
+      `${content.terminal.messages.hint} ${content.ui.terminalSubtitle}`;
+    status.setAttribute("lang", content.locale);
+    completionStatus.setAttribute("lang", content.locale);
+    refreshSuggestion();
+  }
+  function applyLocaleUrl(url) {
+    if (content.locale === config.locale) url.searchParams.delete("terminalLang");
+    else url.searchParams.set("terminalLang", content.locale);
+  }
+  function appendEntry(response, command) {
+    const entry = element("article", "", "terminal-entry");
+    entry.setAttribute("lang", content.locale);
+    response.className = "terminal-response";
+    entry.append(element("p", `${content.ui.commandPrompt} ${command}`, "command-echo"), response);
+    transcript.append(entry);
+    while (transcript.children.length > 50) transcript.firstElementChild.remove();
+    return entry;
+  }
+  function scrollToEntry(entry) {
+    syncViewport();
+    output.scrollTop += entry.getBoundingClientRect().top - output.getBoundingClientRect().top - parseFloat(getComputedStyle(output).paddingTop);
+  }
+  function changeLanguage(locale, command = undefined, persist = true) {
+    languageChange?.resume();
+    const request = ++languageVersion;
+    const generation = startupVersion;
+    answer?.reveal.finish();
+    status.textContent = interpolate(content.ui.languageLoading, { locale });
+    const promise = (async () => {
+      try {
+        const next = await loadLocale(locale);
+        if (request !== languageVersion || generation !== startupVersion || (command && !active())) return false;
+        const scroll = output.scrollTop;
+        content = next;
+        updateTerminalUi();
+        if (persist) {
+          const url = new URL(location.href);
+          applyLocaleUrl(url);
+          window.history.replaceState(window.history.state, "", url);
+        }
+        const message = interpolate(content.terminal.messages.languageChanged, { locale });
+        let entry;
+        if (command) {
+          const response = element("div");
+          response.append(element("p", message));
+          entry = appendEntry(response, command);
+        }
+        status.textContent = message;
+        if (entry) scrollToEntry(entry);
+        else {
+          syncViewport();
+          output.scrollTop = scroll;
+        }
+        onLanguage();
+        return true;
+      } catch {
+        if (request !== languageVersion || generation !== startupVersion) return false;
+        if (active()) {
+          const entry = appendEntry(renderResult({ type: "error", message: content.ui.languageError }, content), command ?? `lang ${locale}`);
+          if (command) scrollToEntry(entry);
+        } else initialLanguageError = true;
+        status.textContent = content.ui.languageError;
+        return false;
+      } finally {
+        if (request === languageVersion) languageChange = undefined;
+      }
+    })();
+    let resume;
+    const cancelled = new Promise(resolve => { resume = resolve; });
+    languageChange = { promise: Promise.race([promise, cancelled]), resume };
+    return promise;
+  }
+  function queueCommand(command) {
+    const generation = startupVersion;
+    queuedCommands++;
+    commandQueue = commandQueue.then(async () => {
+      try {
+        while (generation === startupVersion && active() && languageChange)
+          await languageChange.promise;
+        if (generation === startupVersion && active()) renderCommand(command);
+      } finally {
+        if (generation === startupVersion) queuedCommands--;
+      }
+    });
   }
   function cancelAnswer() {
     if (!answer) return;
@@ -206,6 +321,11 @@ export async function createTerminal(config, onCv) {
   }
   function leave() {
     cancelAnswer();
+    languageVersion++;
+    languageChange?.resume();
+    languageChange = undefined;
+    commandQueue = Promise.resolve();
+    queuedCommands = 0;
     clearTimeout(startupTimer);
     startupVersion++;
     input.disabled = false;
@@ -225,6 +345,7 @@ export async function createTerminal(config, onCv) {
     transcript.replaceChildren();
     welcome.setAttribute("hidden", "");
     installation.hidden = false;
+    installation.setAttribute("lang", content.locale);
     terminalView.setAttribute("aria-busy", "true");
     status.textContent = content.ui.installDemo;
     const meter = element("pre", "", "install-meter");
@@ -253,6 +374,11 @@ export async function createTerminal(config, onCv) {
       run("mtrajk intro", { remember: false });
       output.scrollTop = 0;
       status.textContent = content.ui.installReady;
+      if (initialLanguageError) {
+        initialLanguageError = false;
+        appendEntry(renderResult({ type: "error", message: content.ui.languageError }, content), "lang");
+        status.textContent = content.ui.languageError;
+      }
       focusPrompt();
     };
     const tick = () => {
@@ -280,25 +406,26 @@ export async function createTerminal(config, onCv) {
       return;
     }
     const result = executeCommand(command, content);
-    if (result.type === "clear" || result.type === "language") cancelAnswer();
-    else answer?.reveal.finish();
-    if (result.type === "help")
-      result.items = [...result.items, { command: "cv", description: content.ui.webCv }];
     if (remember && command.trim()) {
       history.push(command);
       if (history.length > 100) history.shift();
     }
     cursor = history.length;
     draft = "";
-    if (result.type === "language") {
-      const next = new URL(
-        result.locale === "en" ? "/" : "/mk/",
-        location.origin,
-      );
-      next.searchParams.set("mode", "dev");
-      location.assign(next.href);
-      return;
-    }
+    input.value = "";
+    resetCompletion();
+    refreshSuggestion();
+    if (remember) focusPrompt();
+    if (result.type === "language") void changeLanguage(result.locale, command);
+    else if (languageChange || queuedCommands) queueCommand(command);
+    else renderCommand(command);
+  }
+  function renderCommand(command) {
+    const result = executeCommand(command, content);
+    if (result.type === "clear") cancelAnswer();
+    else answer?.reveal.finish();
+    if (result.type === "help")
+      result.items = [...result.items, { command: "cv", description: content.ui.webCv }];
     if (result.type === "clear") {
       transcript.replaceChildren();
       welcome.setAttribute("hidden", "");
@@ -306,26 +433,13 @@ export async function createTerminal(config, onCv) {
       output.scrollTop = 0;
       status.textContent = content.ui.cleared;
     } else {
-      const entry = element("article", "", "terminal-entry");
       const response = renderResult(result, content);
-      response.className = "terminal-response";
-      entry.append(
-        element("p", `${content.ui.commandPrompt} ${command}`, "command-echo"),
-        response,
-      );
-      transcript.append(entry);
-      while (transcript.children.length > 50)
-        transcript.firstElementChild.remove();
+      const entry = appendEntry(response, command);
       if (result.type === "sections" && result.command !== "all" && !motion.matches)
         revealAnswer(response, command);
       else status.textContent = interpolate(content.ui.resultReady, { command });
-      syncViewport();
-      output.scrollTop += entry.getBoundingClientRect().top - output.getBoundingClientRect().top - parseFloat(getComputedStyle(output).paddingTop);
+      scrollToEntry(entry);
     }
-    input.value = "";
-    resetCompletion();
-    refreshSuggestion();
-    if (remember) focusPrompt();
   }
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -408,10 +522,20 @@ export async function createTerminal(config, onCv) {
   input.addEventListener("scroll", () => {
     ghost.scrollLeft = input.scrollLeft;
   });
+  welcome.setAttribute("lang", content.locale);
+  updateTerminalUi();
   return {
     enter,
     leave,
     focus: focusPrompt,
+    applyLocaleUrl,
+    restoreLanguage: locale => changeLanguage(locale, undefined, false),
+    get locale() {
+      return content.locale;
+    },
+    get ui() {
+      return content.ui;
+    },
     get started() {
       return started;
     },

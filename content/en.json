@@ -55,6 +55,8 @@
     "installReady": "Ready. Type help for commands or cv to return to the CV.",
     "loading": "Opening DEV mode…",
     "loadError": "DEV mode couldn't load. Your CV is still available. Select DEV to retry, or reload this page.",
+    "languageLoading": "Changing terminal language to {locale}…",
+    "languageError": "Couldn't change the terminal language. Your current session is unchanged. Try lang en or lang mk again.",
     "transcript": "Command results",
     "resultReady": "Result ready: {command}",
     "revealing": "Revealing answer: {command}. Press Escape or select Show full answer to skip.",
