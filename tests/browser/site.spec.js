@@ -1067,13 +1067,13 @@ test("both modes pass automated accessibility checks and narrow layouts do not o
   }
 });
 
-test("CV topic grids stack and discipline artwork hides on phones", async ({ page }) => {
+test("CV topic grids stack on phones and discipline artwork hides below 900px", async ({ page }) => {
   for (const locale of ["/", "/mk/"]) {
     await page.goto(`${locale}?mode=cv`);
-    for (const width of [320, 360, 390, 430, 600, 768, 844, 1280]) {
+    for (const width of [320, 360, 390, 430, 600, 700, 768, 800, 844, 899, 900, 901, 1280]) {
       await page.setViewportSize({ width, height: width === 844 ? 390 : 844 });
       const scene = page.locator("#hobbies .hobby-scene");
-      if (width <= 600) await expect(scene).toBeHidden();
+      if (width < 900) await expect(scene).toBeHidden();
       else await expect(scene).toBeVisible();
       await expect(page.locator("#hobbies .section-content > p").first()).toBeVisible();
       for (const selector of [".strengths-list", ".how-i-work-list"]) {

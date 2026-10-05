@@ -1023,6 +1023,11 @@ html[data-mode="dev"] body {
     gap: 25px;
   }
 }
+@media (width < 900px) {
+  .hobby-scene {
+    display: none;
+  }
+}
 @media (max-width: 600px) {
   main,
   .site-footer,
@@ -1208,9 +1213,6 @@ html[data-mode="dev"] body {
   }
   .skill-groups {
     gap: 18px;
-  }
-  .hobby-scene {
-    display: none;
   }
   .projects-item {
     padding-left: 36px;
