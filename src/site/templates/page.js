@@ -117,7 +117,7 @@ function head(content, assets, notFound) {
     `<meta name="twitter:description" content="${e(content.profile.headline)}">`,
     `<meta name="twitter:image" content="${e(image)}">`,
     `<meta name="twitter:image:alt" content="${e(socialPreview.alt)}">`,
-    '<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">',
+    `<link rel="icon" href="${e(assets.favicon ?? "/assets/favicon.svg")}" type="image/svg+xml">`,
     `<link rel="stylesheet" href="${assets.css}">`,
     `<script type="application/ld+json">${structured}</script>`,
   ].join("");

@@ -11,7 +11,8 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { root, loadContents } from "../scripts/content.mjs";
+import { root, loadContents, digest } from "../scripts/content.mjs";
+import sharp from "sharp";
 
 const runNpm = (args, cwd) =>
   execFileSync(process.execPath, [process.env.npm_execpath, ...args], {
@@ -37,6 +38,28 @@ test("generated pages, snapshots, and CLI do not retain the raw contact address"
       !(await readFile(resolve(root, file), "utf8")).includes(raw),
       file,
     );
+});
+
+test("the static terminal favicon is copied unchanged with transparent outer edges", async () => {
+  const source = await readFile(resolve(root, "assets/favicon.svg"));
+  const output = await readFile(resolve(root, "dist/assets/favicon.svg"));
+  assert.deepEqual(output, source);
+  const { data, info } = await sharp(output).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  assert.equal(info.width, 64);
+  assert.equal(info.height, 64);
+  const pixel = (x, y) => [...data.subarray((y * info.width + x) * 4, (y * info.width + x) * 4 + 4)];
+  for (let position = 0; position < 64; position++) {
+    for (const [x, y] of [[position, 0], [position, 63], [0, position], [63, position]])
+      assert.equal(pixel(x, y)[3], 0);
+  }
+  assert.deepEqual(pixel(10, 32), [41, 45, 42, 255]);
+  assert.deepEqual(pixel(18, 36), [247, 245, 239, 255]);
+  assert.deepEqual(pixel(44, 43), [168, 198, 170, 255]);
+  const href = `/assets/favicon.svg?v=${digest(source).slice(0, 12)}`;
+  for (const page of ["dist/index.html", "dist/mk/index.html", "dist/404.html"]) {
+    const html = await readFile(resolve(root, page), "utf8");
+    assert.ok(html.includes(`<link rel="icon" href="${href}" type="image/svg+xml">`));
+  }
 });
 
 test("the built social image is an unchanged copy of the approved static JPEG", async () => {

@@ -50,13 +50,15 @@ const css = await build({
   legalComments: "none",
 });
 const cssEntry = Object.keys(css.metafile.outputs)[0];
+const faviconSource = resolve(root, "assets/favicon.svg");
+const favicon = await readFile(faviconSource);
 const assets = {
   js: `/assets/${basename(jsEntry)}`,
+  favicon: `/assets/favicon.svg?v=${digest(favicon).slice(0, 12)}`,
   css: `/assets/${basename(cssEntry)}`,
   contentVersions: Object.fromEntries(contents.map(content => [content.locale, content.contentVersion])),
 };
-const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2d6556"/><text x="15" y="43" fill="#f7f5ef" font-family="monospace" font-size="38">${contents[0].profile.username[0]}</text></svg>`;
-await writeFile(resolve(output, "assets/favicon.svg"), icon);
+await cp(faviconSource, resolve(output, "assets/favicon.svg"));
 await cp(resolve(root, "NOTICE"), resolve(output, "NOTICE.txt"));
 const socialSource = resolve(root, socialPreview.path.slice(1));
 const socialTarget = resolve(output, socialPreview.path.slice(1));

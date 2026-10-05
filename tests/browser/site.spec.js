@@ -1189,6 +1189,13 @@ test("preview metadata, 404 and screenshots", async ({ page }, info) => {
       await page.locator('script[type="application/ld+json"]').textContent(),
     )["@type"],
   ).toBe("Person");
+  const favicon = page.locator('link[rel="icon"]');
+  await expect(favicon).toHaveAttribute("type", "image/svg+xml");
+  await expect(favicon).toHaveAttribute("href", /\/assets\/favicon\.svg\?v=[a-f0-9]{12}$/);
+  const icon = await page.request.get(await favicon.getAttribute("href"));
+  expect(icon.ok()).toBe(true);
+  expect(icon.headers()["content-type"]).toBe("image/svg+xml");
+  expect(await icon.text()).toContain("MTRAJK terminal mark: m underscore");
   await page.screenshot({ path: info.outputPath("cv.png"), fullPage: true });
   await openDev(page);
   await page.screenshot({ path: info.outputPath("dev.png"), fullPage: true });
