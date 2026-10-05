@@ -8,6 +8,7 @@ import {
   writeFile,
   rm,
   readdir,
+  access,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
@@ -40,25 +41,42 @@ test("generated pages, snapshots, and CLI do not retain the raw contact address"
     );
 });
 
-test("the static terminal favicon is copied unchanged with transparent outer edges", async () => {
-  const source = await readFile(resolve(root, "assets/favicon.svg"));
-  const output = await readFile(resolve(root, "dist/assets/favicon.svg"));
-  assert.deepEqual(output, source);
-  const { data, info } = await sharp(output).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  assert.equal(info.width, 64);
-  assert.equal(info.height, 64);
-  const pixel = (x, y) => [...data.subarray((y * info.width + x) * 4, (y * info.width + x) * 4 + 4)];
-  for (let position = 0; position < 64; position++) {
-    for (const [x, y] of [[position, 0], [position, 63], [0, position], [63, position]])
-      assert.equal(pixel(x, y)[3], 0);
+test("device favicon files are copied unchanged without publishing design history", async () => {
+  const files = ["favicon.ico", "favicon-16x16.png", "favicon-32x32.png", "apple-touch-icon.png", "android-chrome-192x192.png", "android-chrome-512x512.png", "site.webmanifest"];
+  const sizes = { "favicon-16x16.png": 16, "favicon-32x32.png": 32, "apple-touch-icon.png": 180, "android-chrome-192x192.png": 192, "android-chrome-512x512.png": 512 };
+  const hrefs = {};
+  for (const file of files) {
+    const source = await readFile(resolve(root, "assets/favicon", file));
+    const output = await readFile(resolve(root, "dist/assets/favicon", file));
+    assert.deepEqual(output, source);
+    hrefs[file] = `/assets/favicon/${file}?v=${digest(source).slice(0, 12)}`;
+    if (sizes[file]) {
+      const metadata = await sharp(output).metadata();
+      assert.equal(metadata.format, "png");
+      assert.equal(metadata.width, sizes[file]);
+      assert.equal(metadata.height, sizes[file]);
+    }
   }
-  assert.deepEqual(pixel(10, 32), [41, 45, 42, 255]);
-  assert.deepEqual(pixel(18, 36), [247, 245, 239, 255]);
-  assert.deepEqual(pixel(44, 43), [168, 198, 170, 255]);
-  const href = `/assets/favicon.svg?v=${digest(source).slice(0, 12)}`;
+  const ico = await readFile(resolve(root, "dist/favicon.ico"));
+  assert.deepEqual(ico, await readFile(resolve(root, "assets/favicon/favicon.ico")));
+  assert.deepEqual([...ico.subarray(0, 4)], [0, 0, 1, 0]);
+  const manifest = JSON.parse(await readFile(resolve(root, "dist/assets/favicon/site.webmanifest"), "utf8"));
+  assert.equal(manifest.name, "Meto Trajkovski");
+  assert.equal(manifest.short_name, "mtrajk");
+  assert.equal(manifest.start_url, "/");
+  assert.equal(manifest.display, "browser");
+  assert.deepEqual(manifest.icons, [
+    { src: "android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+    { src: "android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+  ]);
+  await access(resolve(root, "assets/favicon/favicon designs"));
+  await assert.rejects(access(resolve(root, "dist/assets/favicon/favicon designs")), { code: "ENOENT" });
+  assert.deepEqual((await readdir(resolve(root, "dist/assets/favicon"))).sort(), [...files].sort());
   for (const page of ["dist/index.html", "dist/mk/index.html", "dist/404.html"]) {
     const html = await readFile(resolve(root, page), "utf8");
-    assert.ok(html.includes(`<link rel="icon" href="${href}" type="image/svg+xml">`));
+    for (const file of ["favicon.ico", "favicon-16x16.png", "favicon-32x32.png", "apple-touch-icon.png", "site.webmanifest"])
+      assert.ok(html.includes(hrefs[file]));
+    assert.ok(!html.includes("/assets/favicon.svg"));
   }
 });
 

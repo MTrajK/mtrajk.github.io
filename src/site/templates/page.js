@@ -14,6 +14,15 @@ export const socialPreview = Object.freeze({
   type: "image/jpeg",
   alt: "Anime-inspired portrait of Meto Trajkovski beside his name.",
 });
+export const faviconFiles = Object.freeze([
+  "favicon.ico",
+  "favicon-16x16.png",
+  "favicon-32x32.png",
+  "apple-touch-icon.png",
+  "android-chrome-192x192.png",
+  "android-chrome-512x512.png",
+  "site.webmanifest",
+]);
 const e = escapeHtml;
 const paragraphs = (values) =>
   values.map((value) => `<p>${e(value)}</p>`).join("");
@@ -88,6 +97,7 @@ function head(content, assets, notFound) {
       .map((link) => link.url),
   }).replace(/</g, "\\u003c");
   const image = `${content.siteUrl}${socialPreview.path}`;
+  const favicon = file => e(assets.favicons?.[file] ?? `/assets/favicon/${file}`);
   return [
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width,initial-scale=1">',
@@ -117,7 +127,11 @@ function head(content, assets, notFound) {
     `<meta name="twitter:description" content="${e(content.profile.headline)}">`,
     `<meta name="twitter:image" content="${e(image)}">`,
     `<meta name="twitter:image:alt" content="${e(socialPreview.alt)}">`,
-    `<link rel="icon" href="${e(assets.favicon ?? "/assets/favicon.svg")}" type="image/svg+xml">`,
+    `<link rel="icon" href="${favicon("favicon.ico")}" type="image/x-icon">`,
+    `<link rel="icon" href="${favicon("favicon-32x32.png")}" type="image/png" sizes="32x32">`,
+    `<link rel="icon" href="${favicon("favicon-16x16.png")}" type="image/png" sizes="16x16">`,
+    `<link rel="apple-touch-icon" href="${favicon("apple-touch-icon.png")}" sizes="180x180">`,
+    `<link rel="manifest" href="${favicon("site.webmanifest")}">`,
     `<link rel="stylesheet" href="${assets.css}">`,
     `<script type="application/ld+json">${structured}</script>`,
   ].join("");

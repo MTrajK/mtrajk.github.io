@@ -11,7 +11,7 @@ import { gzipSync } from "node:zlib";
 import { build } from "esbuild";
 import sharp from "sharp";
 import { root, loadContents, digest } from "./content.mjs";
-import { renderPage, socialPreview } from "../src/site/templates/page.js";
+import { renderPage, socialPreview, faviconFiles } from "../src/site/templates/page.js";
 import "./generate-validator.mjs";
 
 const contents = await loadContents({
@@ -50,15 +50,23 @@ const css = await build({
   legalComments: "none",
 });
 const cssEntry = Object.keys(css.metafile.outputs)[0];
-const faviconSource = resolve(root, "assets/favicon.svg");
-const favicon = await readFile(faviconSource);
+const faviconDirectory = resolve(root, "assets/favicon");
+const faviconOutput = resolve(output, "assets/favicon");
+await mkdir(faviconOutput, { recursive: true });
+const favicons = {};
+for (const file of faviconFiles) {
+  const source = resolve(faviconDirectory, file);
+  const data = await readFile(source);
+  favicons[file] = `/assets/favicon/${file}?v=${digest(data).slice(0, 12)}`;
+  await cp(source, resolve(faviconOutput, file));
+}
+await cp(resolve(faviconDirectory, "favicon.ico"), resolve(output, "favicon.ico"));
 const assets = {
   js: `/assets/${basename(jsEntry)}`,
-  favicon: `/assets/favicon.svg?v=${digest(favicon).slice(0, 12)}`,
+  favicons,
   css: `/assets/${basename(cssEntry)}`,
   contentVersions: Object.fromEntries(contents.map(content => [content.locale, content.contentVersion])),
 };
-await cp(faviconSource, resolve(output, "assets/favicon.svg"));
 await cp(resolve(root, "NOTICE"), resolve(output, "NOTICE.txt"));
 const socialSource = resolve(root, socialPreview.path.slice(1));
 const socialTarget = resolve(output, socialPreview.path.slice(1));

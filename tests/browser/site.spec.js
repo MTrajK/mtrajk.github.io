@@ -1189,13 +1189,32 @@ test("preview metadata, 404 and screenshots", async ({ page }, info) => {
       await page.locator('script[type="application/ld+json"]').textContent(),
     )["@type"],
   ).toBe("Person");
-  const favicon = page.locator('link[rel="icon"]');
-  await expect(favicon).toHaveAttribute("type", "image/svg+xml");
-  await expect(favicon).toHaveAttribute("href", /\/assets\/favicon\.svg\?v=[a-f0-9]{12}$/);
-  const icon = await page.request.get(await favicon.getAttribute("href"));
-  expect(icon.ok()).toBe(true);
-  expect(icon.headers()["content-type"]).toBe("image/svg+xml");
-  expect(await icon.text()).toContain("MTRAJK terminal mark: m underscore");
+  for (const [selector, file, type] of [
+    ['link[rel="icon"][type="image/x-icon"]', "favicon.ico", "image/x-icon"],
+    ['link[rel="icon"][sizes="16x16"]', "favicon-16x16.png", "image/png"],
+    ['link[rel="icon"][sizes="32x32"]', "favicon-32x32.png", "image/png"],
+    ['link[rel="apple-touch-icon"][sizes="180x180"]', "apple-touch-icon.png", "image/png"],
+    ['link[rel="manifest"]', "site.webmanifest", "application/manifest+json"],
+  ]) {
+    const link = page.locator(selector);
+    await expect(link).toHaveAttribute("href", new RegExp(`/assets/favicon/${file.replaceAll(".", "\\.")}\\?v=[a-f0-9]{12}$`));
+    const href = await link.getAttribute("href");
+    const response = await page.request.get(href);
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["content-type"]).toBe(type);
+    if (file === "site.webmanifest") {
+      const manifest = await response.json();
+      expect(manifest.name).toBe("Meto Trajkovski");
+      expect(manifest.display).toBe("browser");
+      for (const icon of manifest.icons) {
+        const image = await page.request.get(new URL(icon.src, new URL(href, page.url())).href);
+        expect(image.ok()).toBe(true);
+        expect(image.headers()["content-type"]).toBe("image/png");
+      }
+    }
+  }
+  expect((await page.request.get("/favicon.ico")).ok()).toBe(true);
+  expect((await page.request.get("/assets/favicon/favicon%20designs/favicon-new-design.png")).status()).toBe(404);
   await page.screenshot({ path: info.outputPath("cv.png"), fullPage: true });
   await openDev(page);
   await page.screenshot({ path: info.outputPath("dev.png"), fullPage: true });
