@@ -1224,18 +1224,28 @@ html[data-mode="dev"] body {
   }
   .site-footer {
     flex-wrap: wrap;
-    gap: 10px;
-    align-items: flex-start;
+    gap: 8px 16px;
+    align-items: center;
   }
   .site-footer .brand {
     flex: 1;
+    min-height: 44px;
+  }
+  .site-footer > a:last-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    margin-left: auto;
+    font-size: 0.75rem;
   }
   .site-footer p {
     order: 3;
     width: 100%;
     max-width: none;
-    margin-left: 0;
-    font-size: 0.65rem;
+    margin: 0;
+    font-size: 0.75rem;
+    text-align: center;
   }
   #dev-controls {
     top: calc(var(--terminal-top, 0px) + 18px);
