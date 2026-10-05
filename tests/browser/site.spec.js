@@ -148,7 +148,7 @@ test("web CV command has help and completion while results start at their comman
     });
     expect(Math.abs(position)).toBeLessThan(2);
     await expect(entry.locator(".command-echo")).toHaveCSS("font-weight", "600");
-    if (command === "help") await expect(entry.locator("dt").last()).toHaveText("cv");
+    if (command === "help") await expect(entry.locator("dt").last()).toHaveText("mtrajk cv");
   }
   await input.fill("cv extra");
   await input.press("Enter");
@@ -234,7 +234,7 @@ test("reduced motion skips the timed animation and bare cv preserves the locale"
     await expect(page.locator("#dev-view")).not.toHaveAttribute("aria-busy", "true");
     await input.fill("help");
     await input.press("Enter");
-    await expect(page.locator(".help-list dt").last()).toHaveText("cv");
+    await expect(page.locator(".help-list dt").last()).toHaveText("mtrajk cv");
     await input.fill("cv");
     await input.press("Enter");
     await expect(page.locator("#cv-view")).toBeVisible();

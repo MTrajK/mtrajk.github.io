@@ -425,7 +425,7 @@ export async function createTerminal(config, onCv, onLanguage = () => {}) {
     if (result.type === "clear") cancelAnswer();
     else answer?.reveal.finish();
     if (result.type === "help")
-      result.items = [...result.items, { command: "cv", description: content.ui.webCv }];
+      result.items = [...result.items, { command: "mtrajk cv", description: content.ui.webCv }];
     if (result.type === "clear") {
       transcript.replaceChildren();
       welcome.setAttribute("hidden", "");
