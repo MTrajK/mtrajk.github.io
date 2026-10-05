@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { loadContents, readJson, validators } from "../scripts/content.mjs";
 import { assertContent, fetchContent } from "../src/core/content.js";
-import { renderPage, escapeHtml } from "../src/site/templates/page.js";
+import { renderPage, renderSection, escapeHtml } from "../src/site/templates/page.js";
 import { executeCommand } from "../src/core/execute-command.js";
 import { renderText, renderBanner } from "../src/cli/render-result.js";
 import { access, stat } from "node:fs/promises";
@@ -102,6 +102,28 @@ test("email stays obfuscated in content, HTML, CLI text and JSON, with social li
   const data = await sources();
   data.common.profile.email = raw;
   await assert.rejects(loadContents(data));
+});
+
+test("location and seasonal time-zone comparisons appear in Contact only across CV and CLI", async () => {
+  for (const content of await loadContents()) {
+    const result = executeCommand("contact", content);
+    const contact = result.sections[0];
+    const copy = contact.paragraphs.join(" ");
+    assert.match(copy, content.locale === "en" ? /Skopje, North Macedonia/ : /Скопје, Северна Македонија/);
+    for (const pattern of [/CET\/CEST/, /UTC\+1/, /UTC\+2/, /US Eastern/])
+      assert.match(copy, pattern);
+    assert.match(copy, content.locale === "en" ? /European working hours · US Eastern mornings/ : /европското работно време · утрински часови на US Eastern/);
+    const html = renderSection(contact, content);
+    const text = renderText(result, content).replace(/\s+/g, " ");
+    for (const paragraph of contact.paragraphs) {
+      assert.ok(html.includes(escapeHtml(paragraph)));
+      assert.ok(text.includes(paragraph.replace(/\s+/g, " ")));
+    }
+    const intro = executeCommand("intro", content);
+    const location = /Skopje|Скопје|CET\/CEST|UTC\+[12]|US Eastern/;
+    assert.doesNotMatch(renderSection(intro.sections[0], content), location);
+    assert.doesNotMatch(renderText(intro, content), location);
+  }
 });
 
 test("approved selected experience can be released without employment periods", async () => {

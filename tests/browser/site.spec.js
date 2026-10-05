@@ -329,6 +329,29 @@ test("Back restores the original CV even after DEV becomes the saved preference"
   await expect(page.locator("#dev-view")).toBeHidden();
 });
 
+test("Contact location and time zones stay localized in CV and DEV without appearing in Intro", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const path of ["/", "/mk/"]) {
+    await page.goto(`${path}?mode=cv`);
+    const content = await (await page.request.get(`/data/v1/${path === "/" ? "en" : "mk"}.json`)).json();
+    const paragraphs = content.sections.find(section => section.id === "contact").paragraphs;
+    await expect(page.locator("#contact .section-content > p")).toHaveText(paragraphs);
+    await expect(page.locator("#contact")).toContainText(path === "/" ? "Skopje, North Macedonia" : "Скопје, Северна Македонија");
+    for (const text of ["CET/CEST", "UTC+1", "UTC+2", "US Eastern"])
+      await expect(page.locator("#contact")).toContainText(text);
+    await expect(page.locator("#intro")).not.toContainText(/Skopje|Скопје|CET\/CEST|UTC\+[12]|US Eastern/);
+    for (const width of [320, 390, 1280]) {
+      await page.setViewportSize({ width, height: 844 });
+      expect(await page.locator("#contact").evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+    await openDev(page);
+    await page.locator("#command-input").fill("contact");
+    await page.locator("#command-input").press("Enter");
+    await expect(page.locator(".terminal-entry").last().locator(".terminal-response > p")).toHaveText(paragraphs);
+  }
+});
+
 test("portrait, email, and selected experience stay consistent in both modes", async ({
   page,
 }) => {
