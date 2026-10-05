@@ -931,6 +931,16 @@ html[data-mode="dev"] body {
 #ghost-prefix {
   color: transparent;
 }
+.terminal-command {
+  font: inherit;
+  font-weight: 700;
+  color: #c1f4e5;
+  background: #34434c;
+  border: 1px solid #455960;
+  border-radius: 3px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
 #terminal-hint {
   padding: 8px 0 0;
   max-width: 110ch;

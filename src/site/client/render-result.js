@@ -4,6 +4,11 @@ export function element(tag, text = "", className = "") {
   if (className) node.className = className;
   return node;
 }
+export function renderInstruction(parent, text) {
+  parent.replaceChildren(...text.split(/(mtrajk (?:help|cv)\b)/).map((part, index) =>
+    index % 2 ? element("code", part, "terminal-command") : document.createTextNode(part),
+  ));
+}
 function appendLinks(parent, links) {
   if (!links.length) return;
   const group = element("div", "", "terminal-links");

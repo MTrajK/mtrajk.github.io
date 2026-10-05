@@ -2,7 +2,7 @@ import validate from "../../../.generated/validate.js";
 import { fetchContent } from "../../core/content.js";
 import { executeCommand } from "../../core/execute-command.js";
 import { getCompletions, interpolate, MAX_INPUT } from "../../core/commands.js";
-import { element, renderResult } from "./render-result.js";
+import { element, renderInstruction, renderResult } from "./render-result.js";
 import { createReveal, revealUnits } from "../../core/reveal.js";
 
 export async function createTerminal(config, onCv, onLanguage = () => {}) {
@@ -60,8 +60,6 @@ export async function createTerminal(config, onCv, onLanguage = () => {}) {
     element("h2", content.profile.name),
     element("p", content.profile.headline),
   );
-  document.querySelector("#terminal-hint").textContent =
-    `${content.terminal.messages.hint} ${content.ui.terminalSubtitle}`;
   const form = document.querySelector("#terminal-form");
   const candidate = document.querySelector("#command-input");
   if (!(candidate instanceof HTMLInputElement))
@@ -183,8 +181,9 @@ export async function createTerminal(config, onCv, onLanguage = () => {}) {
     form.querySelector("label .sr-only").textContent = content.ui.inputLabel;
     form.querySelector("label [aria-hidden]").textContent = content.ui.commandPrompt;
     output.setAttribute("aria-label", content.ui.transcript);
-    document.querySelector("#terminal-hint").textContent =
-      `${content.terminal.messages.hint} ${content.ui.terminalSubtitle}`;
+    renderInstruction(document.querySelector("#terminal-hint"),
+      `${content.terminal.messages.hint} ${content.ui.terminalSubtitle}`,
+    );
     status.setAttribute("lang", content.locale);
     completionStatus.setAttribute("lang", content.locale);
     refreshSuggestion();
@@ -367,7 +366,7 @@ export async function createTerminal(config, onCv, onLanguage = () => {}) {
     };
     const finish = () => {
       if (version !== startupVersion || !active()) return;
-      label.textContent = content.ui.installReady;
+      renderInstruction(label, content.ui.installReady);
       input.disabled = false;
       terminalView.removeAttribute("aria-busy");
       welcome.removeAttribute("hidden");

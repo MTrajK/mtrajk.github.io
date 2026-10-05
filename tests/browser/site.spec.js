@@ -117,6 +117,60 @@ for (const path of ["/", "/mk/"]) {
   });
 }
 
+test("DEV discovery instructions emphasize full commands and stay localized on phones", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [path, locale, selected] of [["/", "en", "mk"], ["/mk/", "mk", "en"]]) {
+    await page.goto(`${path}?mode=dev`);
+    const input = page.locator("#command-input");
+    await expect(input).toBeFocused();
+    const content = await (await page.request.get(`/data/v1/${locale}.json`)).json();
+    const ready = page.locator("#terminal-install .install-label");
+    await expect(ready).toHaveText(locale === "en"
+      ? "Ready. Type mtrajk help for commands or mtrajk cv to return to the CV."
+      : "Подготвено. Внесете mtrajk help за команди или mtrajk cv за враќање во CV.");
+    await expect(ready.locator("code.terminal-command")).toHaveText(["mtrajk help", "mtrajk cv"]);
+    const hint = page.locator("#terminal-hint");
+    await expect(hint).toHaveText(`${content.terminal.messages.hint} ${content.ui.terminalSubtitle}`);
+    await expect(hint.locator("code.terminal-command")).toHaveText(["mtrajk help"]);
+    await expect(input).toHaveAccessibleDescription(`${content.terminal.messages.hint} ${content.ui.terminalSubtitle}`);
+    for (const command of await page.locator(".terminal-command").all()) {
+      await expect(command).toHaveCSS("font-weight", "700");
+      await expect(command).toHaveCSS("white-space", "nowrap");
+    }
+    for (const width of [320, 390, 1280]) {
+      await page.setViewportSize({ width, height: 844 });
+      expect(await ready.evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
+      expect(await hint.evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
+      await expect(hint).toBeInViewport();
+    }
+    const translated = await (await page.request.get(`/data/v1/${selected}.json`)).json();
+    await input.fill(`lang ${selected}`);
+    await input.press("Enter");
+    await expect(page.locator("#dev-view")).toHaveAttribute("lang", selected);
+    await expect(hint).toHaveText(`${translated.terminal.messages.hint} ${translated.ui.terminalSubtitle}`);
+    await expect(hint.locator("code.terminal-command")).toHaveText(["mtrajk help"]);
+    await expect(hint.locator("code.terminal-command")).toHaveCSS("font-weight", "700");
+  }
+});
+
+test("instruction formatting keeps translated copy as plain text", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.route(/\/data\/v1\/en(?:\.[a-f0-9]+)?\.json$/, async route => {
+    const response = await route.fetch();
+    const content = await response.json();
+    content.ui.installReady = "<em>Ready</em>. Type mtrajk help or mtrajk cv.";
+    content.terminal.messages.hint = "Try mtrajk help. <em>Plain text</em>.";
+    await route.fulfill({ response, json: content });
+  });
+  await page.goto("/?mode=dev");
+  await expect(page.locator("#command-input")).toBeFocused();
+  const ready = page.locator("#terminal-install .install-label");
+  await expect(ready).toHaveText("<em>Ready</em>. Type mtrajk help or mtrajk cv.");
+  await expect(ready.locator("code.terminal-command")).toHaveText(["mtrajk help", "mtrajk cv"]);
+  await expect(page.locator("#terminal-hint")).toContainText("<em>Plain text</em>");
+  await expect(page.locator("#terminal-install .install-label em, #terminal-hint em")).toHaveCount(0);
+});
+
 test("reduced motion renders DEV answers immediately in both languages", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const path of ["/", "/mk/"]) {
