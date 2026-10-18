@@ -371,7 +371,7 @@ test("portrait, email, and selected experience stay consistent in both modes", a
       )
       .toBe(true);
     const contactEmail = page.locator("#contact .contact-email");
-    await expect(contactEmail).toContainText("mtrajk [at] outlook.com");
+    await expect(contactEmail).toContainText("hello [at] mtrajk.dev");
     await expect(contactEmail).toHaveCSS("text-decoration-line", "underline");
     await expect(contactEmail.locator("a")).toHaveCount(0);
     await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
@@ -394,10 +394,10 @@ test("portrait, email, and selected experience stay consistent in both modes", a
     await page.locator("#command-input").fill("contact");
     await page.locator("#command-input").press("Enter");
     await expect(page.locator(".terminal-entry").last()).toContainText(
-      "mtrajk [at] outlook.com",
+      "hello [at] mtrajk.dev",
     );
     await expect(page.locator('#dev-view a[href^="mailto:"]')).toHaveCount(0);
-    const rawEmail = ["mtrajk", "outlook.com"].join("@");
+    const rawEmail = ["hello", "mtrajk.dev"].join("@");
     expect(JSON.stringify(content)).not.toContain(rawEmail);
     expect(await page.content()).not.toContain(rawEmail);
   }

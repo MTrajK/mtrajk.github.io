@@ -35,7 +35,7 @@ test("one common domain drives all generated website and terminal URLs", async (
     assert.equal(content.ui.commandPrompt, "visitor@mtrajk.test:~$");
     const html = renderPage(content, { css: "/style.css", js: "/main.js" });
     assert.ok(html.includes("https://mtrajk.test"));
-    assert.ok(!html.includes(previousDomain));
+    assert.ok(!html.includes(`https://${previousDomain}`));
   }
   data.common.domain = "https://mtrajk.test/path";
   await assert.rejects(loadContents(data));
@@ -92,15 +92,15 @@ test("selected experience omits dates and retired clients across CV and CLI", as
     assert.ok(
       content.sections
         .find((section) => section.id === "contact")
-        .paragraphs.some((text) => text.includes("mtrajk [at] outlook.com")),
+        .paragraphs.some((text) => text.includes("hello [at] mtrajk.dev")),
     );
   }
 });
 
 test("email stays obfuscated in content, HTML, CLI text and JSON, with social links intact", async () => {
-  const raw = ["mtrajk", "outlook.com"].join("@");
+  const raw = ["hello", "mtrajk.dev"].join("@");
   for (const content of await loadContents()) {
-    assert.equal(content.profile.email, "mtrajk [at] outlook.com");
+    assert.equal(content.profile.email, "hello [at] mtrajk.dev");
     const result = executeCommand("contact", content);
     const html = renderPage(content, { css: "/style.css", js: "/main.js" });
     for (const output of [
@@ -109,7 +109,7 @@ test("email stays obfuscated in content, HTML, CLI text and JSON, with social li
       JSON.stringify(result),
       renderText(result, content),
     ]) {
-      assert.ok(output.includes("mtrajk [at] outlook.com"));
+      assert.ok(output.includes("hello [at] mtrajk.dev"));
       assert.ok(!output.includes(raw));
       assert.ok(!output.includes("mailto:"));
     }
