@@ -27,6 +27,7 @@ test("both languages resolve deterministically, and unfinished content blocks re
 test("one common domain drives all generated website and terminal URLs", async () => {
   const data = await sources();
   const previousDomain = data.common.domain;
+  assert.equal(previousDomain, "mtrajk.dev");
   data.common.domain = "mtrajk.test";
   for (const content of await loadContents(data)) {
     assert.equal(content.siteUrl, "https://mtrajk.test");

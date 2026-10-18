@@ -1,6 +1,6 @@
 Description
 
-Personal web site (one page site, with blog, hosted on github, mtrajk.me)
+Personal web site (one page site, with blog, hosted on github, mtrajk.dev)
 
 Blog
 
