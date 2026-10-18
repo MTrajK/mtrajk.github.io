@@ -24,3 +24,23 @@ mtrajk.io
 mtrajk.email
 mtrajk.life
 mtrajk.bio
+
+
+Other
+mtrajk.world
+mtrajk.my
+mtrajk.link
+mtrajk.live
+mtrajk.works
+mtrajk.fyi
+mtrajk.software
+
+
+------------------
+
+mtrajk.dev
+
+https://www.cloudflare.com/domains - 8.2$ and renews at 12.2$
+https://www.namesilo.com/domain - 10.99$ and renews at 14.99$
+https://www.namecheap.com/domains/ - 10.98$ and renews at 15.98$ 
+https://www.spaceship.com/domain-search/ - 8.28$ and renews at 12.42$
