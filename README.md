@@ -69,7 +69,7 @@ Application copy, labels, errors, SEO metadata, and ASCII artwork are authored i
 2. Edit matching English/Macedonian text in `content/en.json` and `content/mk.json`. Keep section/item IDs identical across all three files. No arbitrary HTML/Markdown is accepted.
 3. A repeatable record requires a common record (`id`, `tags`, `links`) and matching localized items (`id`, `title`, `subtitle`, `paragraphs`, `bullets`). Arrays determine item order; `sectionOrder` determines section order.
 4. Selected experience is ordered editorially and does not display employment dates or job titles. No employment period is required for publication. The schema still accepts optional legacy `period` data and validates its consistency, but renderers omit it.
-5. Store only the obfuscated display address in `profile.email`, for example `hello [at] mtrajk.dev`. The schema rejects raw addresses; contact output is plain text, never a mailto link or client-side reconstruction. GitHub/LinkedIn remain normal links. Obfuscation deters simple harvesting but is not a privacy guarantee. Employer/client labels must reflect the actual relationship.
+5. Store the confirmed email address in `profile.email`. The CV and DEV modes render it as a `mailto:` link alongside GitHub/LinkedIn; the CLI prints it as plain text. Employer/client labels must reflect the actual relationship.
 6. Review both languages, run validation/tests/build, and inspect both presentations. `updatedAt` is maintained with the content review, not computed on every build.
 7. Mark individual `approvals` true only after the owner approves the associated facts/assets. Flags are a checklist, not a substitute for editorial review. Remove all draft sentences from locale content before approving it.
 
@@ -83,7 +83,7 @@ CV content is generated into static HTML and needs no blocking content loader. I
 
 Command completion follows common shell conventions: inline suggestions accepted with Right Arrow at the end of the input, Tab completion/cycling, Up/Down history, and Escape dismissal. Shift+Tab always navigates focus backwards; Escape followed by Tab leaves the input normally. Completion does not execute commands, replace selected/mid-line text, or intercept IME composition. The shared completion vocabulary also serves the native readline CLI.
 
-Research references: [PowerShell tab completion and inline predictions](https://learn.microsoft.com/en-us/powershell/scripting/learn/shell/tab-completion?view=powershell-7.6) and [email address munging and its limitations](https://en.wikipedia.org/wiki/Address_munging). The UI uses deterministic command suggestions, not AI predictions. The keyboard-escape regression supplies a following text-input fixture to avoid headless browser-chrome and OS link-tabbing differences while verifying native focus movement; production does not override the browser's focus order.
+Research reference: [PowerShell tab completion and inline predictions](https://learn.microsoft.com/en-us/powershell/scripting/learn/shell/tab-completion?view=powershell-7.6). The UI uses deterministic command suggestions, not AI predictions. The keyboard-escape regression supplies a following text-input fixture to avoid headless browser-chrome and OS link-tabbing differences while verifying native focus movement; production does not override the browser's focus order.
 
 ## Public data and compatibility
 
@@ -91,7 +91,7 @@ Build output includes stable `/data/v1/en.json` and `/data/v1/mk.json` plus cont
 
 The CLI fetches stable endpoints and receives compatible content changes without a package update. It validates schema, locale, size, safe links, and text; the website additionally checks its expected digest. Failed/invalid requests use the CLI's bundled snapshot with a dated stderr notice. A package update refreshes its offline snapshot. Keep schema v1 compatible with older CLI releases; a breaking change needs a new endpoint major and compatible package release.
 
-Builds remove only obsolete, self-identifying generated locale snapshots from `dist/data/v1`, so older local builds cannot keep exposing a previously published contact address. Unknown files and source content are not removed. This cannot retract previously downloaded data or git history. The still-unpublished v1 contract now requires an obfuscated email string; rebuild older local preview CLI packages to use it.
+Builds remove only obsolete, self-identifying generated locale snapshots from `dist/data/v1`, so older local builds cannot keep exposing a previously published contact address. Unknown files and source content are not removed. This cannot retract previously downloaded data or git history. The still-unpublished v1 contract accepts a standard email address; rebuild older local preview CLI packages to include the current contact address.
 
 The HTML must still be rebuilt after a JSON edit. Pushes run verification; public deployment currently requires the manually approved Pages workflow. Do not expect an edit to a source JSON alone to update already deployed static HTML.
 

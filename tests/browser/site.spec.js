@@ -370,11 +370,13 @@ test("portrait, email, and selected experience stay consistent in both modes", a
         portrait.evaluate((image) => image.complete && image.naturalWidth > 0),
       )
       .toBe(true);
-    const contactEmail = page.locator("#contact .contact-email");
-    await expect(contactEmail).toContainText("hello [at] mtrajk.dev");
-    await expect(contactEmail).toHaveCSS("text-decoration-line", "underline");
-    await expect(contactEmail.locator("a")).toHaveCount(0);
-    await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
+    const contactEmail = page.locator(
+      '#contact .contact-links a[href="mailto:hello@mtrajk.dev"]',
+    );
+    await expect(contactEmail).toContainText("hello@mtrajk.dev");
+    await expect(contactEmail).toHaveCSS("text-decoration-line", "none");
+    await expect(contactEmail).toHaveCSS("border-bottom-style", "solid");
+    await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
     await expect(page.locator("#experience .experience-item")).toHaveCount(2);
     await expect(page.locator("#experience .period")).toHaveCount(0);
     await expect(page.locator("#experience")).not.toContainText(
@@ -393,13 +395,14 @@ test("portrait, email, and selected experience stay consistent in both modes", a
     );
     await page.locator("#command-input").fill("contact");
     await page.locator("#command-input").press("Enter");
-    await expect(page.locator(".terminal-entry").last()).toContainText(
-      "hello [at] mtrajk.dev",
-    );
-    await expect(page.locator('#dev-view a[href^="mailto:"]')).toHaveCount(0);
-    const rawEmail = ["hello", "mtrajk.dev"].join("@");
-    expect(JSON.stringify(content)).not.toContain(rawEmail);
-    expect(await page.content()).not.toContain(rawEmail);
+    const terminalEmail = page
+      .locator(".terminal-entry")
+      .last()
+      .locator('.terminal-links a[href="mailto:hello@mtrajk.dev"]');
+    await expect(terminalEmail).toContainText("hello@mtrajk.dev");
+    await expect(page.locator('#dev-view a[href^="mailto:"]')).toHaveCount(1);
+    expect(JSON.stringify(content)).toContain("hello@mtrajk.dev");
+    expect(await page.content()).toContain("mailto:hello@mtrajk.dev");
   }
 });
 

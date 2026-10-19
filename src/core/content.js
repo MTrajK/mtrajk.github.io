@@ -38,7 +38,7 @@ export function assertContent(content, validate, locale, version = undefined) {
       section.id === "contact" &&
       section.links.some((link) => link.url.startsWith("mailto:"))
     )
-      throw new Error("Contact email must be obfuscated plain text");
+      throw new Error("Contact links must not contain mailto URLs");
     for (const item of section.items) {
       if (
         item.period &&

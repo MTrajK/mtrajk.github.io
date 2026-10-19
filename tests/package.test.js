@@ -22,8 +22,8 @@ const runNpm = (args, cwd) =>
     stdio: ["ignore", "pipe", "pipe"],
   });
 
-test("generated pages, snapshots, and CLI do not retain the raw contact address", async () => {
-  const raw = ["mtrajk", "outlook.com"].join("@");
+test("generated pages, snapshots, and CLI include the current contact address", async () => {
+  const email = "hello@mtrajk.dev";
   const jsonFiles = (await readdir(resolve(root, "dist/data/v1"))).filter(
     (name) => name.endsWith(".json"),
   );
@@ -35,8 +35,12 @@ test("generated pages, snapshots, and CLI do not retain the raw contact address"
     ...jsonFiles.map((name) => `dist/data/v1/${name}`),
   ];
   for (const file of files)
+    assert.ok((await readFile(resolve(root, file), "utf8")).includes(email), file);
+  for (const file of ["dist/index.html", "dist/mk/index.html"])
     assert.ok(
-      !(await readFile(resolve(root, file), "utf8")).includes(raw),
+      (await readFile(resolve(root, file), "utf8")).includes(
+        `href="mailto:${email}"`,
+      ),
       file,
     );
 });

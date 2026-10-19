@@ -67,14 +67,15 @@ export function renderSection(section, content) {
       ? `${ui.email}: ${profile.email}`
       : "";
   const copy = section.paragraphs
-    .map(
-      (value) =>
-        `<p${value === contactEmail ? ' class="contact-email"' : ""}>${e(value)}</p>`,
-    )
+    .filter((value) => value !== contactEmail)
+    .map((value) => `<p>${e(value)}</p>`)
     .join("");
+  const emailLink = profile.email
+    ? [{ label: profile.email, url: `mailto:${profile.email}` }]
+    : [];
   const contact =
     section.id === "contact"
-      ? `<div class="contact-links">${links(section.links)}</div>${!profile.email ? `<p class="pending-note">${e(ui.emailPending)}</p>` : ""}`
+      ? `<div class="contact-links">${links([...emailLink, ...section.links])}</div>${!profile.email ? `<p class="pending-note">${e(ui.emailPending)}</p>` : ""}`
       : "";
   const scene =
     section.id === "hobbies"

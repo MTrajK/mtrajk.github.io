@@ -92,25 +92,22 @@ test("selected experience omits dates and retired clients across CV and CLI", as
     assert.ok(
       content.sections
         .find((section) => section.id === "contact")
-        .paragraphs.some((text) => text.includes("hello [at] mtrajk.dev")),
+        .paragraphs.some((text) => text.includes("hello@mtrajk.dev")),
     );
   }
 });
 
-test("email stays obfuscated in content, HTML, CLI text and JSON, with social links intact", async () => {
-  const raw = ["hello", "mtrajk.dev"].join("@");
+test("email is linked in HTML and remains plain text in content and CLI", async () => {
+  const email = "hello@mtrajk.dev";
   for (const content of await loadContents()) {
-    assert.equal(content.profile.email, "hello [at] mtrajk.dev");
+    assert.equal(content.profile.email, email);
     const result = executeCommand("contact", content);
     const html = renderPage(content, { css: "/style.css", js: "/main.js" });
-    for (const output of [
-      JSON.stringify(content),
-      html,
-      JSON.stringify(result),
-      renderText(result, content),
-    ]) {
-      assert.ok(output.includes("hello [at] mtrajk.dev"));
-      assert.ok(!output.includes(raw));
+    assert.ok(JSON.stringify(content).includes(email));
+    assert.ok(html.includes(`href="mailto:${email}"`));
+    assert.ok(html.includes(`>${email} <span aria-hidden="true">↗</span></a>`));
+    for (const output of [JSON.stringify(result), renderText(result, content)]) {
+      assert.ok(output.includes(email));
       assert.ok(!output.includes("mailto:"));
     }
     assert.deepEqual(
@@ -128,7 +125,7 @@ test("email stays obfuscated in content, HTML, CLI text and JSON, with social li
     );
   }
   const data = await sources();
-  data.common.profile.email = raw;
+  data.common.profile.email = "hello [at] mtrajk.dev";
   await assert.rejects(loadContents(data));
 });
 
@@ -143,8 +140,11 @@ test("location and seasonal time-zone comparisons appear in Contact only across 
     assert.match(copy, content.locale === "en" ? /European working hours · US Eastern mornings/ : /европското работно време · утрински часови на US Eastern/);
     const html = renderSection(contact, content);
     const text = renderText(result, content).replace(/\s+/g, " ");
+    const emailParagraph = `${content.ui.email}: ${content.profile.email}`;
     for (const paragraph of contact.paragraphs) {
-      assert.ok(html.includes(escapeHtml(paragraph)));
+      if (paragraph === emailParagraph)
+        assert.ok(html.includes(`href="mailto:${content.profile.email}"`));
+      else assert.ok(html.includes(escapeHtml(paragraph)));
       assert.ok(text.includes(paragraph.replace(/\s+/g, " ")));
     }
     const intro = executeCommand("intro", content);
@@ -184,11 +184,17 @@ test("static HTML and command results share facts, and content cannot inject mar
       js: "/assets/main.js",
     });
     for (const section of executeCommand("all", content).sections) {
+      const emailParagraph =
+        section.id === "contact" && content.profile.email
+          ? `${content.ui.email}: ${content.profile.email}`
+          : "";
       for (const paragraph of [
         ...section.paragraphs,
         ...section.items.flatMap((item) => item.paragraphs),
-      ])
-        assert.ok(html.includes(escapeHtml(paragraph)));
+      ]) {
+        if (paragraph !== emailParagraph)
+          assert.ok(html.includes(escapeHtml(paragraph)));
+      }
     }
     const changed = structuredClone(content);
     changed.sections.find((s) => s.id === "about").paragraphs = [

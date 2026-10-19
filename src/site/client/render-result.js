@@ -55,7 +55,12 @@ export function renderResult(result, content) {
           element("p", content.profile.headline),
           element("p", content.profile.motto),
         );
-      for (const text of section.paragraphs) output.append(element("p", text));
+      const contactEmail =
+        section.id === "contact" && content.profile.email
+          ? `${content.ui.email}: ${content.profile.email}`
+          : "";
+      for (const text of section.paragraphs)
+        if (text !== contactEmail) output.append(element("p", text));
       for (const item of section.items) {
         output.append(element("h3", item.title), element("p", item.subtitle));
         if (item.organization)
@@ -77,7 +82,20 @@ export function renderResult(result, content) {
         appendLinks(output, item.links);
       }
       if (section.skills) appendSkills(output, section.skills);
-      appendLinks(output, section.links);
+      const emailLink = content.profile.email
+        ? [
+            {
+              label: content.profile.email,
+              url: `mailto:${content.profile.email}`,
+            },
+          ]
+        : [];
+      appendLinks(
+        output,
+        section.id === "contact"
+          ? [...emailLink, ...section.links]
+          : section.links,
+      );
       if (section.id === "contact" && !content.profile.email)
         output.append(element("p", content.ui.emailPending));
     }
