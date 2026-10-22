@@ -101,7 +101,12 @@ export function renderResult(result, content) {
           : section.links,
       );
       if (section.id === "contact") {
-        output.append(element("h3", content.ui.sharePage));
+        output.append(
+          element(
+            "h3",
+            `${content.ui.sharePrompt} ${content.ui.shareAction}`,
+          ),
+        );
         appendLinks(output, getShareLinks(content));
       }
       if (section.id === "contact" && !content.profile.email)

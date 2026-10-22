@@ -634,6 +634,9 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
     await input.fill("contact");
     await input.press("Enter");
     const entry = page.locator(".terminal-entry").last();
+    await expect(entry.locator("h3").last()).toHaveText(
+      `${content.ui.sharePrompt} ${content.ui.shareAction}`,
+    );
     const terminalShares = entry.locator(".terminal-links a[data-share]");
     await expect(terminalShares).toHaveCount(shareProviders.length);
     for (const [id, label] of shareProviders) {
