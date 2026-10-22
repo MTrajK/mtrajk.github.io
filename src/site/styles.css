@@ -322,7 +322,8 @@ h2 {
   gap: 24px;
   margin-top: 29px;
 }
-.button-primary {
+.button-primary,
+.share-disclosure > summary {
   display: inline-flex;
   align-items: center;
   gap: 25px;
@@ -334,7 +335,8 @@ h2 {
   border: 1px solid var(--accent);
   border-radius: 3px;
 }
-.button-primary:hover {
+.button-primary:hover,
+.share-disclosure > summary:hover {
   background: var(--ink);
   color: var(--paper);
 }
@@ -440,10 +442,14 @@ h2 {
 .section-content {
   margin-left: 277px;
 }
-.section-content > p {
+.section-content > p,
+.share-prompt {
   font-size: 0.96rem;
   color: var(--muted);
   max-width: 735px;
+}
+.share-prompt {
+  margin-right: 50px;
 }
 .section-about .section-content > p:first-child {
   color: var(--ink);
@@ -658,22 +664,22 @@ summary {
 }
 .share-control {
   --share-popover-gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.4em;
   position: relative;
   z-index: 2;
   width: fit-content;
   margin-top: 18px;
 }
-.share-control > summary {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 0 3px;
-  border-bottom: 1px solid var(--accent);
-  color: var(--ink);
-  font: 400 1.15rem/1.5 var(--serif);
+.share-disclosure {
+  position: relative;
+}
+.share-disclosure > summary {
   list-style: none;
 }
-.share-control > summary::-webkit-details-marker {
+.share-disclosure > summary::-webkit-details-marker {
   display: none;
 }
 .share-popover {
@@ -1280,7 +1286,8 @@ html[data-mode="dev"] body {
   .section-content {
     margin-left: 0;
   }
-  .section-content > p {
+  .section-content > p,
+  .share-prompt {
     font-size: 0.91rem;
   }
   .section-about .section-content > p:first-child {
@@ -1315,6 +1322,11 @@ html[data-mode="dev"] body {
   .contact-links {
     gap: 20px;
     font-size: 1.25rem;
+  }
+  .share-control {
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 0.2em;
   }
   .site-footer {
     flex-wrap: wrap;
@@ -1367,6 +1379,7 @@ html[data-mode="dev"] body {
 @media (forced-colors: active) {
   .portrait-placeholder,
   .button-primary,
+  .share-disclosure > summary,
   .tags li,
   .mode-controls button {
     border: 1px solid CanvasText;

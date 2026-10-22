@@ -484,13 +484,61 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
     await page.goto(`${path}?mode=cv#contact`);
     const content = await (await page.request.get(`/data/v1/${locale}.json`)).json();
     const canonical = `${content.siteUrl}${path}`;
-    const disclosure = page.locator("#contact .share-control");
+    const disclosure = page.locator("#contact .share-disclosure");
+    const prompt = page.locator("#contact .share-prompt");
     const summary = disclosure.locator("summary");
-    await expect(summary).toHaveText(content.ui.sharePage);
+    await expect(prompt).toHaveText(content.ui.sharePrompt);
+    await expect(summary).toHaveText(`${content.ui.shareAction} ↑`);
+    const paragraph = page.locator("#contact .section-content > p").first();
+    const primaryLink = page.locator("#intro .button-primary");
+    for (const property of [
+      "font-family",
+      "font-size",
+      "font-weight",
+      "color",
+      "line-height",
+      "max-width",
+    ]) {
+      const expected = await paragraph.evaluate(
+        (node, name) => getComputedStyle(node).getPropertyValue(name),
+        property,
+      );
+      await expect(prompt).toHaveCSS(property, expected);
+    }
+    for (const property of [
+      "font-family",
+      "font-size",
+      "font-weight",
+      "line-height",
+      "color",
+      "text-decoration-line",
+      "background-color",
+      "border-color",
+      "border-radius",
+      "border-width",
+      "border-style",
+      "padding-top",
+      "padding-right",
+      "padding-bottom",
+      "padding-left",
+      "gap",
+    ]) {
+      const expected = await primaryLink.evaluate(
+        (node, name) => getComputedStyle(node).getPropertyValue(name),
+        property,
+      );
+      await expect(summary).toHaveCSS(property, expected);
+    }
     await expect(disclosure).not.toHaveAttribute("open", "");
     await expect(disclosure.locator(".share-popover")).toHaveCSS("padding", "20px");
     const options = disclosure.locator(".share-option");
     await expect(options).toHaveCount(shareProviders.length);
+    const expectPopoverInViewport = async () => {
+      const bounds = await disclosure.locator(".share-popover").boundingBox();
+      const width = await page.evaluate(() => innerWidth);
+      expect(bounds.x).toBeGreaterThanOrEqual(0);
+      expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+    };
     for (const [id, label, color] of shareProviders) {
       const link = disclosure.locator(`.share-option[data-share="${id}"]`);
       await expect(link).toHaveAttribute("aria-label", `${content.ui.sharePage}: ${label}`);
@@ -533,6 +581,7 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
       });
       await summary.tap();
       await expect(disclosure).toHaveAttribute("open", "");
+      await expectPopoverInViewport();
       for (const [id] of shareProviders) {
         await disclosure.locator(`.share-option[data-share="${id}"]`).tap();
         await expect(disclosure).toHaveAttribute("open", "");
@@ -544,6 +593,8 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
       await expect(disclosure).not.toHaveAttribute("open", "");
     }
     if (await page.evaluate(() => matchMedia("(hover: hover) and (pointer: fine)").matches)) {
+      await prompt.hover();
+      await expect(disclosure).not.toHaveAttribute("open", "");
       await summary.hover();
       await expect(disclosure).toHaveAttribute("open", "");
       const summaryBox = await summary.boundingBox();
@@ -575,6 +626,7 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
     await page.setViewportSize({ width: 320, height: 844 });
     await summary.click();
     await expect(options.first()).toBeVisible();
+    await expectPopoverInViewport();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.setViewportSize({ width: 1280, height: 900 });
     await openDev(page);

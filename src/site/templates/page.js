@@ -45,7 +45,7 @@ function renderShareMenu(content) {
       return `<a class="share-option" data-share="${e(link.id)}" href="${e(link.url)}" aria-label="${e(content.ui.sharePage)}: ${e(link.label)}" title="${e(link.label)}" target="_blank" rel="noopener noreferrer"><img src="${e(link.icon)}" alt=""></a>`;
     })
     .join("");
-  return `<details class="share-control"><summary aria-controls="share-options">${e(content.ui.sharePage)}</summary><div id="share-options" class="share-popover" role="group" aria-label="${e(content.ui.sharePage)}">${options}</div></details>`;
+  return `<div class="share-control"><p class="share-prompt">${e(content.ui.sharePrompt)}</p><details class="share-disclosure"><summary aria-label="${e(content.ui.sharePage)}" aria-controls="share-options">${e(content.ui.shareAction)} <span aria-hidden="true">↑</span></summary><div id="share-options" class="share-popover" role="group" aria-label="${e(content.ui.sharePage)}">${options}</div></details></div>`;
 }
 function renderItem(item, section, index, content) {
   const heading = `<h3>${e(item.title)}</h3><p class="item-subtitle">${e(item.subtitle)}</p>`;

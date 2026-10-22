@@ -13,7 +13,7 @@ const sectionNav = document.querySelector(".section-nav");
 const navigation = [...sectionNav.querySelectorAll("a")];
 const header = document.querySelector(".site-header");
 const shareDisclosures = [...document.querySelectorAll("details")].filter(
-  (node) => node.classList.contains("share-control"),
+  (node) => node.classList.contains("share-disclosure"),
 );
 const hoverShare = matchMedia("(hover: hover) and (pointer: fine)");
 let terminal;

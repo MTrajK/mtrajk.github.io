@@ -177,7 +177,16 @@ test("share links use canonical locale URLs in HTML and CLI", async () => {
       assert.ok(html.includes(`data-share="${id}"`));
       assert.ok(cli.includes(`${label}:${links.find((link) => link.id === id).url}`.replace(/\s+/g, "")));
     }
-    assert.ok(html.includes(`>${escapeHtml(content.ui.sharePage)}</summary>`));
+    assert.ok(
+      html.includes(
+        `class="share-prompt">${escapeHtml(content.ui.sharePrompt)}</p>`,
+      ),
+    );
+    assert.ok(
+      html.includes(
+        `aria-label="${escapeHtml(content.ui.sharePage)}" aria-controls="share-options">${escapeHtml(content.ui.shareAction)} <span aria-hidden="true">↑</span></summary>`,
+      ),
+    );
   }
 });
 
