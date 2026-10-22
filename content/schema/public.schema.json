@@ -255,6 +255,7 @@
         "linkedin",
         "email",
         "emailPending",
+        "sharePage",
         "footer",
         "backTop",
         "notFoundTitle",
@@ -289,8 +290,8 @@
         "contactLabel",
         "siteLabel"
       ],
-      "minProperties": 61,
-      "maxProperties": 61,
+      "minProperties": 62,
+      "maxProperties": 62,
       "additionalProperties": { "$ref": "#/definitions/text" }
     },
     "terminal": {

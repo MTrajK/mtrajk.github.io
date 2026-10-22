@@ -98,6 +98,26 @@ test("the built social image is an unchanged copy of the approved static JPEG", 
   }
 });
 
+test("the built share icons match the source assets", async () => {
+  const files = [
+    "email.svg",
+    "facebook.svg",
+    "linkedin.svg",
+    "reddit.svg",
+    "telegram.svg",
+    "twitter.svg",
+    "viber.svg",
+    "whatsapp.svg",
+  ];
+  for (const file of files) {
+    const source = await readFile(resolve(root, "assets/share", file));
+    const output = await readFile(resolve(root, "dist/assets/share", file));
+    assert.deepEqual(output, source);
+    for (const page of ["dist/index.html", "dist/mk/index.html"])
+      assert.ok((await readFile(resolve(root, page), "utf8")).includes(`/assets/share/${file}`));
+  }
+});
+
 test("packed CLI installs outside the monorepo and has no undeclared runtime dependencies", async () => {
   const fixture = await mkdtemp(resolve(tmpdir(), "mtrajk-package-"));
   try {

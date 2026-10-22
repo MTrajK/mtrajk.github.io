@@ -6,6 +6,16 @@ const openDev = async (page) => {
   await expect(page.locator("#dev-view")).toBeVisible();
   await expect(page.locator("#command-input")).toBeEnabled();
 };
+const shareProviders = [
+  ["linkedin", "LinkedIn", "rgb(0, 119, 181)"],
+  ["twitter", "X (Twitter)", "rgb(0, 0, 0)"],
+  ["reddit", "Reddit", "rgb(255, 69, 0)"],
+  ["email", "Email", "rgb(125, 125, 125)"],
+  ["facebook", "Facebook", "rgb(66, 103, 178)"],
+  ["whatsapp", "WhatsApp", "rgb(37, 211, 102)"],
+  ["telegram", "Telegram", "rgb(0, 136, 204)"],
+  ["viber", "Viber", "rgb(100, 94, 164)"],
+];
 
 test("DEV installation simulation disables input, repeats, and cancels cleanly", async ({ page }) => {
   await page.goto("/?mode=cv#projects");
@@ -334,7 +344,9 @@ test("Contact location and time zones stay localized in CV and DEV without appea
   for (const path of ["/", "/mk/"]) {
     await page.goto(`${path}?mode=cv`);
     const content = await (await page.request.get(`/data/v1/${path === "/" ? "en" : "mk"}.json`)).json();
-    const paragraphs = content.sections.find(section => section.id === "contact").paragraphs;
+    const paragraphs = content.sections.find(section => section.id === "contact").paragraphs.filter(
+      text => text !== `${content.ui.email}: ${content.profile.email}`,
+    );
     await expect(page.locator("#contact .section-content > p")).toHaveText(paragraphs);
     await expect(page.locator("#contact")).toContainText(path === "/" ? "Skopje, North Macedonia" : "Скопје, Северна Македонија");
     for (const text of ["CET/CEST", "UTC+1", "UTC+2", "US Eastern"])
@@ -376,7 +388,7 @@ test("portrait, email, and selected experience stay consistent in both modes", a
     await expect(contactEmail).toContainText("hello@mtrajk.dev");
     await expect(contactEmail).toHaveCSS("text-decoration-line", "none");
     await expect(contactEmail).toHaveCSS("border-bottom-style", "solid");
-    await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
+    await expect(page.locator('#contact .contact-links a[href^="mailto:"]')).toHaveCount(1);
     await expect(page.locator("#experience .experience-item")).toHaveCount(2);
     await expect(page.locator("#experience .period")).toHaveCount(0);
     await expect(page.locator("#experience")).not.toContainText(
@@ -400,9 +412,96 @@ test("portrait, email, and selected experience stay consistent in both modes", a
       .last()
       .locator('.terminal-links a[href="mailto:hello@mtrajk.dev"]');
     await expect(terminalEmail).toContainText("hello@mtrajk.dev");
-    await expect(page.locator('#dev-view a[href^="mailto:"]')).toHaveCount(1);
+    await expect(page.locator('#dev-view a[href="mailto:hello@mtrajk.dev"]')).toHaveCount(1);
     expect(JSON.stringify(content)).toContain("hello@mtrajk.dev");
     expect(await page.content()).toContain("mailto:hello@mtrajk.dev");
+  }
+});
+
+test("share menu is localized, canonical, keyboard accessible, and available in DEV", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [path, locale] of [["/", "en"], ["/mk/", "mk"]]) {
+    await page.goto(`${path}?mode=cv#contact`);
+    const content = await (await page.request.get(`/data/v1/${locale}.json`)).json();
+    const canonical = `${content.siteUrl}${path}`;
+    const disclosure = page.locator("#contact .share-control");
+    const summary = disclosure.locator("summary");
+    await expect(summary).toHaveText(content.ui.sharePage);
+    await expect(disclosure).not.toHaveAttribute("open", "");
+    const options = disclosure.locator(".share-option");
+    await expect(options).toHaveCount(shareProviders.length);
+    for (const [id, label, color] of shareProviders) {
+      const link = disclosure.locator(`.share-option[data-share="${id}"]`);
+      await expect(link).toHaveAttribute("aria-label", `${content.ui.sharePage}: ${label}`);
+      await expect(link).toHaveAttribute("title", label);
+      await expect(link.locator("img")).toHaveAttribute("src", `/assets/share/${id}.svg`);
+      await expect(link).toHaveCSS("background-color", color);
+      const href = new URL(await link.getAttribute("href"));
+      if (id === "linkedin") expect(href.searchParams.get("url")).toBe(canonical);
+      if (id === "twitter") {
+        expect(href.searchParams.get("url")).toBe(canonical);
+        expect(href.searchParams.get("text")).toBe(content.meta.title);
+      }
+      if (id === "reddit") {
+        expect(href.searchParams.get("url")).toBe(canonical);
+        expect(href.searchParams.get("title")).toBe(content.meta.title);
+      }
+      if (id === "email") {
+        expect(href.searchParams.get("subject")).toBe(content.meta.title);
+        expect(href.searchParams.get("body")).toBe(canonical);
+      }
+      if (id === "facebook") expect(href.searchParams.get("u")).toBe(canonical);
+      if (id === "whatsapp" || id === "viber")
+        expect(href.searchParams.get("text")).toBe(`${content.meta.title} ${canonical}`);
+      if (id === "telegram") {
+        expect(href.searchParams.get("url")).toBe(canonical);
+        expect(href.searchParams.get("text")).toBe(content.meta.title);
+      }
+    }
+    if (await page.evaluate(() => matchMedia("(hover: hover) and (pointer: fine)").matches)) {
+      await summary.hover();
+      await expect(disclosure).toHaveAttribute("open", "");
+      const summaryBox = await summary.boundingBox();
+      const optionBox = await options.first().boundingBox();
+      await page.mouse.move(
+        summaryBox.x + summaryBox.width / 2,
+        summaryBox.y + summaryBox.height / 2,
+      );
+      await page.mouse.move(
+        optionBox.x + optionBox.width / 2,
+        optionBox.y + optionBox.height / 2,
+        { steps: 12 },
+      );
+      await expect(disclosure).toHaveAttribute("open", "");
+      await expect(options.first()).toBeVisible();
+      await page.mouse.move(2, 2);
+      await expect(disclosure).not.toHaveAttribute("open", "");
+    }
+    await summary.click();
+    await expect(disclosure).toHaveAttribute("open", "");
+    await page.locator("#contact h2").click();
+    await expect(disclosure).not.toHaveAttribute("open", "");
+    await summary.focus();
+    await summary.press("Enter");
+    await expect(disclosure).toHaveAttribute("open", "");
+    await summary.press("Escape");
+    await expect(disclosure).not.toHaveAttribute("open", "");
+    await expect(summary).toBeFocused();
+    await page.setViewportSize({ width: 320, height: 844 });
+    await summary.click();
+    await expect(options.first()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await openDev(page);
+    const input = page.locator("#command-input");
+    await input.fill("contact");
+    await input.press("Enter");
+    const entry = page.locator(".terminal-entry").last();
+    await expect(entry.locator(".terminal-links a[data-share]")).toHaveCount(shareProviders.length);
+    for (const [id, label] of shareProviders)
+      await expect(entry.locator(`a[data-share="${id}"]`)).toHaveText(label);
   }
 });
 
@@ -431,6 +530,10 @@ test("static CV and localized navigation work without JavaScript", async ({
       "href",
       `${content.siteUrl}${path}`,
     );
+    const disclosure = page.locator("#contact .share-control");
+    await disclosure.locator("summary").click();
+    await expect(disclosure.locator(".share-option")).toHaveCount(shareProviders.length);
+    await expect(disclosure.locator(".share-option").first()).toBeVisible();
   }
   await page.locator('a[data-locale="en"]').click();
   await expect(page).toHaveURL(/\/$/);

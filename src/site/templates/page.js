@@ -1,3 +1,5 @@
+import { getShareLinks } from "../../core/share.js";
+
 export const escapeHtml = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -37,6 +39,15 @@ const tags = (values) =>
   values.length
     ? `<ul class="tags">${values.map((value) => `<li>${e(value)}</li>`).join("")}</ul>`
     : "";
+function renderShareMenu(content) {
+  const options = getShareLinks(content)
+    .map((link) => {
+      const external = !["email", "viber"].includes(link.id);
+      return `<a class="share-option" data-share="${e(link.id)}" href="${e(link.url)}" aria-label="${e(content.ui.sharePage)}: ${e(link.label)}" title="${e(link.label)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}><img src="${e(link.icon)}" alt=""></a>`;
+    })
+    .join("");
+  return `<details class="share-control"><summary aria-controls="share-options">${e(content.ui.sharePage)}</summary><div id="share-options" class="share-popover" role="group" aria-label="${e(content.ui.sharePage)}">${options}</div></details>`;
+}
 function renderItem(item, section, index, content) {
   const heading = `<h3>${e(item.title)}</h3><p class="item-subtitle">${e(item.subtitle)}</p>`;
   const body = `${paragraphs(item.paragraphs)}${tags(item.tags)}${item.links.length ? `<div class="item-links">${links(item.links)}</div>` : ""}`;
@@ -75,7 +86,7 @@ export function renderSection(section, content) {
     : [];
   const contact =
     section.id === "contact"
-      ? `<div class="contact-links">${links([...emailLink, ...section.links])}</div>${!profile.email ? `<p class="pending-note">${e(ui.emailPending)}</p>` : ""}`
+      ? `<div class="contact-links">${links([...emailLink, ...section.links])}</div>${!profile.email ? `<p class="pending-note">${e(ui.emailPending)}</p>` : ""}${renderShareMenu(content)}`
       : "";
   const scene =
     section.id === "hobbies"

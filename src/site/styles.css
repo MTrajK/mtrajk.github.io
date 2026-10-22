@@ -5,6 +5,14 @@
   --muted: #62675f;
   --accent: #2d6556;
   --line: #d9dcd1;
+  --share-linkedin: #0077b5;
+  --share-twitter: #000000;
+  --share-reddit: #ff4500;
+  --share-email: #7d7d7d;
+  --share-facebook: #4267B2;
+  --share-whatsapp: #25d366;
+  --share-telegram: #0088cc;
+  --share-viber: #645EA4;
   --serif: Georgia, "Times New Roman", serif;
   --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
@@ -647,6 +655,95 @@ summary {
   font: 1rem var(--mono);
   color: var(--accent);
   margin-left: 15px;
+}
+.share-control {
+  position: relative;
+  z-index: 2;
+  width: fit-content;
+  margin-top: 18px;
+}
+.share-control > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0 3px;
+  border-bottom: 1px solid var(--accent);
+  color: var(--ink);
+  font: 400 1.15rem/1.5 var(--serif);
+  list-style: none;
+}
+.share-control > summary::-webkit-details-marker {
+  display: none;
+}
+.share-popover {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 12px);
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(4, 44px);
+  gap: 8px;
+  width: max-content;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+  box-shadow: 0 10px 30px #292d2a24;
+}
+.share-popover::after {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  height: 12px;
+  content: "";
+}
+.share-option {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  text-decoration: none;
+  transition: transform 140ms ease;
+}
+.share-option[data-share="linkedin"] {
+  background: var(--share-linkedin);
+}
+.share-option[data-share="twitter"] {
+  background: var(--share-twitter);
+}
+.share-option[data-share="reddit"] {
+  background: var(--share-reddit);
+}
+.share-option[data-share="email"] {
+  background: var(--share-email);
+}
+.share-option[data-share="facebook"] {
+  background: var(--share-facebook);
+}
+.share-option[data-share="whatsapp"] {
+  background: var(--share-whatsapp);
+}
+.share-option[data-share="telegram"] {
+  background: var(--share-telegram);
+}
+.share-option[data-share="viber"] {
+  background: var(--share-viber);
+}
+.share-option img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.share-option:hover {
+  color: inherit;
+  transform: translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .share-option {
+    transition: none;
+  }
 }
 .pending-note {
   font-size: 0.72rem !important;

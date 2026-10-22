@@ -1,3 +1,5 @@
+import { getShareLinks } from "../../core/share.js";
+
 export function element(tag, text = "", className = "") {
   const node = document.createElement(tag);
   if (text) node.textContent = text;
@@ -16,6 +18,7 @@ function appendLinks(parent, links) {
     const anchor = element("a", link.label);
     anchor.href = link.url;
     anchor.rel = "noreferrer";
+    if (link.id) anchor.dataset.share = link.id;
     group.append(anchor);
   }
   parent.append(group);
@@ -96,6 +99,10 @@ export function renderResult(result, content) {
           ? [...emailLink, ...section.links]
           : section.links,
       );
+      if (section.id === "contact") {
+        output.append(element("h3", content.ui.sharePage));
+        appendLinks(output, getShareLinks(content));
+      }
       if (section.id === "contact" && !content.profile.email)
         output.append(element("p", content.ui.emailPending));
     }

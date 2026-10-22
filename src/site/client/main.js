@@ -12,12 +12,54 @@ const sections = [...document.querySelectorAll("#cv-view>section")];
 const sectionNav = document.querySelector(".section-nav");
 const navigation = [...sectionNav.querySelectorAll("a")];
 const header = document.querySelector(".site-header");
+const shareDisclosures = [...document.querySelectorAll("details")].filter(
+  (node) => node.classList.contains("share-control"),
+);
+const hoverShare = matchMedia("(hover: hover) and (pointer: fine)");
 let terminal;
 let initialization;
 let activeMode = "cv";
 let transition = 0;
 let scrollFrame = 0;
 const validMode = (value) => ["cv", "dev"].includes(value);
+for (const disclosure of shareDisclosures) {
+  const summary = disclosure.querySelector("summary");
+  let hoverOpened = false;
+  disclosure.addEventListener("pointerenter", (event) => {
+    if (hoverShare.matches && event.pointerType === "mouse") {
+      disclosure.open = true;
+      hoverOpened = true;
+    }
+  });
+  disclosure.addEventListener("pointerleave", () => {
+    if (!disclosure.querySelector(":focus-visible")) {
+      disclosure.open = false;
+      hoverOpened = false;
+    }
+  });
+  summary.addEventListener("click", (event) => {
+    if (hoverOpened && disclosure.open && event.detail > 0) {
+      event.preventDefault();
+      hoverOpened = false;
+    }
+  });
+  disclosure.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !disclosure.open) return;
+    event.preventDefault();
+    event.stopPropagation();
+    disclosure.open = false;
+    hoverOpened = false;
+    summary.focus();
+  });
+}
+document.addEventListener("click", (event) => {
+  if (!(event.target instanceof Element)) return;
+  for (const disclosure of shareDisclosures) {
+    if (disclosure.open && !disclosure.contains(event.target)) {
+      disclosure.open = false;
+    }
+  }
+});
 function saveMode(mode) {
   try {
     localStorage.setItem("mtrajk-mode", mode);

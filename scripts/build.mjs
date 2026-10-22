@@ -19,6 +19,9 @@ const contents = await loadContents({
 });
 const output = resolve(root, "dist");
 await mkdir(resolve(output, "assets"), { recursive: true });
+await cp(resolve(root, "assets/share"), resolve(output, "assets/share"), {
+  recursive: true,
+});
 await mkdir(resolve(output, "data/v1"), { recursive: true });
 await mkdir(resolve(output, "mk"), { recursive: true });
 const js = await build({

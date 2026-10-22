@@ -5,6 +5,7 @@ import { assertContent, fetchContent } from "../src/core/content.js";
 import { renderPage, renderSection, escapeHtml } from "../src/site/templates/page.js";
 import { executeCommand } from "../src/core/execute-command.js";
 import { renderText, renderBanner } from "../src/cli/render-result.js";
+import { getShareLinks } from "../src/core/share.js";
 import { access, stat } from "node:fs/promises";
 
 const sources = async () => ({
@@ -108,7 +109,7 @@ test("email is linked in HTML and remains plain text in content and CLI", async 
     assert.ok(html.includes(`>${email} <span aria-hidden="true">↗</span></a>`));
     for (const output of [JSON.stringify(result), renderText(result, content)]) {
       assert.ok(output.includes(email));
-      assert.ok(!output.includes("mailto:"));
+      assert.ok(!output.includes(`mailto:${email}`));
     }
     assert.deepEqual(
       result.sections[0].links.map((link) => link.url),
@@ -127,6 +128,57 @@ test("email is linked in HTML and remains plain text in content and CLI", async 
   const data = await sources();
   data.common.profile.email = "hello [at] mtrajk.dev";
   await assert.rejects(loadContents(data));
+});
+
+test("share links use canonical locale URLs in HTML and CLI", async () => {
+  const expected = [
+    ["linkedin", "LinkedIn"],
+    ["twitter", "X (Twitter)"],
+    ["reddit", "Reddit"],
+    ["email", "Email"],
+    ["facebook", "Facebook"],
+    ["whatsapp", "WhatsApp"],
+    ["telegram", "Telegram"],
+    ["viber", "Viber"],
+  ];
+  for (const content of await loadContents()) {
+    const canonical = `${content.siteUrl}${content.locale === "en" ? "/" : "/mk/"}`;
+    const links = getShareLinks(content);
+    assert.deepEqual(
+      links.map(({ id, label }) => [id, label]),
+      expected,
+    );
+    const urls = Object.fromEntries(links.map(({ id, url }) => [id, new URL(url)]));
+    assert.equal(urls.linkedin.searchParams.get("url"), canonical);
+    assert.equal(urls.twitter.searchParams.get("url"), canonical);
+    assert.equal(urls.twitter.searchParams.get("text"), content.meta.title);
+    assert.equal(urls.reddit.searchParams.get("url"), canonical);
+    assert.equal(urls.reddit.searchParams.get("title"), content.meta.title);
+    assert.equal(urls.email.searchParams.get("subject"), content.meta.title);
+    assert.equal(urls.email.searchParams.get("body"), canonical);
+    assert.equal(
+      urls.facebook.searchParams.get("u"),
+      canonical,
+    );
+    assert.equal(
+      urls.whatsapp.searchParams.get("text"),
+      `${content.meta.title} ${canonical}`,
+    );
+    assert.equal(urls.telegram.searchParams.get("url"), canonical);
+    assert.equal(urls.telegram.searchParams.get("text"), content.meta.title);
+    assert.equal(
+      urls.viber.searchParams.get("text"),
+      `${content.meta.title} ${canonical}`,
+    );
+    const contact = content.sections.find((section) => section.id === "contact");
+    const html = renderSection(contact, content);
+    const cli = renderText(executeCommand("contact", content), content).replace(/\s+/g, "");
+    for (const [id, label] of expected) {
+      assert.ok(html.includes(`data-share="${id}"`));
+      assert.ok(cli.includes(`${label}:${links.find((link) => link.id === id).url}`.replace(/\s+/g, "")));
+    }
+    assert.ok(html.includes(`>${escapeHtml(content.ui.sharePage)}</summary>`));
+  }
 });
 
 test("location and seasonal time-zone comparisons appear in Contact only across CV and CLI", async () => {

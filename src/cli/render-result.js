@@ -1,4 +1,5 @@
 import { cleanText } from "../core/commands.js";
+import { getShareLinks } from "../core/share.js";
 
 /** @param {import('../core/types.js').Result} result @param {import('../core/types.js').Content} content */
 export function renderText(
@@ -71,6 +72,10 @@ export function renderText(
       }
       if (section.skills) skills(section.skills);
       links(section.links);
+      if (section.id === "contact") {
+        heading(content.ui.sharePage);
+        links(getShareLinks(content));
+      }
       if (section.id === "contact" && !content.profile.email)
         paragraph(content.ui.emailPending);
     }
