@@ -430,6 +430,7 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
     const summary = disclosure.locator("summary");
     await expect(summary).toHaveText(content.ui.sharePage);
     await expect(disclosure).not.toHaveAttribute("open", "");
+    await expect(disclosure.locator(".share-popover")).toHaveCSS("padding", "20px");
     const options = disclosure.locator(".share-option");
     await expect(options).toHaveCount(shareProviders.length);
     for (const [id, label, color] of shareProviders) {
@@ -459,6 +460,28 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
         expect(href.searchParams.get("url")).toBe(canonical);
         expect(href.searchParams.get("text")).toBe(content.meta.title);
       }
+    }
+    if (await page.evaluate(() => matchMedia("(pointer: coarse)").matches)) {
+      await page.evaluate(() => {
+        window.__shareTapIds = [];
+        document.addEventListener("click", (event) => {
+          const link = event.target.closest("a.share-option");
+          if (!link) return;
+          event.preventDefault();
+          window.__shareTapIds.push(link.dataset.share);
+        }, true);
+      });
+      await summary.tap();
+      await expect(disclosure).toHaveAttribute("open", "");
+      for (const [id] of shareProviders) {
+        await disclosure.locator(`.share-option[data-share="${id}"]`).tap();
+        await expect(disclosure).toHaveAttribute("open", "");
+      }
+      expect(await page.evaluate(() => window.__shareTapIds)).toEqual(
+        shareProviders.map(([id]) => id),
+      );
+      await page.locator("#contact h2").tap();
+      await expect(disclosure).not.toHaveAttribute("open", "");
     }
     if (await page.evaluate(() => matchMedia("(hover: hover) and (pointer: fine)").matches)) {
       await summary.hover();

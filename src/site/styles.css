@@ -657,6 +657,7 @@ summary {
   margin-left: 15px;
 }
 .share-control {
+  --share-popover-gap: 12px;
   position: relative;
   z-index: 2;
   width: fit-content;
@@ -678,13 +679,13 @@ summary {
 .share-popover {
   position: absolute;
   left: 0;
-  bottom: calc(100% + 12px);
+  bottom: calc(100% + var(--share-popover-gap));
   z-index: 20;
   display: grid;
   grid-template-columns: repeat(4, 44px);
   gap: 8px;
   width: max-content;
-  padding: 12px;
+  padding: 20px;
   border: 1px solid var(--line);
   border-radius: 9px;
   background: var(--paper);
@@ -695,7 +696,7 @@ summary {
   top: 100%;
   right: 0;
   left: 0;
-  height: 12px;
+  height: calc(var(--share-popover-gap) + 2px);
   content: "";
 }
 .share-option {

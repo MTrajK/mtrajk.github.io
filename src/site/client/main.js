@@ -31,7 +31,8 @@ for (const disclosure of shareDisclosures) {
       hoverOpened = true;
     }
   });
-  disclosure.addEventListener("pointerleave", () => {
+  disclosure.addEventListener("pointerleave", (event) => {
+    if (event.pointerType !== "mouse" || !hoverShare.matches) return;
     if (!disclosure.querySelector(":focus-visible")) {
       disclosure.open = false;
       hoverOpened = false;
