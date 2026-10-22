@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { build } from "esbuild";
-import { root, validators, loadContents } from "./content.mjs";
+import { root, validators, loadContents, readJson } from "./content.mjs";
 
 const require = createRequire(import.meta.url);
 const standaloneCode = require("ajv/dist/standalone/index.js").default;
@@ -21,11 +21,17 @@ export async function generateValidator() {
     legalComments: "none",
   });
   await mkdir(new URL("../.generated/", import.meta.url), { recursive: true });
-  for (const content of await loadContents())
+  const contents = await loadContents();
+  const common = await readJson("content/common.json");
+  for (const content of contents)
     await writeFile(
       new URL(`../.generated/${content.locale}.json`, import.meta.url),
       JSON.stringify(content),
     );
+  await writeFile(
+    new URL("../.generated/share-options.js", import.meta.url),
+    `export default ${JSON.stringify(common.shareOptions)};\n`,
+  );
   await writeFile(
     new URL("../.generated/validate.js", import.meta.url),
     result.outputFiles[0].text,

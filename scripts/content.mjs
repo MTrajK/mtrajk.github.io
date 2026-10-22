@@ -116,6 +116,11 @@ export async function loadContents({
   );
   check(v.common, common, "common");
   if (
+    new Set(common.shareOptions.map((option) => option.id)).size !==
+    common.shareOptions.length
+  )
+    throw new Error("Duplicate share option IDs");
+  if (
     translations.length !== 2 ||
     translations[0].locale !== "en" ||
     translations[1].locale !== "mk"

@@ -11,6 +11,7 @@
     "sectionOrder",
     "records",
     "contactLinks",
+    "shareOptions",
     "artwork"
   ],
   "properties": {
@@ -106,6 +107,7 @@
       }
     },
     "contactLinks": { "$ref": "#/definitions/links" },
+    "shareOptions": { "$ref": "#/definitions/shareOptions" },
     "artwork": {
       "$ref": "urn:mtrajk:schema:public:v1#/definitions/artwork"
     }
@@ -124,6 +126,51 @@
           },
           "url": {
             "$ref": "urn:mtrajk:schema:public:v1#/definitions/link/properties/url"
+          }
+        }
+      }
+    },
+    "shareOptions": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "icon", "url"],
+        "properties": {
+          "id": {
+            "enum": [
+              "linkedin",
+              "twitter",
+              "reddit",
+              "email",
+              "facebook",
+              "whatsapp",
+              "telegram",
+              "viber"
+            ]
+          },
+          "label": {
+            "$ref": "urn:mtrajk:schema:public:v1#/definitions/text"
+          },
+          "icon": {
+            "enum": [
+              "/assets/share/linkedin.svg",
+              "/assets/share/twitter.svg",
+              "/assets/share/reddit.svg",
+              "/assets/share/email.svg",
+              "/assets/share/facebook.svg",
+              "/assets/share/whatsapp.svg",
+              "/assets/share/telegram.svg",
+              "/assets/share/viber.svg"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "pattern": "^(https://[^\\s]+|mailto:[^\\s]+|viber://[^\\s]+)$"
           }
         }
       }

@@ -131,6 +131,7 @@ test("email is linked in HTML and remains plain text in content and CLI", async 
 });
 
 test("share links use canonical locale URLs in HTML and CLI", async () => {
+  const { common } = await sources();
   const expected = [
     ["linkedin", "LinkedIn"],
     ["twitter", "X (Twitter)"],
@@ -141,12 +142,20 @@ test("share links use canonical locale URLs in HTML and CLI", async () => {
     ["telegram", "Telegram"],
     ["viber", "Viber"],
   ];
+  assert.deepEqual(
+    common.shareOptions.map(({ id, label }) => [id, label]),
+    expected,
+  );
   for (const content of await loadContents()) {
     const canonical = `${content.siteUrl}${content.locale === "en" ? "/" : "/mk/"}`;
     const links = getShareLinks(content);
     assert.deepEqual(
       links.map(({ id, label }) => [id, label]),
       expected,
+    );
+    assert.deepEqual(
+      links.map(({ id, label, icon }) => [id, label, icon]),
+      common.shareOptions.map(({ id, label, icon }) => [id, label, icon]),
     );
     const urls = Object.fromEntries(links.map(({ id, url }) => [id, new URL(url)]));
     assert.equal(urls.linkedin.searchParams.get("url"), canonical);
@@ -291,6 +300,12 @@ test("schema, translation parity, stable IDs and unsafe content are enforced", a
     },
     (data) => {
       data.common.contactLinks[0].url = "https://user:password@example.com";
+    },
+    (data) => {
+      data.common.shareOptions[0].url = "javascript:alert(1)";
+    },
+    (data) => {
+      data.common.shareOptions[0].id = data.common.shareOptions[1].id;
     },
     (data) => {
       data.common.records.experience[0].period = {

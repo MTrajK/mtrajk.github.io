@@ -11,9 +11,11 @@ import { gzipSync } from "node:zlib";
 import { build } from "esbuild";
 import sharp from "sharp";
 import { root, loadContents, digest } from "./content.mjs";
-import { renderPage, socialPreview, faviconFiles } from "../src/site/templates/page.js";
 import "./generate-validator.mjs";
 
+const { renderPage, socialPreview, faviconFiles } = await import(
+  "../src/site/templates/page.js"
+);
 const contents = await loadContents({
   release: process.argv.includes("--release"),
 });

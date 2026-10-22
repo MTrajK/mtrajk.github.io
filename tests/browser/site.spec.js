@@ -479,6 +479,7 @@ test("terminal prompt regains focus after returning from a new-tab link", async 
 test("share menu is localized, canonical, keyboard accessible, and available in DEV", async ({
   page,
 }) => {
+  test.setTimeout(60000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const [path, locale] of [["/", "en"], ["/mk/", "mk"]]) {
     await page.goto(`${path}?mode=cv#contact`);

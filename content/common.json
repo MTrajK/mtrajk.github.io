@@ -142,6 +142,56 @@
       "url": "https://www.linkedin.com/in/mtrajk/"
     }
   ],
+  "shareOptions": [
+    {
+      "id": "linkedin",
+      "label": "LinkedIn",
+      "icon": "/assets/share/linkedin.svg",
+      "url": "https://www.linkedin.com/sharing/share-offsite/?url={url}"
+    },
+    {
+      "id": "twitter",
+      "label": "X (Twitter)",
+      "icon": "/assets/share/twitter.svg",
+      "url": "https://x.com/intent/post?text={title}&url={url}"
+    },
+    {
+      "id": "reddit",
+      "label": "Reddit",
+      "icon": "/assets/share/reddit.svg",
+      "url": "https://www.reddit.com/submit?url={url}&title={title}"
+    },
+    {
+      "id": "email",
+      "label": "Email",
+      "icon": "/assets/share/email.svg",
+      "url": "mailto:?subject={title}&body={url}"
+    },
+    {
+      "id": "facebook",
+      "label": "Facebook",
+      "icon": "/assets/share/facebook.svg",
+      "url": "https://www.facebook.com/sharer/sharer.php?u={url}"
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "icon": "/assets/share/whatsapp.svg",
+      "url": "https://wa.me/?text={message}"
+    },
+    {
+      "id": "telegram",
+      "label": "Telegram",
+      "icon": "/assets/share/telegram.svg",
+      "url": "https://t.me/share/url?url={url}&text={title}"
+    },
+    {
+      "id": "viber",
+      "label": "Viber",
+      "icon": "/assets/share/viber.svg",
+      "url": "viber://forward?text={message}"
+    }
+  ],
   "artwork": {
     "wordmark": [
       " __  __  _____  ____      _       _  _  __",
