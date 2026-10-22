@@ -69,6 +69,7 @@ export async function createTerminal(config, onCv, onLanguage = () => {}) {
   const output = document.querySelector("#terminal-output");
   const terminalView = document.querySelector("#dev-view");
   const active = () => document.documentElement.dataset.mode === "dev";
+  let restorePromptAfterLink = false;
   function syncViewport() {
     if (!active()) return;
     const viewport = window.visualViewport;
@@ -94,6 +95,12 @@ export async function createTerminal(config, onCv, onLanguage = () => {}) {
     input.focus({ preventScroll: true });
   }
   function restoreFocus() {
+    if (!active()) return;
+    if (restorePromptAfterLink) {
+      restorePromptAfterLink = false;
+      focusPrompt();
+      return;
+    }
     if (
       document.activeElement === document.body ||
       document.activeElement === input
@@ -101,14 +108,15 @@ export async function createTerminal(config, onCv, onLanguage = () => {}) {
       focusPrompt();
   }
   terminalView.addEventListener("click", (event) => {
-    if (
-      !(event.target instanceof Element) ||
-      event.target.closest(
-        "a, button, input, textarea, select, summary, [contenteditable]",
-      ) ||
-      window.getSelection()?.toString()
-    )
+    if (!(event.target instanceof Element)) return;
+    if (event.target.closest('a[target="_blank"]')) {
+      restorePromptAfterLink = true;
       return;
+    }
+    if (
+      event.target.closest("a, button, input, textarea, select, summary, [contenteditable]") ||
+      window.getSelection()?.toString()
+    ) return;
     focusPrompt();
   });
   window.addEventListener("focus", restoreFocus);
@@ -319,6 +327,7 @@ export async function createTerminal(config, onCv, onLanguage = () => {}) {
     };
   }
   function leave() {
+    restorePromptAfterLink = false;
     cancelAnswer();
     languageVersion++;
     languageChange?.resume();

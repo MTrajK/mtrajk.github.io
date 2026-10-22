@@ -418,6 +418,64 @@ test("portrait, email, and selected experience stay consistent in both modes", a
   }
 });
 
+test("all outbound links open in a new tab in CV and DEV", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const assertNewTabLinks = async (scope) => {
+    const links = page.locator(
+      `${scope} a[href^="https://"], ${scope} a[href^="mailto:"], ${scope} a[href^="viber:"]`,
+    );
+    const attributes = await links.evaluateAll((nodes) =>
+      nodes.map((link) => ({
+        href: link.href,
+        target: link.target,
+        rel: link.rel,
+      })),
+    );
+    expect(attributes.length).toBeGreaterThan(0);
+    for (const link of attributes) {
+      expect(link.target, link.href).toBe("_blank");
+      expect(link.rel, link.href).toBe("noopener noreferrer");
+    }
+  };
+  for (const path of ["/", "/mk/"]) {
+    await page.goto(`${path}?mode=cv`);
+    await assertNewTabLinks("#cv-view");
+    await openDev(page);
+    const input = page.locator("#command-input");
+    await input.fill("all");
+    await input.press("Enter");
+    await assertNewTabLinks("#dev-view");
+  }
+});
+
+test("terminal prompt regains focus after returning from a new-tab link", async ({
+  page,
+  context,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await context.route("https://www.linkedin.com/**", (route) =>
+    route.fulfill({ contentType: "text/html", body: "<title>Shared</title>" }),
+  );
+  await page.goto("/?mode=dev");
+  const input = page.locator("#command-input");
+  await expect(input).toBeFocused();
+  await input.fill("contact");
+  await input.press("Enter");
+  const link = page
+    .locator(".terminal-entry")
+    .last()
+    .locator('a[data-share="linkedin"]');
+  await expect(link).toBeVisible();
+  const newTab = context.waitForEvent("page");
+  await link.click();
+  const openedPage = await newTab;
+  await openedPage.waitForLoadState();
+  await openedPage.close();
+  await page.bringToFront();
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(input).toBeFocused();
+});
+
 test("share menu is localized, canonical, keyboard accessible, and available in DEV", async ({
   page,
 }) => {
@@ -437,6 +495,8 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
       const link = disclosure.locator(`.share-option[data-share="${id}"]`);
       await expect(link).toHaveAttribute("aria-label", `${content.ui.sharePage}: ${label}`);
       await expect(link).toHaveAttribute("title", label);
+      await expect(link).toHaveAttribute("target", "_blank");
+      await expect(link).toHaveAttribute("rel", "noopener noreferrer");
       await expect(link.locator("img")).toHaveAttribute("src", `/assets/share/${id}.svg`);
       await expect(link).toHaveCSS("background-color", color);
       const href = new URL(await link.getAttribute("href"));
@@ -522,9 +582,14 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
     await input.fill("contact");
     await input.press("Enter");
     const entry = page.locator(".terminal-entry").last();
-    await expect(entry.locator(".terminal-links a[data-share]")).toHaveCount(shareProviders.length);
-    for (const [id, label] of shareProviders)
-      await expect(entry.locator(`a[data-share="${id}"]`)).toHaveText(label);
+    const terminalShares = entry.locator(".terminal-links a[data-share]");
+    await expect(terminalShares).toHaveCount(shareProviders.length);
+    for (const [id, label] of shareProviders) {
+      const link = entry.locator(`a[data-share="${id}"]`);
+      await expect(link).toHaveText(label);
+      await expect(link).toHaveAttribute("target", "_blank");
+      await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    }
   }
 });
 

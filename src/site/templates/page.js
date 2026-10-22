@@ -32,7 +32,7 @@ const links = (values, className = "") =>
   values
     .map(
       (link) =>
-        `<a class="${className}" href="${e(link.url)}" rel="noreferrer">${e(link.label)} <span aria-hidden="true">↗</span></a>`,
+        `<a class="${className}" href="${e(link.url)}" target="_blank" rel="noopener noreferrer">${e(link.label)} <span aria-hidden="true">↗</span></a>`,
     )
     .join("");
 const tags = (values) =>
@@ -42,8 +42,7 @@ const tags = (values) =>
 function renderShareMenu(content) {
   const options = getShareLinks(content)
     .map((link) => {
-      const external = !["email", "viber"].includes(link.id);
-      return `<a class="share-option" data-share="${e(link.id)}" href="${e(link.url)}" aria-label="${e(content.ui.sharePage)}: ${e(link.label)}" title="${e(link.label)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}><img src="${e(link.icon)}" alt=""></a>`;
+      return `<a class="share-option" data-share="${e(link.id)}" href="${e(link.url)}" aria-label="${e(content.ui.sharePage)}: ${e(link.label)}" title="${e(link.label)}" target="_blank" rel="noopener noreferrer"><img src="${e(link.icon)}" alt=""></a>`;
     })
     .join("");
   return `<details class="share-control"><summary aria-controls="share-options">${e(content.ui.sharePage)}</summary><div id="share-options" class="share-popover" role="group" aria-label="${e(content.ui.sharePage)}">${options}</div></details>`;

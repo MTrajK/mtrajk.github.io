@@ -17,7 +17,8 @@ function appendLinks(parent, links) {
   for (const link of links) {
     const anchor = element("a", link.label);
     anchor.href = link.url;
-    anchor.rel = "noreferrer";
+    anchor.target = "_blank";
+    anchor.rel = "noopener noreferrer";
     if (link.id) anchor.dataset.share = link.id;
     group.append(anchor);
   }
