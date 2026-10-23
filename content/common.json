@@ -47,7 +47,7 @@
     ],
     "strengths": [
       {
-        "id": "product",
+        "id": "adaptability",
         "tags": [],
         "links": []
       },
@@ -57,12 +57,12 @@
         "links": []
       },
       {
-        "id": "architecture",
+        "id": "product",
         "tags": [],
         "links": []
       },
       {
-        "id": "adaptability",
+        "id": "architecture",
         "tags": [],
         "links": []
       }

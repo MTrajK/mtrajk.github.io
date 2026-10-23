@@ -1,12 +1,12 @@
 {
   "locale": "en",
   "name": "Meto Trajkovski",
-  "headline": "Product-minded engineer. Hands-on technical leader.",
-  "motto": "Building products that solve real problems.",
+  "headline": "AI-focused. Technical leader. Product-minded software engineer.",
+  "motto": "Understanding problems. Building useful products. Helping teams grow.",
   "meta": {
-    "title": "Meto Trajkovski — Software engineer & technical leader",
-    "description": "Product thinking, hands-on engineering, and technical leadership. Explore Meto Trajkovski's experience, approach, and open-source projects.",
-    "socialLabel": "ENGINEERING · PRODUCT · PEOPLE"
+    "title": "Meto Trajkovski — Technical leader & product-minded software engineer",
+    "description": "Practical AI, hands-on leadership, product thinking, and deep engineering experience. Explore Meto Trajkovski’s approach, experience, and open-source projects.",
+    "socialLabel": "AI · LEADERSHIP · PRODUCT · ENGINEERING"
   },
   "ui": {
     "cv": "CV",
@@ -19,7 +19,7 @@
     "navLabel": "Sections",
     "draft": "Preview edition — final content and language review pending.",
     "edition": "A PERSONAL FIELD GUIDE",
-    "role": "SOFTWARE ENGINEER & TECHNICAL LEADER",
+    "role": "TECHNICAL LEADER & PRODUCT-MINDED SOFTWARE ENGINEER",
     "portraitPending": "Portrait in progress",
     "portraitAlt": "Anime-inspired portrait of Meto Trajkovski",
     "monogram": "MT",
@@ -99,7 +99,7 @@
       "about": "The person behind the code",
       "experience": "Selected experience and client engagements",
       "strengths": "What I bring to a team",
-      "skills": "Tools and engineering practices",
+      "skills": "AI, leadership, product, and engineering capabilities",
       "how-i-work": "From problem to maintained product",
       "projects": "Selected open-source projects",
       "hobbies": "Beyond the keyboard",
@@ -115,7 +115,7 @@
       "title": "Introduction",
       "kicker": "01 / THE INTRODUCTION",
       "paragraphs": [
-        "I'm a software engineer and technical leader building complex products with .NET, Python, and JavaScript/TypeScript. I connect product thinking with hands-on engineering—from understanding the problem to supporting the product in production."
+        "I put AI into practice, lead by example, and build with a product mindset. As a technical leader and product-minded software engineer, I connect deep engineering experience with a broad view of the product—from understanding the problem to delivery and continuous improvement."
       ],
       "items": []
     },
@@ -124,11 +124,11 @@
       "title": "The person behind the code.",
       "kicker": "02 / ABOUT",
       "paragraphs": [
-        "I'm a product-minded software engineer with more than a decade of experience building complex products, primarily with .NET, Python, and JavaScript/TypeScript.",
-        "For over five years, I've combined hands-on engineering with technical leadership, working closely with developers, QA, product, and architecture stakeholders.",
-        "I care about understanding the problem, choosing the right technology, and building systems that remain reliable and maintainable as they grow.",
-        "I lead by example, support the people around me, and value clean code, testing, and continuous improvement.",
-        "Recently, I've been exploring how AI-assisted engineering can improve delivery speed and quality without lowering architectural or testing standards."
+        "I’m a product-minded software engineer with 10+ years of professional experience, focused on practical AI and AI-assisted engineering.",
+        "With 5+ years in technical leadership, I lead by example, stay hands-on, and help teammates grow.",
+        "I connect user needs and business goals with delivery, taking ownership from discovery to improvement.",
+        "A T-shaped engineer, I combine engineering depth with breadth across the product lifecycle and strong attention to detail.",
+        "Programming competitions are part of my engineering roots: RoboMac AI winner (2015); 3rd place, Macedonian National Competition in Informatics (2012); ACM ICPC, Bucharest (2015); Junior Balkan Olympiad in Informatics, Belgrade (2007); CodeFu finalist (2014–2019)."
       ],
       "items": []
     },
@@ -145,7 +145,7 @@
           "title": "Reliable payment systems",
           "subtitle": "Technical leadership & hands-on delivery",
           "paragraphs": [
-            "Developing and upgrading .NET payment solutions for Global Payments on a platform that processes billions of dollars annually. The work supports high-volume, mission-critical financial operations, where reliability, scalability, and safe releases matter.",
+            "Building and evolving .NET payment solutions for Global Payments on a platform that processes billions of dollars annually. The work supports high-volume, mission-critical financial operations, where reliability, scalability, and safe releases matter.",
             "Cross-functional delivery alongside engineering, QA, product, and architecture stakeholders."
           ],
           "bullets": [
@@ -159,77 +159,89 @@
           "title": "Engineering in three dimensions",
           "subtitle": "Dental CAD/CAM software",
           "paragraphs": [
-            ".NET software for Frame Design, Anatomy Design, and TRIOS, working with complex architectures and algorithms for 3D-space problems."
+            "Developed dental CAD/CAM software using .NET across Frame Design, Anatomy Design, and TRIOS, working with complex architectures and solving geometric problems in three dimensions."
           ],
           "bullets": [
             "Worked across three dental software products.",
             "Developed algorithms for geometric problems in 3D space.",
-            "3Shape was a client of Inscale in Skopje."
+            "Applied algorithmic problem solving to complex dental-design workflows."
           ]
         }
       ]
     },
     {
       "id": "strengths",
-      "title": "More than a technology stack.",
+      "title": "What I bring to a team.",
       "kicker": "04 / STRENGTHS",
       "paragraphs": [
-        "Good engineering connects the product, the people, and the details that make it work."
+        "Practical AI, leadership by example, product thinking, and engineering depth shape how I work and support the people around me."
       ],
       "items": [
         {
-          "id": "product",
-          "title": "Start with the problem",
-          "subtitle": "Product thinking",
+          "id": "adaptability",
+          "title": "Put AI into practice",
+          "subtitle": "Practical AI",
           "paragraphs": [
-            "Understand who we're building for and why. Connect technical choices to the user's problem, not the other way around."
+            "Apply AI-assisted workflows to everyday engineering. Define clear intent, evaluate the output, and use engineering judgment to decide what to trust and ship."
           ],
           "bullets": []
         },
         {
           "id": "leadership",
-          "title": "Lead from the work",
+          "title": "Lead by example",
           "subtitle": "Hands-on leadership",
           "paragraphs": [
-            "Stay close to the technology, support the team, and help people do their best work. Lead by example."
+            "Take ownership, stay hands-on, and demonstrate the standards I ask of others. Share context, give constructive feedback, and help teammates develop confidence and independence."
+          ],
+          "bullets": []
+        },
+        {
+          "id": "product",
+          "title": "Start with the problem",
+          "subtitle": "Product thinking",
+          "paragraphs": [
+            "Understand users, question assumptions, and connect engineering decisions to meaningful product outcomes. Stay involved beyond implementation to see whether the work solves the problem."
           ],
           "bullets": []
         },
         {
           "id": "architecture",
-          "title": "Build for what comes next",
-          "subtitle": "Architecture & quality",
+          "title": "Go deep. Connect the whole.",
+          "subtitle": "T-shaped engineering",
           "paragraphs": [
-            "Clean code, thoughtful architecture, testing, and continuous improvement make complex systems easier to live with."
-          ],
-          "bullets": []
-        },
-        {
-          "id": "adaptability",
-          "title": "Keep learning. Keep improving.",
-          "subtitle": "Adaptability & practical AI",
-          "paragraphs": [
-            "Choose the right tools for the problem. Explore AI-assisted delivery without compromising engineering judgment."
+            "Combine engineering depth with breadth across discovery, architecture, development, testing, and delivery. Bring strong attention to detail to individual decisions and the product as a whole."
           ],
           "bullets": []
         }
       ],
       "skills": [
         {
-          "title": "Languages & platforms",
-          "values": ["C# / .NET", "Python", "JavaScript / TypeScript"]
-        },
-        {
-          "title": "Engineering",
-          "values": ["Architecture", "Algorithms", "Testing", "Integrations"]
-        },
-        {
-          "title": "Delivery & leadership",
+          "title": "AI & product",
           "values": [
-            "Cross-functional teams",
+            "AI-first mindset",
+            "AI-assisted engineering",
+            "Product discovery",
+            "Requirements clarification"
+          ]
+        },
+        {
+          "title": "Leadership & collaboration",
+          "values": [
+            "Leading by example",
             "Mentoring",
-            "Agile",
-            "AI-assisted prototyping"
+            "Cross-functional teams",
+            "Agile"
+          ]
+        },
+        {
+          "title": "Languages & engineering",
+          "values": [
+            ".NET",
+            "Python",
+            "JavaScript / TypeScript",
+            "Architecture",
+            "Testing",
+            "Attention to detail"
           ]
         }
       ]
@@ -245,7 +257,7 @@
           "title": "Understand",
           "subtitle": "Find the right problem",
           "paragraphs": [
-            "Clarify users, business goals, current problems, constraints, and what success looks like. Use quick AI-assisted UI prototypes to test understanding before committing to a solution."
+            "Clarify users, business goals, constraints, and what success looks like. Use conversations and quick AI-assisted UI prototypes to test assumptions before committing to a solution."
           ],
           "bullets": []
         },
@@ -254,7 +266,7 @@
           "title": "Architect",
           "subtitle": "Give the solution structure",
           "paragraphs": [
-            "Shape the product, data model, integrations, permissions, workflows, and interface direction around the problem and its constraints."
+            "Turn the problem into clear requirements, boundaries, and acceptance criteria. Decide where AI can help and how its output will be evaluated."
           ],
           "bullets": []
         },
@@ -263,7 +275,7 @@
           "title": "Build",
           "subtitle": "Turn intent into working software",
           "paragraphs": [
-            "Deliver the frontend, backend, integrations, and supporting infrastructure the product needs, including mobile or desktop where appropriate."
+            "Work in small, reviewable increments, using AI agents with clear context and instructions. Stay hands-on with design, implementation, code review, and testing, and take responsibility for the result."
           ],
           "bullets": []
         },
@@ -272,7 +284,7 @@
           "title": "Launch & improve",
           "subtitle": "The release is a beginning",
           "paragraphs": [
-            "Test, deploy, monitor, maintain, and improve the product using evidence from real users and production operation."
+            "Validate behavior, release carefully, and learn using evidence from real users and production operation. Improve the product and the team’s workflow, sharing useful practices and lessons along the way."
           ],
           "bullets": []
         }
@@ -283,7 +295,7 @@
       "title": "Built to learn. Shared to help.",
       "kicker": "06 / SELECTED WORK",
       "paragraphs": [
-        "A selection of my pet projects—not the full list. These projects were built before AI-assisted coding and written manually. Small experiments, useful tools, and learning in public, built outside the day job."
+        "A selection of personal projects built to explore ideas, solve everyday problems, and share what I learn. These projects predate my current focus on AI-assisted engineering."
       ],
       "items": [
         {
@@ -309,7 +321,7 @@
           "title": "SlediPratki",
           "subtitle": "One place to follow a package",
           "paragraphs": [
-            "A Chrome extension built to track postal shipments in Macedonia, with background updates and notifications. A project from my open-source collection; current service availability is not guaranteed."
+            "A Chrome extension built to track postal shipments in Macedonia, with background updates and notifications."
           ],
           "bullets": []
         }
@@ -321,7 +333,7 @@
       "kicker": "07 / BEYOND THE KEYBOARD",
       "paragraphs": [
         "Long-distance running—half-marathons and marathons—is how I practice discipline: showing up early in the morning or late in the evening, even when motivation is low.",
-        "Away from the run, I try to learn something new every day about engineering, technology, AI, or product development."
+        "Away from the run, I try to learn something new every day about AI, leadership, product development, or software engineering."
       ],
       "items": []
     },
