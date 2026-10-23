@@ -42,8 +42,7 @@ test("one common domain drives all generated website and terminal URLs", async (
   await assert.rejects(loadContents(data));
 });
 
-test("social metadata keeps its title and image fixed while descriptions follow the JSON headline", async () => {
-  const socialTitle = "Meto Trajkovski — Product-Minded Software Engineer & Technical Leader";
+test("social metadata follows localized title and description while keeping its image fixed", async () => {
   for (const original of await loadContents()) {
     const content = structuredClone(original);
     content.profile.headline = `${original.profile.headline} A "JSON" headline & <plain text>.`;
@@ -51,10 +50,10 @@ test("social metadata keeps its title and image fixed while descriptions follow 
     const html = renderPage(content, { css: "/style.css", js: "/main.js" });
     const meta = (key, attribute = "property") => html.match(new RegExp(`<meta ${attribute}="${key}" content="([^"]*)">`))?.[1];
     for (const [attribute, prefix] of [["property", "og"], ["name", "twitter"]]) {
-      assert.equal(meta(`${prefix}:title`, attribute), escapeHtml(socialTitle));
+      assert.equal(meta(`${prefix}:title`, attribute), escapeHtml(content.meta.title));
       assert.equal(meta(`${prefix}:description`, attribute), escapeHtml(content.profile.headline));
       assert.equal(meta(`${prefix}:image`, attribute), `${content.siteUrl}/assets/social/meto-trajkovski-social-card.jpg`);
-      assert.equal(meta(`${prefix}:image:alt`, attribute), "Anime-inspired portrait of Meto Trajkovski beside his name.");
+      assert.equal(meta(`${prefix}:image:alt`, attribute), escapeHtml(content.ui.portraitAlt));
     }
     assert.equal(meta("description", "name"), escapeHtml(content.meta.description));
     assert.ok(html.includes("<title>A different browser title</title>"));
@@ -98,6 +97,25 @@ test("selected experience omits dates and retired clients across CV and CLI", as
   }
 });
 
+test("strengths render in the order authored in common data", async () => {
+  const { common } = await sources();
+  const expectedIds = common.records.strengths.map((item) => item.id);
+  for (const content of await loadContents()) {
+    const section = content.sections.find((item) => item.id === "strengths");
+    assert.deepEqual(section.items.map((item) => item.id), expectedIds);
+    const html = renderSection(section, content);
+    const cli = renderText(executeCommand("strengths", content), content);
+    assert.deepEqual(
+      section.items.map((item) => html.indexOf(escapeHtml(item.title))),
+      section.items.map((item) => html.indexOf(escapeHtml(item.title))).toSorted((a, b) => a - b),
+    );
+    assert.deepEqual(
+      section.items.map((item) => cli.indexOf(item.title)),
+      section.items.map((item) => cli.indexOf(item.title)).toSorted((a, b) => a - b),
+    );
+  }
+});
+
 test("email is linked in HTML and remains plain text in content and CLI", async () => {
   const email = "hello@mtrajk.dev";
   for (const content of await loadContents()) {
@@ -114,15 +132,6 @@ test("email is linked in HTML and remains plain text in content and CLI", async 
     assert.deepEqual(
       result.sections[0].links.map((link) => link.url),
       ["https://github.com/MTrajK", "https://www.linkedin.com/in/mtrajk/"],
-    );
-    const projects = content.sections.find(
-      (section) => section.id === "projects",
-    );
-    assert.match(
-      projects.paragraphs.join(" "),
-      content.locale === "en"
-        ? /before AI.*written manually/
-        : /пред AI.*рачно/,
     );
   }
   const data = await sources();
@@ -205,9 +214,12 @@ test("location and seasonal time-zone comparisons appear in Contact only across 
     const contact = result.sections[0];
     const copy = contact.paragraphs.join(" ");
     assert.match(copy, content.locale === "en" ? /Skopje, North Macedonia/ : /Скопје, Северна Македонија/);
-    for (const pattern of [/CET\/CEST/, /UTC\+1/, /UTC\+2/, /US Eastern/])
+    for (const pattern of [/CET\/CEST/, /UTC\+1/, /UTC\+2/])
       assert.match(copy, pattern);
-    assert.match(copy, content.locale === "en" ? /European working hours · US Eastern mornings/ : /европското работно време · утрински часови на US Eastern/);
+    const locationParagraph = contact.paragraphs.find((text) =>
+      text.includes("CET/CEST"),
+    );
+    assert.ok(locationParagraph);
     const html = renderSection(contact, content);
     const text = renderText(result, content).replace(/\s+/g, " ");
     const emailParagraph = `${content.ui.email}: ${content.profile.email}`;
@@ -218,9 +230,11 @@ test("location and seasonal time-zone comparisons appear in Contact only across 
       assert.ok(text.includes(paragraph.replace(/\s+/g, " ")));
     }
     const intro = executeCommand("intro", content);
-    const location = /Skopje|Скопје|CET\/CEST|UTC\+[12]|US Eastern/;
+    const location = /Skopje|Скопје|CET\/CEST|UTC\+[12]/;
     assert.doesNotMatch(renderSection(intro.sections[0], content), location);
     assert.doesNotMatch(renderText(intro, content), location);
+    assert.ok(!renderSection(intro.sections[0], content).includes(escapeHtml(locationParagraph)));
+    assert.ok(!renderText(intro, content).includes(locationParagraph));
   }
 });
 

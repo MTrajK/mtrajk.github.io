@@ -9,12 +9,10 @@ export const escapeHtml = (value) =>
       ],
   );
 export const socialPreview = Object.freeze({
-  title: "Meto Trajkovski — Product-Minded Software Engineer & Technical Leader",
   path: "/assets/social/meto-trajkovski-social-card.jpg",
   width: 1200,
   height: 630,
   type: "image/jpeg",
-  alt: "Anime-inspired portrait of Meto Trajkovski beside his name.",
 });
 export const faviconFiles = Object.freeze([
   "favicon.ico",
@@ -122,7 +120,7 @@ function head(content, assets, notFound) {
     `<link rel="alternate" hreflang="mk" href="${content.siteUrl}/mk/">`,
     `<link rel="alternate" hreflang="x-default" href="${content.siteUrl}/">`,
     '<meta property="og:type" content="website">',
-    `<meta property="og:title" content="${e(socialPreview.title)}">`,
+    `<meta property="og:title" content="${e(title)}">`,
     `<meta property="og:description" content="${e(content.profile.headline)}">`,
     `<meta property="og:url" content="${canonical}">`,
     `<meta property="og:site_name" content="${e(content.ui.siteLabel)}">`,
@@ -132,12 +130,12 @@ function head(content, assets, notFound) {
     `<meta property="og:image:type" content="${socialPreview.type}">`,
     `<meta property="og:image:width" content="${socialPreview.width}">`,
     `<meta property="og:image:height" content="${socialPreview.height}">`,
-    `<meta property="og:image:alt" content="${e(socialPreview.alt)}">`,
+    `<meta property="og:image:alt" content="${e(content.ui.portraitAlt)}">`,
     '<meta name="twitter:card" content="summary_large_image">',
-    `<meta name="twitter:title" content="${e(socialPreview.title)}">`,
+    `<meta name="twitter:title" content="${e(title)}">`,
     `<meta name="twitter:description" content="${e(content.profile.headline)}">`,
     `<meta name="twitter:image" content="${e(image)}">`,
-    `<meta name="twitter:image:alt" content="${e(socialPreview.alt)}">`,
+    `<meta name="twitter:image:alt" content="${e(content.ui.portraitAlt)}">`,
     `<link rel="icon" href="${favicon("favicon.ico")}" type="image/x-icon">`,
     `<link rel="icon" href="${favicon("favicon-32x32.png")}" type="image/png" sizes="32x32">`,
     `<link rel="icon" href="${favicon("favicon-16x16.png")}" type="image/png" sizes="16x16">`,

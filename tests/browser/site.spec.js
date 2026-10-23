@@ -135,9 +135,7 @@ test("DEV discovery instructions emphasize full commands and stay localized on p
     await expect(input).toBeFocused();
     const content = await (await page.request.get(`/data/v1/${locale}.json`)).json();
     const ready = page.locator("#terminal-install .install-label");
-    await expect(ready).toHaveText(locale === "en"
-      ? "Ready. Type mtrajk help for commands or mtrajk cv to return to the CV."
-      : "Подготвено. Внесете mtrajk help за команди или mtrajk cv за враќање во CV.");
+    await expect(ready).toHaveText(content.ui.installReady);
     await expect(ready.locator("code.terminal-command")).toHaveText(["mtrajk help", "mtrajk cv"]);
     const hint = page.locator("#terminal-hint");
     await expect(hint).toHaveText(`${content.terminal.messages.hint} ${content.ui.terminalSubtitle}`);
@@ -347,11 +345,14 @@ test("Contact location and time zones stay localized in CV and DEV without appea
     const paragraphs = content.sections.find(section => section.id === "contact").paragraphs.filter(
       text => text !== `${content.ui.email}: ${content.profile.email}`,
     );
+    const locationParagraph = paragraphs.find(text => text.includes("CET/CEST"));
+    expect(locationParagraph).toBeTruthy();
     await expect(page.locator("#contact .section-content > p")).toHaveText(paragraphs);
     await expect(page.locator("#contact")).toContainText(path === "/" ? "Skopje, North Macedonia" : "Скопје, Северна Македонија");
-    for (const text of ["CET/CEST", "UTC+1", "UTC+2", "US Eastern"])
+    for (const text of ["CET/CEST", "UTC+1", "UTC+2"])
       await expect(page.locator("#contact")).toContainText(text);
-    await expect(page.locator("#intro")).not.toContainText(/Skopje|Скопје|CET\/CEST|UTC\+[12]|US Eastern/);
+    await expect(page.locator("#intro")).not.toContainText(locationParagraph);
+    await expect(page.locator("#intro")).not.toContainText(/Skopje|Скопје|CET\/CEST|UTC\+[12]/);
     for (const width of [320, 390, 1280]) {
       await page.setViewportSize({ width, height: 844 });
       expect(await page.locator("#contact").evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
@@ -1396,7 +1397,7 @@ test("DEV prompt stays beside its input across phone sizes and rotation", async 
   }
 });
 
-test("social cards expose fixed artwork and localized JSON descriptions without JavaScript", async ({ browser }) => {
+test("social cards expose fixed artwork and localized JSON metadata without JavaScript", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   try {
@@ -1405,10 +1406,10 @@ test("social cards expose fixed artwork and localized JSON descriptions without 
       const content = await (await page.request.get(`/data/v1/${path === "/" ? "en" : "mk"}.json`)).json();
       const imagePath = "/assets/social/meto-trajkovski-social-card.jpg";
       for (const [attribute, prefix] of [["property", "og"], ["name", "twitter"]]) {
-        await expect(page.locator(`meta[${attribute}="${prefix}:title"]`)).toHaveAttribute("content", "Meto Trajkovski — Product-Minded Software Engineer & Technical Leader");
+        await expect(page.locator(`meta[${attribute}="${prefix}:title"]`)).toHaveAttribute("content", content.meta.title);
         await expect(page.locator(`meta[${attribute}="${prefix}:description"]`)).toHaveAttribute("content", content.profile.headline);
         await expect(page.locator(`meta[${attribute}="${prefix}:image"]`)).toHaveAttribute("content", `${content.siteUrl}${imagePath}`);
-        await expect(page.locator(`meta[${attribute}="${prefix}:image:alt"]`)).toHaveAttribute("content", "Anime-inspired portrait of Meto Trajkovski beside his name.");
+        await expect(page.locator(`meta[${attribute}="${prefix}:image:alt"]`)).toHaveAttribute("content", content.ui.portraitAlt);
       }
       await expect(page).toHaveTitle(content.meta.title);
       await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", content.meta.description);
