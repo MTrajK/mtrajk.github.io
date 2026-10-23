@@ -104,7 +104,6 @@ export function resolveContent(common, locale) {
   return { ...payload, contentVersion: digest(payload) };
 }
 export async function loadContents({
-  release = false,
   common = undefined,
   translations = undefined,
 } = {}) {
@@ -125,11 +124,9 @@ export async function loadContents({
     translations[1].locale !== "mk"
   )
     throw new Error("Expected English and Macedonian locale files");
-  if (release) {
-    await readFile(
-      new URL(`../${common.profile.portrait.slice(1)}`, import.meta.url),
-    );
-  }
+  await readFile(
+    new URL(`../${common.profile.portrait.slice(1)}`, import.meta.url),
+  );
   return translations.map((locale) => {
     check(v.locale, locale, locale.locale);
     const payload = resolveContent(common, locale);

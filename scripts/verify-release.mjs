@@ -8,7 +8,7 @@ if (manifest.private || manifest.version.includes("preview"))
   throw new Error(
     "Owner must approve package ownership, public status, and a release version before publishing",
   );
-const contents = await loadContents({ release: true });
+const contents = await loadContents();
 for (const content of contents) {
   await fetchContent(`${content.siteUrl}/data/v1/${content.locale}.json`, {
     locale: content.locale,

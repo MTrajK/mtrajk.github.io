@@ -6,7 +6,7 @@ Meto Trajkovski's bilingual, JSON-authored CV: a warm static CV, an interactive 
 
 The English and Macedonian CV content is approved for public release. The Pages deployment remains manual and has not been run by this change. The CLI package remains private and unpublished; publishing it requires a separate owner decision. Experience is a curated selection of Global Payments and 3Shape engagements, not a complete work history; employment dates and job titles are intentionally omitted. Projects are a selection of personal projects, not a complete portfolio.
 
-The generated English and Macedonian pages are crawlable and expose their localized social metadata in static HTML. The 404 page remains `noindex`. `npm run validate:release` checks the approved content and required assets. The CLI package is intentionally `private: true`. Deployment and publication workflows are manual and require explicit confirmation. Nothing deploys on a pull request or ordinary push.
+The generated English and Macedonian pages are crawlable and expose their localized social metadata in static HTML. The 404 page remains `noindex`. Every build validates the complete content and required assets. The CLI package is intentionally `private: true`. Deployment and publication workflows are manual and require explicit confirmation. Nothing deploys on a pull request or ordinary push.
 
 ## Development
 
@@ -143,7 +143,7 @@ Automated browser coverage includes Chromium, Firefox, WebKit, mobile Chromium a
 ## Release: manual owner approval required
 
 1. Keep factual and Macedonian content current. Confirm portrait, ASCII artwork, and contact details when they change. Employment dates and job titles are not required.
-2. Run `npm run validate:release`, `npm run check`, and `npm run test:e2e`. Review visual design and keyboard/screen-reader use. Check public project links before launch.
+2. Run `npm run validate:content`, `npm run check`, and `npm run test:e2e`. Review visual design and keyboard/screen-reader use. Check public project links before launch.
 3. Confirm ownership of `mtrajk.dev` in `content/common.json` before DNS changes. Select GitHub Actions in Pages settings and set `mtrajk.dev` as the custom domain. Custom Actions deployment does not need a repository CNAME file.
 4. Inspect DNS. Preserve MX/TXT/SPF/DKIM/DMARC records. Set the `mtrajk.dev` apex ALIAS/ANAME to `mtrajk.github.io` or use GitHub's currently documented A records. Configure `www.mtrajk.dev` as a CNAME to `mtrajk.github.io`. Never use a wildcard DNS record. Enable HTTPS after certificate readiness.
 5. Configure the `github-pages` environment with appropriate owner approvals. Manually run the Pages workflow on master with confirmation `DEPLOY`. It validates/tests before uploading only `dist`.

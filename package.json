@@ -8,7 +8,6 @@
   },
   "scripts": {
     "validate:content": "node scripts/validate-content.mjs",
-    "validate:release": "node scripts/validate-content.mjs --release",
     "generate": "node scripts/generate-validator.mjs",
     "typecheck": "npm run generate && tsc -p jsconfig.json",
     "lint": "eslint src scripts tests *.js",

@@ -16,9 +16,7 @@ import "./generate-validator.mjs";
 const { renderPage, socialPreview, faviconFiles } = await import(
   "../src/site/templates/page.js"
 );
-const contents = await loadContents({
-  release: process.argv.includes("--release"),
-});
+const contents = await loadContents();
 const output = resolve(root, "dist");
 await mkdir(resolve(output, "assets"), { recursive: true });
 await cp(resolve(root, "assets/share"), resolve(output, "assets/share"), {

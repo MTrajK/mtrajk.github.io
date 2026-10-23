@@ -24,7 +24,7 @@ jobs:
           node-version: 24.20.0
           cache: npm
       - run: npm ci
-      - run: npm run validate:release
+      - run: npm run validate:content
       - run: npm run build
       - run: npm run check
       - run: npx playwright install --with-deps chromium firefox webkit

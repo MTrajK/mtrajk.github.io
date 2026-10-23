@@ -15,10 +15,9 @@ const sources = async () => ({
   ),
 });
 
-test("both locales resolve deterministically and pass release data validation", async () => {
+test("both locales resolve deterministically and validate required assets", async () => {
   const contents = await loadContents();
   assert.deepEqual(contents, await loadContents());
-  assert.deepEqual(contents, await loadContents({ release: true }));
 });
 
 test("one common domain drives all generated website and terminal URLs", async () => {
@@ -233,10 +232,10 @@ test("location and seasonal time-zone comparisons appear in Contact only across 
   }
 });
 
-test("selected experience releases without employment periods", async () => {
+test("selected experience data omits employment periods", async () => {
   const data = await sources();
   assert.ok(data.common.records.experience.every((item) => !item.period));
-  const contents = await loadContents({ ...data, release: true });
+  const contents = await loadContents(data);
   assert.ok(contents.every((content) => !Object.hasOwn(content, "preview")));
 });
 

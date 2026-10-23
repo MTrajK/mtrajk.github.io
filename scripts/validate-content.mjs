@@ -1,8 +1,6 @@
 import { loadContents } from "./content.mjs";
 try {
-  const contents = await loadContents({
-    release: process.argv.includes("--release"),
-  });
+  const contents = await loadContents();
   for (const content of contents)
     console.log(
       `${content.locale}: valid content (${content.contentVersion.slice(0, 12)})`,
