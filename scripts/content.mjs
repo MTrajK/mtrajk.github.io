@@ -72,7 +72,7 @@ export function resolveContent(common, locale) {
     });
     const sectionLinks = id === "contact" ? links(common.contactLinks) : [];
     const paragraphs =
-      id === "contact" && common.profile.email
+      id === "contact"
         ? [...section.paragraphs, `${locale.ui.email}: ${common.profile.email}`]
         : section.paragraphs;
     return { ...section, paragraphs, items, links: sectionLinks };
@@ -88,7 +88,6 @@ export function resolveContent(common, locale) {
     locale: locale.locale,
     updatedAt: common.updatedAt,
     siteUrl: `https://${common.domain}`,
-    preview: !Object.values(common.approvals).every(Boolean),
     profile: {
       ...common.profile,
       name: locale.name,
@@ -134,8 +133,6 @@ export async function loadContents({
       throw new Error(
         `Release blocked; owner approval required: ${pending.join(", ")}`,
       );
-    if (!common.profile.email || !common.profile.portrait)
-      throw new Error("Release requires approved email and portrait assets");
     await readFile(
       new URL(`../${common.profile.portrait.slice(1)}`, import.meta.url),
     );

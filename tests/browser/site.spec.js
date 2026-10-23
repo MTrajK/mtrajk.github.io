@@ -226,9 +226,8 @@ test("web CV command has help and completion while results start at their comman
   expect(await page.evaluate(() => scrollY)).toBe(0);
 });
 
-test("CV has no preview banner and underlines the section in view", async ({ page }) => {
+test("CV underlines the section in view", async ({ page }) => {
   await page.goto("/?mode=cv");
-  await expect(page.locator(".preview-banner")).toHaveCount(0);
   const current = page.locator('.section-nav a[aria-current="location"]');
   await expect(current).toHaveCount(0);
   for (const section of ["experience", "projects", "contact"]) {
@@ -400,9 +399,6 @@ test("portrait, email, and selected experience stay consistent in both modes", a
     await expect(page.locator(".terminal-wordmark:visible")).toHaveCount(1);
     await page.locator("#command-input").fill("experience");
     await page.locator("#command-input").press("Enter");
-    await expect(page.locator(".terminal-entry").last()).not.toContainText(
-      content.ui.datesPending,
-    );
     await expect(page.locator(".terminal-entry").last()).not.toContainText(
       /Beazley|ProPay/,
     );
@@ -893,7 +889,6 @@ test("DEV is a full-width terminal with one vertical scroll and only the floatin
   for (const selector of [
     ".site-header",
     ".site-footer",
-    ".preview-banner",
     ".skip-link",
   ])
     await expect(page.locator(selector)).toBeHidden();
@@ -1431,15 +1426,15 @@ test("social cards expose fixed artwork and localized JSON metadata without Java
   }
 });
 
-test("preview metadata, 404 and screenshots", async ({ page }, info) => {
+test("crawlable metadata, 404 and screenshots", async ({ page }, info) => {
   await page.goto("/");
   const content = await (await page.request.get("/data/v1/en.json")).json();
-  if (content.preview)
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-      "content",
-      "noindex,nofollow",
-    );
-  else await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+  expect(Object.hasOwn(content, "preview")).toBe(false);
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+  const robots = await (await page.request.get("/robots.txt")).text();
+  expect(robots).toContain(`Sitemap: ${content.siteUrl}/sitemap.xml`);
+  expect(robots).toContain("Allow: /");
+  expect(robots).not.toContain("Disallow: /");
   expect(
     JSON.parse(
       await page.locator('script[type="application/ld+json"]').textContent(),
@@ -1476,5 +1471,9 @@ test("preview metadata, 404 and screenshots", async ({ page }, info) => {
   await page.screenshot({ path: info.outputPath("dev.png"), fullPage: true });
   const response = await page.goto("/does-not-exist");
   expect(response.status()).toBe(404);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    "noindex,nofollow",
+  );
   await expect(page.locator("h1")).toContainText("A path not taken");
 });

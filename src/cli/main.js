@@ -110,7 +110,6 @@ export async function runCli(
     }
     if (result.type === "language") locale = result.locale;
     content = await load(locale);
-    if (content.preview) diagnostic(content.terminal.messages.preview);
     if (!interactive) {
       if (result.type === "language") result = executeCommand("intro", content);
       else result = executeCommand(command, content);

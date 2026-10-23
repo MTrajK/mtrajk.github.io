@@ -38,14 +38,13 @@ export interface Content {
   locale: "en" | "mk";
   updatedAt: string;
   siteUrl: string;
-  preview: boolean;
   profile: {
     name: string;
     username: string;
     headline: string;
     motto: string;
-    email: string | null;
-    portrait: string | null;
+    email: string;
+    portrait: string;
   };
   meta: { title: string; description: string };
   ui: Record<string, string>;

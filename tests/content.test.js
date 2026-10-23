@@ -68,7 +68,7 @@ test("social metadata follows localized title and description while keeping its 
   }
 });
 
-test("selected experience omits dates and retired clients across CV and CLI", async () => {
+test("selected experience omits employment periods and retired clients across CV and CLI", async () => {
   for (const content of await loadContents()) {
     const result = executeCommand("experience", content);
     assert.deepEqual(
@@ -82,7 +82,6 @@ test("selected experience omits dates and retired clients across CV and CLI", as
       /Beazley|ProPay|endava-insurance/,
     );
     assert.ok(!html.includes('class="period"'));
-    assert.ok(!text.includes(content.ui.datesPending));
     assert.match(
       text,
       content.locale === "en"
@@ -238,13 +237,13 @@ test("location and seasonal time-zone comparisons appear in Contact only across 
   }
 });
 
-test("approved selected experience can be released without employment periods", async () => {
+test("approved selected experience releases without employment periods", async () => {
   const data = await sources();
   for (const key of Object.keys(data.common.approvals))
     data.common.approvals[key] = true;
   assert.ok(data.common.records.experience.every((item) => !item.period));
   const contents = await loadContents({ ...data, release: true });
-  assert.ok(contents.every((content) => !content.preview));
+  assert.ok(contents.every((content) => !Object.hasOwn(content, "preview")));
 });
 
 test("approved image portrait is relocated and optimized", async () => {

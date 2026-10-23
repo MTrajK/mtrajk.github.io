@@ -119,9 +119,7 @@ await writeFile(
 );
 await writeFile(
   resolve(output, "robots.txt"),
-  contents[0].preview
-    ? "User-agent: *\nDisallow: /\n"
-    : `User-agent: *\nAllow: /\nSitemap: ${contents[0].siteUrl}/sitemap.xml\n`,
+  `User-agent: *\nAllow: /\nSitemap: ${contents[0].siteUrl}/sitemap.xml\n`,
 );
 await writeFile(
   resolve(output, "sitemap.xml"),
@@ -155,5 +153,5 @@ for (const file of await readdir(output))
   if (file === "docs" || file === "src")
     throw new Error("Unexpected private build artifact");
 console.log(
-  `Built both locales: JS ${totalJs} bytes gzip, CSS ${cssSize} bytes gzip. ${contents[0].preview ? "PREVIEW ONLY." : "Release content approved."}`,
+  `Built both locales: JS ${totalJs} bytes gzip, CSS ${cssSize} bytes gzip.`,
 );

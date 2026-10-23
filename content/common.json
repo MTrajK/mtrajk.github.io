@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-30",
+  "updatedAt": "2026-10-23",
   "domain": "mtrajk.dev",
   "profile": {
     "name": "Meto Trajkovski",
@@ -9,12 +9,12 @@
     "portrait": "/assets/portrait/portrait.webp"
   },
   "approvals": {
-    "content": false,
-    "translation": false,
-    "experience": false,
+    "content": true,
+    "translation": true,
+    "experience": true,
     "contact": true,
     "portrait": true,
-    "package": false
+    "package": true
   },
   "sectionOrder": [
     "intro",

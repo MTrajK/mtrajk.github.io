@@ -5,7 +5,7 @@ try {
   });
   for (const content of contents)
     console.log(
-      `${content.locale}: valid ${content.preview ? "PREVIEW" : "release"} content (${content.contentVersion.slice(0, 12)})`,
+      `${content.locale}: valid content (${content.contentVersion.slice(0, 12)})`,
     );
 } catch (error) {
   console.error(error.message);

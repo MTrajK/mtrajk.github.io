@@ -59,10 +59,8 @@ export function renderSection(section, content) {
   const { ui, profile } = content;
   if (section.id === "intro") {
     const parts = profile.name.split(" ");
-    const portrait = profile.portrait
-      ? `<img src="${e(profile.portrait)}" alt="${e(ui.portraitAlt)}" width="320" height="320" fetchpriority="high">`
-      : `<div class="portrait-placeholder" aria-hidden="true"><span>${e(ui.monogram)}</span><div class="portrait-orbit"></div></div>`;
-    return `<section id="intro" class="hero" aria-labelledby="intro-title"><div class="hero-copy"><p class="eyebrow">${e(ui.role)}</p><p class="hello">${e(ui.hello)}</p><h1 id="intro-title">${e(parts.slice(0, -1).join(" "))}<br><em>${e(parts.at(-1))}.</em></h1><p class="headline">${e(profile.headline)}</p>${paragraphs(section.paragraphs)}<div class="hero-actions"><a class="button-primary" href="#contact">${e(ui.contactCta)} <span aria-hidden="true">↗</span></a><a class="text-link" href="#how-i-work">${e(ui.howIWorkCta)} <span aria-hidden="true">↓</span></a></div></div><figure class="portrait"><div class="portrait-frame">${portrait}</div><figcaption><span class="mono">@${e(profile.username)}</span><span>${e(profile.portrait ? ui.portraitAlt : ui.portraitPending)}</span></figcaption></figure><p class="motto"><span aria-hidden="true">↳</span> ${e(profile.motto)}</p></section>`;
+    const portrait = `<img src="${e(profile.portrait)}" alt="${e(ui.portraitAlt)}" width="320" height="320" fetchpriority="high">`;
+    return `<section id="intro" class="hero" aria-labelledby="intro-title"><div class="hero-copy"><p class="eyebrow">${e(ui.role)}</p><p class="hello">${e(ui.hello)}</p><h1 id="intro-title">${e(parts.slice(0, -1).join(" "))}<br><em>${e(parts.at(-1))}.</em></h1><p class="headline">${e(profile.headline)}</p>${paragraphs(section.paragraphs)}<div class="hero-actions"><a class="button-primary" href="#contact">${e(ui.contactCta)} <span aria-hidden="true">↗</span></a><a class="text-link" href="#how-i-work">${e(ui.howIWorkCta)} <span aria-hidden="true">↓</span></a></div></div><figure class="portrait"><div class="portrait-frame">${portrait}</div><figcaption><span class="mono">@${e(profile.username)}</span><span>${e(ui.portraitAlt)}</span></figcaption></figure><p class="motto"><span aria-hidden="true">↳</span> ${e(profile.motto)}</p></section>`;
   }
   const skillGroups = section.skills
     ? `<div class="skills"><h3>${e(ui.skills)}</h3><div class="skill-groups">${section.skills.map((group) => `<div><h4>${e(group.title)}</h4>${tags(group.values)}</div>`).join("")}</div></div>`
@@ -71,19 +69,20 @@ export function renderSection(section, content) {
     ? `<ol class="${section.id}-list">${section.items.map((item, index) => renderItem(item, section, index, content)).join("")}</ol>`
     : "";
   const contactEmail =
-    section.id === "contact" && profile.email
+    section.id === "contact"
       ? `${ui.email}: ${profile.email}`
       : "";
   const copy = section.paragraphs
     .filter((value) => value !== contactEmail)
     .map((value) => `<p>${e(value)}</p>`)
     .join("");
-  const emailLink = profile.email
-    ? [{ label: profile.email, url: `mailto:${profile.email}` }]
-    : [];
+  const emailLink =
+    section.id === "contact"
+      ? [{ label: profile.email, url: `mailto:${profile.email}` }]
+      : [];
   const contact =
     section.id === "contact"
-      ? `<div class="contact-links">${links([...emailLink, ...section.links])}</div>${!profile.email ? `<p class="pending-note">${e(ui.emailPending)}</p>` : ""}${renderShareMenu(content)}`
+      ? `<div class="contact-links">${links([...emailLink, ...section.links])}</div>${renderShareMenu(content)}`
       : "";
   const scene =
     section.id === "hobbies"
@@ -114,7 +113,7 @@ function head(content, assets, notFound) {
     `<meta name="description" content="${e(content.meta.description)}">`,
     '<meta name="theme-color" content="#f7f5ef">',
     '<meta name="color-scheme" content="light dark">',
-    content.preview || notFound ? '<meta name="robots" content="noindex,nofollow">' : "",
+    notFound ? '<meta name="robots" content="noindex,nofollow">' : "",
     `<link rel="canonical" href="${canonical}">`,
     `<link rel="alternate" hreflang="en" href="${content.siteUrl}/">`,
     `<link rel="alternate" hreflang="mk" href="${content.siteUrl}/mk/">`,

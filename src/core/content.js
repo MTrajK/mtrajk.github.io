@@ -48,7 +48,7 @@ export function assertContent(content, validate, locale, version = undefined) {
         throw new Error("Invalid employment period");
     }
   }
-  if (content.profile.portrait?.split("/").includes(".."))
+  if (content.profile.portrait.split("/").includes(".."))
     throw new Error("Unsafe portrait path");
   return content;
 }

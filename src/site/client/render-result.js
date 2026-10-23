@@ -60,7 +60,7 @@ export function renderResult(result, content) {
           element("p", content.profile.motto),
         );
       const contactEmail =
-        section.id === "contact" && content.profile.email
+        section.id === "contact"
           ? `${content.ui.email}: ${content.profile.email}`
           : "";
       for (const text of section.paragraphs)
@@ -86,14 +86,15 @@ export function renderResult(result, content) {
         appendLinks(output, item.links);
       }
       if (section.skills) appendSkills(output, section.skills);
-      const emailLink = content.profile.email
-        ? [
-            {
-              label: content.profile.email,
-              url: `mailto:${content.profile.email}`,
-            },
-          ]
-        : [];
+      const emailLink =
+        section.id === "contact"
+          ? [
+              {
+                label: content.profile.email,
+                url: `mailto:${content.profile.email}`,
+              },
+            ]
+          : [];
       appendLinks(
         output,
         section.id === "contact"
@@ -109,8 +110,6 @@ export function renderResult(result, content) {
         );
         appendLinks(output, getShareLinks(content));
       }
-      if (section.id === "contact" && !content.profile.email)
-        output.append(element("p", content.ui.emailPending));
     }
   }
   return output;

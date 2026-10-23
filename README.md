@@ -4,9 +4,9 @@ Meto Trajkovski's bilingual, JSON-authored CV: a warm static CV, an interactive 
 
 ## Current status
 
-This is a working **preview, not a published release**. The owner's portrait and confirmed email are integrated. Experience is a curated selection of Global Payments and 3Shape engagements, not a complete work history; employment dates and job titles are intentionally omitted. Projects are a selection of personal projects, not a complete portfolio. Final editorial/Macedonian review, npm ownership, and publication authorization remain owner tasks.
+The English and Macedonian CV content is approved for public release. The Pages deployment remains manual and has not been run by this change. The CLI package remains private and unpublished; publishing it requires a separate owner decision. Experience is a curated selection of Global Payments and 3Shape engagements, not a complete work history; employment dates and job titles are intentionally omitted. Projects are a selection of personal projects, not a complete portfolio.
 
-Preview pages are marked `noindex` and robots disallows crawling; the visible CV preview banner is intentionally omitted. `npm run validate:release` intentionally fails until the approval/data gates are satisfied. The CLI package is intentionally `private: true`. Deployment and publication workflows are manual and require explicit confirmation. Nothing deploys on a pull request or ordinary push.
+The generated English and Macedonian pages are crawlable and expose their localized social metadata in static HTML. The 404 page remains `noindex`. `npm run validate:release` checks the approved content and required assets. The CLI package is intentionally `private: true`. Deployment and publication workflows are manual and require explicit confirmation. Nothing deploys on a pull request or ordinary push.
 
 ## Development
 
@@ -35,7 +35,7 @@ npm run test:e2e
 
 The schema validator and CLI snapshots are generated before tests/type checking. Its CommonJS helpers are bundled into standalone ESM and it has a generated TypeScript declaration, so no Ajv runtime package is shipped to browsers or CLI users.
 
-With the preview server running in another terminal, `npm run audit:performance` audits English CV, Macedonian CV, and DEV using Lighthouse's mobile simulation. It writes local reports under ignored `.artifacts/` and checks the 95 performance target. Preview SEO scores intentionally reflect `noindex`/robots restrictions. Lab scores are not production field metrics; rerun after adding the actual portrait.
+With the local server running in another terminal, `npm run audit:performance` audits English CV, Macedonian CV, and DEV using Lighthouse's mobile simulation. It writes local reports under ignored `.artifacts/` and checks the 95 performance target. Lab scores are not production field metrics; rerun after adding the actual portrait.
 
 ## Architecture
 
@@ -61,7 +61,7 @@ content/common.json + content/en.json / content/mk.json
 - `packages/cli/`: standalone package assembly; the core is not separately published.
 - `dist/`, `.generated/`, package dist, test outputs, and private asset-review outputs are generated/ignored. Do not hand-edit generated content.
 
-Application copy, labels, errors, SEO metadata, and ASCII artwork are authored in JSON. The social-preview title, image path, dimensions, and image alt text are fixed presentation constants in `src/site/templates/page.js`; social descriptions use each locale's JSON headline. Commands, IDs, punctuation, and presentation logic are protocol/code. Existing records can be added/reordered by content edits. A new layout/interaction type still requires code.
+Application copy, labels, errors, SEO metadata, and ASCII artwork are authored in JSON. The social-card image path and dimensions are fixed presentation constants in `src/site/templates/page.js`; social titles, descriptions, and image alt text use localized JSON. Commands, IDs, punctuation, and presentation logic are protocol/code. Existing records can be added/reordered by content edits. A new layout/interaction type still requires code.
 
 ## Editing content
 
@@ -91,9 +91,9 @@ Build output includes stable `/data/v1/en.json` and `/data/v1/mk.json` plus cont
 
 The CLI fetches stable endpoints and receives compatible content changes without a package update. It validates schema, locale, size, safe links, and text; the website additionally checks its expected digest. Failed/invalid requests use the CLI's bundled snapshot with a dated stderr notice. A package update refreshes its offline snapshot. Keep schema v1 compatible with older CLI releases; a breaking change needs a new endpoint major and compatible package release.
 
-Builds remove only obsolete, self-identifying generated locale snapshots from `dist/data/v1`, so older local builds cannot keep exposing a previously published contact address. Unknown files and source content are not removed. This cannot retract previously downloaded data or git history. The still-unpublished v1 contract accepts a standard email address; rebuild older local preview CLI packages to include the current contact address.
+Builds remove only obsolete, self-identifying generated locale snapshots from `dist/data/v1`, so older local builds cannot keep exposing a previously published contact address. Unknown files and source content are not removed. This cannot retract previously downloaded data or git history. The still-unpublished v1 contract accepts a standard email address; rebuild older local CLI packages to include the current contact address.
 
-The HTML must still be rebuilt after a JSON edit. Pushes run verification; public deployment currently requires the manually approved Pages workflow. Do not expect an edit to a source JSON alone to update already deployed static HTML.
+The HTML must still be rebuilt after a JSON edit. Pushes run verification; public deployment requires the manually confirmed Pages workflow. Do not expect an edit to a source JSON alone to update already deployed static HTML.
 
 ## CLI
 
@@ -132,7 +132,7 @@ npm run assets:portrait -- "C:/path/to/approved-image.png"
 
 By default, the offline Sharp script writes a stripped/optimized WebP under ignored `.artifacts/portrait/`, without changing content or approvals. After owner approval, add `--apply` to write `assets/portrait/portrait.webp`, update the shared JSON image path, and mark portrait approval. Add `--move-source` only when explicitly relocating the supplied image: it preserves the original under `assets/portrait/source.<extension>` and refuses to overwrite an existing source. The current approved original is `assets/portrait/source.jpeg`; regenerate it with `npm run assets:portrait -- assets/portrait/source.jpeg --apply`. No image conversion runs in the browser or CLI. The site build copies only the referenced WebP, not the original source image.
 
-The original MTRAJK wordmark is stored in common JSON and shared by web DEV and the CLI. The CV uses the image portrait, with the monogram as a fallback when no portrait is configured. The approved static 1200 × 630 JPEG social card lives at `assets/social/meto-trajkovski-social-card.jpg` (about 43 KiB) and is copied unchanged by the build. Open Graph and Twitter titles and descriptions follow each locale’s `meta.title` and `headline`; both locales share the social-card image. Rebuild and deploy after editing those values; social platforms may cache previews. Image dimensions, MIME type, alt text, site name, and alternate locale metadata are included. Preview crawling restrictions remain unchanged. Device favicons live in `assets/favicon/`: 16px/32px PNG browser icons, an ICO fallback, a 180px Apple touch icon, and 192px/512px Android icons referenced by `site.webmanifest`. The manifest provides the site name and home-screen icons in normal browser display mode; it does not provide offline support or add a service worker. The build explicitly copies only these seven public files, adds content-hash query parameters to linked icon/manifest URLs, and provides `/favicon.ico` for legacy clients. `assets/favicon/favicon designs/` is preserved as source design history and is never copied into `dist`. No third-party fonts or image requests are used.
+The original MTRAJK wordmark is stored in common JSON and shared by web DEV and the CLI. The CV uses the approved image portrait. The static 1200 × 630 JPEG social card lives at `assets/social/meto-trajkovski-social-card.jpg` (about 43 KiB) and is copied unchanged by the build. Open Graph and Twitter titles and descriptions follow each locale’s `meta.title` and `headline`; both locales share the social-card image. Rebuild and deploy after editing those values; social platforms may cache card data. Image dimensions, MIME type, alt text, site name, and alternate locale metadata are included. The English and Macedonian pages allow crawling; the 404 page is `noindex`. Device favicons live in `assets/favicon/`: 16px/32px PNG browser icons, an ICO fallback, a 180px Apple touch icon, and 192px/512px Android icons referenced by `site.webmanifest`. The manifest provides the site name and home-screen icons in normal browser display mode; it does not provide offline support or add a service worker. The build explicitly copies only these seven public files, adds content-hash query parameters to linked icon/manifest URLs, and provides `/favicon.ico` for legacy clients. `assets/favicon/favicon designs/` is preserved as source design history and is never copied into `dist`. No third-party fonts or image requests are used.
 
 ## Performance and safety
 
@@ -142,7 +142,7 @@ Automated browser coverage includes Chromium, Firefox, WebKit, mobile Chromium a
 
 ## Release: manual owner approval required
 
-1. Confirm all missing facts and publication permissions; remove preview wording from the actual copy and review Macedonian. Confirm the approved portrait/ASCII and email; set remaining approvals only after review. Employment dates and job titles are not required.
+1. Keep factual and Macedonian content current. Confirm portrait, ASCII artwork, and contact details when they change. Employment dates and job titles are not required.
 2. Run `npm run validate:release`, `npm run check`, and `npm run test:e2e`. Review visual design and keyboard/screen-reader use. Check public project links before launch.
 3. Confirm ownership of `mtrajk.dev` in `content/common.json` before DNS changes. Select GitHub Actions in Pages settings and set `mtrajk.dev` as the custom domain. Custom Actions deployment does not need a repository CNAME file.
 4. Inspect DNS. Preserve MX/TXT/SPF/DKIM/DMARC records. Set the `mtrajk.dev` apex ALIAS/ANAME to `mtrajk.github.io` or use GitHub's currently documented A records. Configure `www.mtrajk.dev` as a CNAME to `mtrajk.github.io`. Never use a wildcard DNS record. Enable HTTPS after certificate readiness.

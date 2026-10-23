@@ -76,8 +76,6 @@ export function renderText(
         heading(content.ui.sharePage);
         links(getShareLinks(content));
       }
-      if (section.id === "contact" && !content.profile.email)
-        paragraph(content.ui.emailPending);
     }
   }
   return `${lines.join("\n").trim()}\n`;

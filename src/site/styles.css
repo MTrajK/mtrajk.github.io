@@ -148,14 +148,6 @@ h2 {
 .skip-link:focus {
   transform: translateY(0);
 }
-.preview-banner {
-  text-align: center;
-  background: #e7e8da;
-  color: #505449;
-  padding: 7px 20px;
-  font-size: 0.71rem;
-  letter-spacing: 0.02em;
-}
 .site-header {
   position: sticky;
   top: 0;
@@ -1141,11 +1133,6 @@ html[data-mode="dev"] body {
   h1,
   h2 {
     scroll-margin-top: 140px;
-  }
-  .preview-banner {
-    font-size: 0.62rem;
-    line-height: 1.6;
-    padding: 6px 18px;
   }
   .header-main {
     height: 70px;

@@ -254,10 +254,6 @@ test("one-shot JSON is clean, localized, and matches the shared engine", async (
       JSON.parse(io.stdout),
       executeCommand("experience", snapshots[locale]),
     );
-    assert.equal(
-      io.stderr.includes(snapshots[locale].terminal.messages.preview),
-      snapshots[locale].preview,
-    );
     assert.equal(io.stdout.includes("\x1b"), false);
   }
 });

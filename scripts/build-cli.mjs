@@ -27,5 +27,5 @@ await chmod(resolve(root, "packages/cli/dist/cli.js"), 0o755);
 await copyFile(resolve(root, "LICENSE"), resolve(root, "packages/cli/LICENSE"));
 await copyFile(resolve(root, "NOTICE"), resolve(root, "packages/cli/NOTICE"));
 console.log(
-  "Built self-contained preview CLI. Publishing remains blocked by private:true and owner approvals.",
+  "Built self-contained CLI. Publishing remains blocked because the package is private.",
 );
