@@ -1,4 +1,4 @@
-name: Verify CV and CLI
+name: Verify website and CLI
 on:
   pull_request:
   push:

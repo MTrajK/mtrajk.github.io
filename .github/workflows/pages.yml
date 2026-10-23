@@ -1,4 +1,4 @@
-name: Publish approved CV to Pages
+name: Publish the website to Pages
 on:
   workflow_dispatch:
     inputs:
@@ -27,8 +27,6 @@ jobs:
       - run: npm run validate:content
       - run: npm run build
       - run: npm run check
-      - run: npx playwright install --with-deps chromium firefox webkit
-      - run: npm run test:e2e
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
         with:

@@ -1,4 +1,4 @@
-name: Publish approved CLI
+name: Publish CLI
 on:
   workflow_dispatch:
     inputs:
