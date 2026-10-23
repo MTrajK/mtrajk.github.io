@@ -128,14 +128,14 @@ function updateNavigation() {
 function scheduleNavigation() {
   if (!scrollFrame) scrollFrame = requestAnimationFrame(updateNavigation);
 }
-async function setMode(mode, { push = false, focus = false, fromHistory = false } = {}) {
+async function setMode(mode, { push = false, fromHistory = false } = {}) {
   const request = ++transition;
   if (mode === "dev") {
     status.textContent = config.ui.loading;
     try {
       initialization ??= import("./terminal.js").then((module) =>
         module.createTerminal(config, () => {
-          void setMode("cv", { push: true, focus: true });
+          void setMode("cv", { push: true });
         }, () => {
           updateModeLabels();
           updateLocaleLinks();
@@ -165,7 +165,11 @@ async function setMode(mode, { push = false, focus = false, fromHistory = false 
   const changed = activeMode !== mode;
   const entering = mode === "dev" && (changed || !terminal.started);
   status.textContent = "";
-  if (mode === "cv") terminal?.leave();
+  if (mode === "cv") {
+    terminal?.leave();
+    if (document.activeElement instanceof HTMLElement)
+      document.activeElement.blur();
+  }
   activeMode = mode;
   (mode === "dev" ? floatingControls : modeSlot).append(modeControls);
   floatingControls.toggleAttribute("hidden", mode !== "dev");
@@ -197,13 +201,6 @@ async function setMode(mode, { push = false, focus = false, fromHistory = false 
   else if (mode === "dev") terminal.focus();
   else {
     if (reset) window.scrollTo(0, 0);
-    if (focus) {
-      const target = document.querySelector("#intro h1");
-      if (target instanceof HTMLElement) {
-        target.tabIndex = -1;
-        target.focus({ preventScroll: true });
-      }
-    }
     requestAnimationFrame(() => {
       if (request !== transition) return;
       if (reset) window.scrollTo(0, 0);
@@ -216,7 +213,7 @@ for (const button of controls) {
   button.addEventListener("click", () => {
     const mode = button.getAttribute("data-mode");
     if (mode === activeMode && !status.textContent) return;
-    void setMode(mode, { push: true, focus: true });
+    void setMode(mode, { push: true });
   });
 }
 window.addEventListener("popstate", () => {

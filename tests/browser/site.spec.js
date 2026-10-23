@@ -586,6 +586,8 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
       for (const [id] of shareProviders) {
         await disclosure.locator(`.share-option[data-share="${id}"]`).tap();
         await expect(disclosure).toHaveAttribute("open", "");
+        await expect(summary).toHaveCSS("background-color", "rgb(41, 45, 42)");
+        await expect(summary).toHaveCSS("color", "rgb(247, 245, 239)");
       }
       expect(await page.evaluate(() => window.__shareTapIds)).toEqual(
         shareProviders.map(([id]) => id),
@@ -611,6 +613,8 @@ test("share menu is localized, canonical, keyboard accessible, and available in 
       );
       await expect(disclosure).toHaveAttribute("open", "");
       await expect(options.first()).toBeVisible();
+      await expect(summary).toHaveCSS("background-color", "rgb(41, 45, 42)");
+      await expect(summary).toHaveCSS("color", "rgb(247, 245, 239)");
       await page.mouse.move(2, 2);
       await expect(disclosure).not.toHaveAttribute("open", "");
     }
@@ -959,6 +963,7 @@ for (const exit of ["button", "command"]) {
       }
       await expect(page.locator("#cv-view")).toBeVisible();
       await expect(page.locator("#dev-view")).toBeHidden();
+      expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
       await expect(page.locator("html")).toHaveAttribute("lang", selected);
       await expect(page.locator("html")).toHaveAttribute("data-mode", "cv");
       expect(new URL(page.url()).pathname).toBe(selectedPath);
