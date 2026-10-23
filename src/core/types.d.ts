@@ -47,7 +47,7 @@ export interface Content {
     email: string | null;
     portrait: string | null;
   };
-  meta: { title: string; description: string; socialLabel: string };
+  meta: { title: string; description: string };
   ui: Record<string, string>;
   navigation: Record<string, string>;
   terminal: {

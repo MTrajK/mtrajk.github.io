@@ -348,7 +348,7 @@ test("Contact location and time zones stay localized in CV and DEV without appea
     const locationParagraph = paragraphs.find(text => text.includes("CET/CEST"));
     expect(locationParagraph).toBeTruthy();
     await expect(page.locator("#contact .section-content > p")).toHaveText(paragraphs);
-    await expect(page.locator("#contact")).toContainText(path === "/" ? "Skopje, North Macedonia" : "Скопје, Северна Македонија");
+    await expect(page.locator("#contact")).toContainText(path === "/" ? "Skopje, North Macedonia" : "Скопје, Македонија");
     for (const text of ["CET/CEST", "UTC+1", "UTC+2"])
       await expect(page.locator("#contact")).toContainText(text);
     await expect(page.locator("#intro")).not.toContainText(locationParagraph);

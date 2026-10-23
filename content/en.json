@@ -5,8 +5,7 @@
   "motto": "Understanding problems. Building useful products. Helping teams grow.",
   "meta": {
     "title": "Meto Trajkovski — Technical leader & product-minded software engineer",
-    "description": "Practical AI, hands-on leadership, product thinking, and deep engineering experience. Explore Meto Trajkovski’s approach, experience, and open-source projects.",
-    "socialLabel": "AI · LEADERSHIP · PRODUCT · ENGINEERING"
+    "description": "Practical AI, hands-on leadership, product thinking, and deep engineering experience. Explore Meto Trajkovski’s approach, experience, and open-source projects."
   },
   "ui": {
     "cv": "CV",
@@ -17,7 +16,6 @@
     "macedonian": "МК",
     "skip": "Skip to content",
     "navLabel": "Sections",
-    "draft": "Preview edition — final content and language review pending.",
     "edition": "A PERSONAL FIELD GUIDE",
     "role": "TECHNICAL LEADER & PRODUCT-MINDED SOFTWARE ENGINEER",
     "portraitPending": "Portrait in progress",
@@ -28,7 +26,6 @@
     "howIWorkCta": "How I work",
     "details": "More about the work",
     "datesPending": "Dates & title to be confirmed",
-    "present": "Present",
     "client": "Client",
     "skills": "Tools & practices",
     "source": "Source code",
@@ -48,9 +45,7 @@
     "terminalTitle": "A different interface. The same person.",
     "terminalSubtitle": "Enter runs · → accepts a suggestion · Tab completes/cycles · ↑/↓ history · Esc dismisses, then Tab moves focus · Shift+Tab moves back · lang en / lang mk switches language",
     "inputLabel": "CV command",
-    "inputPlaceholder": "mtrajk about",
     "submit": "Run",
-    "shortcuts": "Command shortcuts",
     "suggestions": "Command suggestions",
     "webCv": "Return to CV mode (website only)",
     "installDemo": "Installation simulation — nothing is installed on your device.",
@@ -65,13 +60,7 @@
     "revealing": "Revealing answer: {command}. Press Escape or select Show full answer to skip.",
     "showAnswer": "Show full answer",
     "cleared": "Transcript cleared.",
-    "snapshot": "Content reviewed",
-    "buildLabel": "CV / DEV",
     "commandPrompt": "visitor@{domain}:~$",
-    "unknownDates": "Selected engagements",
-    "projectIndex": "SELECTED OPEN-SOURCE",
-    "hobbyLabel": "OUTSIDE THE CODE",
-    "contactLabel": "START A CONVERSATION",
     "siteLabel": "{domain}"
   },
   "terminal": {

@@ -201,11 +201,10 @@
     "meta": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "description", "socialLabel"],
+      "required": ["title", "description"],
       "properties": {
         "title": { "$ref": "#/definitions/text" },
-        "description": { "$ref": "#/definitions/text" },
-        "socialLabel": { "$ref": "#/definitions/text" }
+        "description": { "$ref": "#/definitions/text" }
       }
     },
     "navigation": {
@@ -235,7 +234,6 @@
         "macedonian",
         "skip",
         "navLabel",
-        "draft",
         "edition",
         "role",
         "portraitPending",
@@ -246,7 +244,6 @@
         "howIWorkCta",
         "details",
         "datesPending",
-        "present",
         "client",
         "skills",
         "source",
@@ -266,9 +263,7 @@
         "terminalTitle",
         "terminalSubtitle",
         "inputLabel",
-        "inputPlaceholder",
         "submit",
-        "shortcuts",
         "suggestions",
         "webCv",
         "installDemo",
@@ -283,17 +278,11 @@
         "revealing",
         "showAnswer",
         "cleared",
-        "snapshot",
-        "buildLabel",
         "commandPrompt",
-        "unknownDates",
-        "projectIndex",
-        "hobbyLabel",
-        "contactLabel",
         "siteLabel"
       ],
-      "minProperties": 64,
-      "maxProperties": 64,
+      "minProperties": 54,
+      "maxProperties": 54,
       "additionalProperties": { "$ref": "#/definitions/text" }
     },
     "terminal": {
