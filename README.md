@@ -4,8 +4,15 @@ Version 1.0.0 of Meto Trajkovski's bilingual personal CV. The site has English (
 
 ## Requirements
 
-- Node.js 24.20.0 LTS
-- npm
+Install [Node.js 24.20.0 LTS](https://nodejs.org/en/download); npm is included.
+If you need to clone the repository, install [Git](https://git-scm.com/downloads).
+
+Verify Node.js and npm are available:
+
+```sh
+node --version
+npm --version
+```
 
 ## Run locally
 
