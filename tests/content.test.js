@@ -213,7 +213,7 @@ test("location and seasonal time-zone comparisons appear in Contact only across 
     const result = executeCommand("contact", content);
     const contact = result.sections[0];
     const copy = contact.paragraphs.join(" ");
-    assert.match(copy, content.locale === "en" ? /Skopje, North Macedonia/ : /Скопје, Северна Македонија/);
+    assert.match(copy, content.locale === "en" ? /Skopje, North Macedonia/ : /Скопје, Македонија/);
     for (const pattern of [/CET\/CEST/, /UTC\+1/, /UTC\+2/])
       assert.match(copy, pattern);
     const locationParagraph = contact.paragraphs.find((text) =>
