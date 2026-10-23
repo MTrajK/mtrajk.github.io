@@ -1,31 +1,16 @@
-# mtrajk
+# mtrajk CLI
 
-A bilingual CV for Meto Trajkovski, using the same content and commands as the CV/DEV website.
+A local Node.js CLI for the bilingual CV. Requires Node.js 24 or later and is not published.
 
-The CV website content is approved, but this CLI package remains private and unpublished. Confirm package ownership and publication setup before changing its visibility or publishing it.
-
-## Local use
-
-From the repository root, run `npm ci` and `npm run build:cli`, then:
+From the repository root:
 
 ```sh
+npm ci
+npm run build:cli
 node packages/cli/dist/cli.js about --offline
-node packages/cli/dist/cli.js projects --lang mk --json --offline
 node packages/cli/dist/cli.js
 ```
 
-The last command starts an interactive prompt only with terminal input/output. Otherwise it prints an introduction and help and exits.
-
-Commands: `help`, `intro`, `about`, `experience`, `strengths`, `skills`, `how-i-work`, `projects`, `hobbies`, `contact`, `all`, `lang en`, `lang mk`, and interactive `clear`. Bare commands and the optional `mtrajk` prefix work in the prompt. Aliases: `whoami`, `work`, `github`.
-
-Flags: `--lang en|mk`, `--offline`, `--json`, `--no-color`, `--no-animation`, `--help`, `--version`. `NO_COLOR` is respected. Diagnostics go to stderr; `--json` writes only JSON to stdout. Unknown input exits with status 2; unrecoverable content errors with status 1. A valid offline fallback is success.
-
-Requires Node 24 or later. The same tarball can run with Bun. `bunx` normally follows the Node shebang; `bunx --bun` requests the Bun runtime. No install scripts, runtime dependencies, telemetry, or shell execution.
-
-Online commands fetch fixed HTTPS locale endpoints under `/data/v1/` with a two-second timeout and a 256 KiB limit. Invalid/unavailable remote data falls back to bundled snapshots. `--offline` suppresses content requests but cannot eliminate an initial npm package download. Fallback snapshots age until the next package release; the diagnostic includes their review date.
-
-Interactive narrative answers reveal in fast Unicode-safe chunks. Escape skips the reveal; typing finishes the answer before accepting input; Ctrl+C cancels the current reveal without exiting. Use `--no-animation` for instant answers. One-shot commands, pipes, JSON, CI, dumb terminals, help, errors, skills, and `all` remain instant.
-
-The CLI never opens links automatically. ASCII art appears immediately on interactive startup and TTY introductions, not in machine-readable output.
+The last command starts an interactive prompt when run in a terminal. Use `help` to list commands or add `--lang mk` for Macedonian. `--offline` uses the bundled content snapshot.
 
 Apache-2.0. See LICENSE.
