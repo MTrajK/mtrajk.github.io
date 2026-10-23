@@ -74,7 +74,7 @@ test(
     assert.equal(
       await runCli(["--offline"], {
         snapshots,
-        version: "0.1.0",
+        version: "1.0.0",
         input,
         output,
         error: diagnostics.error,
@@ -113,7 +113,7 @@ for (const locale of ["en", "mk"]) {
     Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
     Object.assign(io.output, { isTTY: true, columns: 60 });
     assert.equal(await runCli(["--offline", "--lang", locale], {
-      ...io, snapshots, version: "0.1.0", env: {},
+      ...io, snapshots, version: "1.0.0", env: {},
     }), 0);
     assert.equal(step, 4);
     for (const [index, command] of ["intro", "about"].entries()) {
@@ -144,7 +144,7 @@ test("Ctrl+C cancels a streaming answer without closing the CLI", { timeout: 500
   });
   Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
   Object.assign(io.output, { isTTY: true, columns: 60 });
-  assert.equal(await runCli(["--offline"], { ...io, snapshots, version: "0.1.0", env: {} }), 0);
+  assert.equal(await runCli(["--offline"], { ...io, snapshots, version: "1.0.0", env: {} }), 0);
   assert.equal(step, 3);
   assert.ok(io.stdout.includes("\x1b[0m\n"));
   assert.ok(!io.stdout.includes(snapshots.en.profile.motto));
@@ -164,7 +164,7 @@ test("closing the terminal cancels reveal timers and removes input listeners", {
   });
   Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
   Object.assign(io.output, { isTTY: true, columns: 60 });
-  assert.equal(await runCli(["--offline"], { ...io, snapshots, version: "0.1.0", env: {} }), 0);
+  assert.equal(await runCli(["--offline"], { ...io, snapshots, version: "1.0.0", env: {} }), 0);
   const completed = io.stdout;
   await new Promise(resolve => setTimeout(resolve, 50));
   assert.equal(io.stdout, completed);
@@ -191,7 +191,7 @@ test("animation opt-out, CI, and dumb terminals print interactive answers instan
     });
     Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
     Object.assign(io.output, { isTTY: true, columns: 60 });
-    assert.equal(await runCli(args, { ...io, snapshots, version: "0.1.0", env }), 0);
+    assert.equal(await runCli(args, { ...io, snapshots, version: "1.0.0", env }), 0);
     assert.ok(writes.includes(renderText(executeCommand("intro", snapshots.en), snapshots.en, { width: 60 })));
     assert.ok(!io.stdout.includes(snapshots.en.terminal.messages.revealHint));
     io.input.destroy();
@@ -205,7 +205,7 @@ test("one-shot TTY commands remain instant", async () => {
   Object.assign(io.input, { isTTY: true, setRawMode: () => {} });
   Object.assign(io.output, { isTTY: true, columns: 60 });
   assert.equal(await runCli(["about", "--offline"], {
-    ...io, snapshots, version: "0.1.0", env: { NO_COLOR: "" },
+    ...io, snapshots, version: "1.0.0", env: { NO_COLOR: "" },
   }), 0);
   assert.deepEqual(writes, [renderText(executeCommand("about", snapshots.en), snapshots.en, { width: 60 })]);
 });
@@ -217,7 +217,7 @@ test("corrupt offline snapshots fail clearly without leaking stack traces", asyn
     await runCli(["about", "--offline"], {
       ...io,
       snapshots: corrupted,
-      version: "0.1.0",
+      version: "1.0.0",
     }),
     1,
   );
@@ -246,7 +246,7 @@ test("one-shot JSON is clean, localized, and matches the shared engine", async (
       await runCli(["experience", "--lang", locale, "--offline", "--json"], {
         ...io,
         snapshots,
-        version: "0.1.0",
+        version: "1.0.0",
       }),
       0,
     );
@@ -265,7 +265,7 @@ test("help/version do not fetch and one-shot failures have meaningful exit codes
   for (const args of [["--help"], ["--version"], ["help"]]) {
     const io = capture();
     assert.equal(
-      await runCli(args, { ...io, snapshots, version: "0.1.0", fetcher }),
+      await runCli(args, { ...io, snapshots, version: "1.0.0", fetcher }),
       0,
     );
     assert.equal(io.stderr, "");
@@ -274,7 +274,7 @@ test("help/version do not fetch and one-shot failures have meaningful exit codes
   for (const args of [["--invalid"], ["clear"], ["unknown"]]) {
     const io = capture();
     assert.equal(
-      await runCli(args, { ...io, snapshots, version: "0.1.0", fetcher }),
+      await runCli(args, { ...io, snapshots, version: "1.0.0", fetcher }),
       2,
     );
   }
@@ -283,7 +283,7 @@ test("help/version do not fetch and one-shot failures have meaningful exit codes
 test("non-TTY no-argument invocation does not wait for stdin", async () => {
   const io = capture();
   assert.equal(
-    await runCli(["--offline"], { ...io, snapshots, version: "0.1.0" }),
+    await runCli(["--offline"], { ...io, snapshots, version: "1.0.0" }),
     0,
   );
   assert.ok(io.stdout.includes("Meto Trajkovski"));

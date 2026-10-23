@@ -1,6 +1,6 @@
 # mtrajk.github.io
 
-A bilingual personal CV for Meto Trajkovski. The site has English (`/`) and Macedonian (`/mk/`) pages, an interactive DEV terminal, and a matching local Node CLI. It is a static site built for GitHub Pages.
+Version 1.0.0 of Meto Trajkovski's bilingual personal CV. The site has English (`/`) and Macedonian (`/mk/`) pages, an interactive DEV terminal, and a matching Node CLI. It is a static site built for GitHub Pages.
 
 ## Requirements
 
@@ -57,4 +57,4 @@ node packages/cli/dist/cli.js about --offline
 node packages/cli/dist/cli.js
 ```
 
-The CLI package is private and unpublished. `help` lists commands; add `--lang mk` to use Macedonian.
+The CLI package is version 1.0.0 and ready for manual publication. `help` lists commands; add `--lang mk` to use Macedonian.

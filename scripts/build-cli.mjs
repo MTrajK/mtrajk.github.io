@@ -1,10 +1,11 @@
 import { build } from "esbuild";
 import { mkdir, writeFile, copyFile, chmod } from "node:fs/promises";
 import { resolve } from "node:path";
-import { root, loadContents } from "./content.mjs";
+import { root, loadContents, readJson } from "./content.mjs";
 import "./generate-validator.mjs";
 
 const contents = await loadContents();
+const manifest = await readJson("packages/cli/package.json");
 await mkdir(resolve(root, "packages/cli/dist"), { recursive: true });
 for (const content of contents)
   await writeFile(
@@ -27,5 +28,5 @@ await chmod(resolve(root, "packages/cli/dist/cli.js"), 0o755);
 await copyFile(resolve(root, "LICENSE"), resolve(root, "packages/cli/LICENSE"));
 await copyFile(resolve(root, "NOTICE"), resolve(root, "packages/cli/NOTICE"));
 console.log(
-  "Built self-contained CLI. Publishing remains blocked because the package is private.",
+  `Built self-contained mtrajk CLI ${manifest.version}. Publishing is a separate manual action.`,
 );

@@ -1,8 +1,7 @@
 {
   "name": "mtrajk",
-  "version": "0.1.0-preview.1",
+  "version": "1.0.0",
   "description": "Meto Trajkovski's bilingual CV, from your terminal.",
-  "private": true,
   "type": "module",
   "license": "Apache-2.0",
   "engines": {

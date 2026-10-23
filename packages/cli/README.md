@@ -1,6 +1,6 @@
 # mtrajk CLI
 
-A local Node.js CLI for the bilingual CV. Requires Node.js 24 or later and is not published.
+Version 1.0.0 of the local Node.js CLI for the bilingual CV. Requires Node.js 24 or later and is ready for owner publication.
 
 From the repository root:
 
