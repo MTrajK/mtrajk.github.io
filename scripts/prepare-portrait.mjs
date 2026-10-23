@@ -47,7 +47,6 @@ if (
   if (apply) {
     const common = await readJson("content/common.json");
     common.profile.portrait = "/assets/portrait/portrait.webp";
-    common.approvals.portrait = true;
     await writeFile(
       resolve(root, "content/common.json"),
       `${JSON.stringify(common, null, 2)}\n`,
@@ -58,7 +57,7 @@ if (
     );
   } else {
     console.log(
-      "Prepared a private review portrait in .artifacts/portrait. Public content and approvals are unchanged. Use --apply only with owner approval.",
+      "Prepared an optimized portrait in .artifacts/portrait without modifying public content. Use --apply only after reviewing the result.",
     );
   }
 }

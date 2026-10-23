@@ -8,14 +8,6 @@
     "email": "hello@mtrajk.dev",
     "portrait": "/assets/portrait/portrait.webp"
   },
-  "approvals": {
-    "content": true,
-    "translation": true,
-    "experience": true,
-    "contact": true,
-    "portrait": true,
-    "package": true
-  },
   "sectionOrder": [
     "intro",
     "about",

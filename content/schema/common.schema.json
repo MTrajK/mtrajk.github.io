@@ -7,7 +7,6 @@
     "updatedAt",
     "domain",
     "profile",
-    "approvals",
     "sectionOrder",
     "records",
     "contactLinks",
@@ -40,20 +39,6 @@
           "$ref": "urn:mtrajk:schema:public:v1#/properties/profile/properties/portrait"
         }
       }
-    },
-    "approvals": {
-      "type": "object",
-      "required": [
-        "content",
-        "translation",
-        "experience",
-        "contact",
-        "portrait",
-        "package"
-      ],
-      "minProperties": 6,
-      "maxProperties": 6,
-      "additionalProperties": { "type": "boolean" }
     },
     "sectionOrder": {
       "type": "array",

@@ -15,14 +15,10 @@ const sources = async () => ({
   ),
 });
 
-test("both languages resolve deterministically, and unfinished content blocks release", async () => {
-  assert.deepEqual(await loadContents(), await loadContents());
-  const data = await sources();
-  data.common.approvals.content = false;
-  await assert.rejects(
-    loadContents({ ...data, release: true }),
-    /Release blocked/,
-  );
+test("both locales resolve deterministically and pass release data validation", async () => {
+  const contents = await loadContents();
+  assert.deepEqual(contents, await loadContents());
+  assert.deepEqual(contents, await loadContents({ release: true }));
 });
 
 test("one common domain drives all generated website and terminal URLs", async () => {
@@ -237,10 +233,8 @@ test("location and seasonal time-zone comparisons appear in Contact only across 
   }
 });
 
-test("approved selected experience releases without employment periods", async () => {
+test("selected experience releases without employment periods", async () => {
   const data = await sources();
-  for (const key of Object.keys(data.common.approvals))
-    data.common.approvals[key] = true;
   assert.ok(data.common.records.experience.every((item) => !item.period));
   const contents = await loadContents({ ...data, release: true });
   assert.ok(contents.every((content) => !Object.hasOwn(content, "preview")));

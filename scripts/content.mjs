@@ -126,13 +126,6 @@ export async function loadContents({
   )
     throw new Error("Expected English and Macedonian locale files");
   if (release) {
-    const pending = Object.entries(common.approvals)
-      .filter(([, approved]) => !approved)
-      .map(([key]) => key);
-    if (pending.length)
-      throw new Error(
-        `Release blocked; owner approval required: ${pending.join(", ")}`,
-      );
     await readFile(
       new URL(`../${common.profile.portrait.slice(1)}`, import.meta.url),
     );

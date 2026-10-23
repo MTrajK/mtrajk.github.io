@@ -2,7 +2,7 @@
 
 A bilingual CV for Meto Trajkovski, using the same content and commands as the CV/DEV website.
 
-This is an unpublished preview. Package name ownership, content, portrait, translations, and publication still require owner approval. The package is intentionally marked private.
+The CV website content is approved, but this CLI package remains private and unpublished. Confirm package ownership and publication setup before changing its visibility or publishing it.
 
 ## Local use
 
