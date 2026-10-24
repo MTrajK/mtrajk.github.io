@@ -1,0 +1,12 @@
+👋 Hello, welcome to my profile!
+I’m a software engineer with 11+ years of experience, focused on practical AI, hands-on technical leadership, product thinking, and T-shaped engineering.
+
+🤖 I put AI into practice through AI-assisted engineering workflows. I define clear intent, evaluate outputs, and apply engineering judgment while maintaining strong architecture and testing standards.
+
+👥 With 5+ years in technical leadership, I lead by example, stay hands-on, and take ownership. I share context, give constructive feedback, and help teammates grow in confidence and independence.
+
+🧠 As a product-minded engineer, I start with the problem: understanding users, questioning assumptions, and connecting engineering decisions to business goals. I stay involved from discovery to improvement, checking whether what we build solves the problem.
+
+🛠️ As a T-shaped engineer, I combine depth in .NET, Python, and JavaScript/TypeScript with experience across domains and technologies. My breadth spans discovery, architecture, development, testing, and delivery, with close attention to detail throughout.
+
+📖 I love learning every day—exploring practical AI, growing as a leader, deepening my engineering skills, and finding better ways to build useful products.
