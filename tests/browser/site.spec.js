@@ -661,9 +661,15 @@ test("static CV and localized navigation work without JavaScript", async ({
   ]) {
     await page.goto(path);
     const content = await (
-      await page.request.get(`/data/v1/${path === "/" ? "en" : "mk"}.json`)
+    await page.request.get(`/data/v1/${path === "/" ? "en" : "mk"}.json`)
     ).json();
     await expect(page.locator("h1").first()).toContainText(name);
+    await expect(page.locator("h1")).toHaveCount(1);
+    expect(
+      await page.locator("#intro-title").evaluate((node) =>
+        (node.textContent ?? "").replace(/\s+/g, " ").trim(),
+      ),
+    ).toBe(`${content.profile.name}.`);
     await expect(page.locator("#cv-view>section")).toHaveCount(8);
     await expect(
       page.locator('#projects a[href*="coding-problems"]'),
