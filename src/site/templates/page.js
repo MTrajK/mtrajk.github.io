@@ -1,4 +1,5 @@
 import { getShareLinks } from "../../core/share.js";
+import { isSafeInlineLink, parseInlineLinks } from "../../core/inline-links.js";
 
 export const escapeHtml = (value) =>
   String(value).replace(
@@ -24,8 +25,16 @@ export const faviconFiles = Object.freeze([
   "site.webmanifest",
 ]);
 const e = escapeHtml;
+const inline = (value) =>
+  parseInlineLinks(value)
+    .map(({ text, url }) =>
+      url && isSafeInlineLink(url)
+        ? `<a href="${e(url)}" target="_blank" rel="noopener noreferrer">${e(text)}</a>`
+        : e(url ? `[${text}](${url})` : text),
+    )
+    .join("");
 const paragraphs = (values) =>
-  values.map((value) => `<p>${e(value)}</p>`).join("");
+  values.map((value) => `<p>${inline(value)}</p>`).join("");
 const links = (values, className = "") =>
   values
     .map(
@@ -46,13 +55,13 @@ function renderShareMenu(content) {
   return `<div class="share-control"><p class="share-prompt">${e(content.ui.sharePrompt)}</p><details class="share-disclosure"><summary aria-label="${e(content.ui.sharePage)}" aria-controls="share-options">${e(content.ui.shareAction)} <span aria-hidden="true">↑</span></summary><div id="share-options" class="share-popover" role="group" aria-label="${e(content.ui.sharePage)}">${options}</div></details></div>`;
 }
 function renderItem(item, section, index, content) {
-  const heading = `<h3>${e(item.title)}</h3><p class="item-subtitle">${e(item.subtitle)}</p>`;
+  const heading = `<h3>${inline(item.title)}</h3><p class="item-subtitle">${inline(item.subtitle)}</p>`;
   const body = `${paragraphs(item.paragraphs)}${tags(item.tags)}${item.links.length ? `<div class="item-links">${links(item.links)}</div>` : ""}`;
   const bullets = item.bullets.length
-    ? `<ul class="bullets">${item.bullets.map((value) => `<li>${e(value)}</li>`).join("")}</ul>`
+    ? `<ul class="bullets">${item.bullets.map((value) => `<li>${inline(value)}</li>`).join("")}</ul>`
     : "";
   if (section.id === "experience")
-    return `<li class="experience-item"><div class="experience-meta"><p class="organization">${e(item.organization || "")}</p><p>${e(content.ui.client)} · ${e(item.client || "")}</p></div><div>${heading}${body}${bullets ? `<details><summary>${e(content.ui.details)}</summary>${bullets}</details>` : ""}</div></li>`;
+    return `<li class="experience-item"><div class="experience-meta"><p class="organization">${inline(item.organization || "")}</p><p>${e(content.ui.client)} · ${inline(item.client || "")}</p></div><div>${heading}${body}${bullets ? `<details><summary>${e(content.ui.details)}</summary>${bullets}</details>` : ""}</div></li>`;
   return `<li class="${section.id}-item"><span class="item-number" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>${heading}${body}${bullets}</li>`;
 }
 export function renderSection(section, content) {
@@ -74,7 +83,7 @@ export function renderSection(section, content) {
       : "";
   const copy = section.paragraphs
     .filter((value) => value !== contactEmail)
-    .map((value) => `<p>${e(value)}</p>`)
+    .map((value) => `<p>${inline(value)}</p>`)
     .join("");
   const emailLink =
     section.id === "contact"

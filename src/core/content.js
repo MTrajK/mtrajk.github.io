@@ -1,7 +1,20 @@
 import { MAX_CONTENT_BYTES, safeUrl, sectionIds } from "./commands.js";
+import { isSafeInlineLink, parseInlineLinks } from "./inline-links.js";
 
 export function assertContent(content, validate, locale, version = undefined) {
   if (!validate(content)) throw new Error("Invalid content schema");
+  const checkInlineLinks = (value) => {
+    if (typeof value === "string") {
+      for (const part of parseInlineLinks(value))
+        if (part.url && !isSafeInlineLink(part.url))
+          throw new Error("Unsafe inline URL");
+    } else if (Array.isArray(value)) {
+      value.forEach(checkInlineLinks);
+    } else if (value && typeof value === "object") {
+      Object.values(value).forEach(checkInlineLinks);
+    }
+  };
+  checkInlineLinks(content);
   if (
     content.locale !== locale ||
     (version && content.contentVersion !== version)

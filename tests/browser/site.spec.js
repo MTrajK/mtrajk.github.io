@@ -16,6 +16,8 @@ const shareProviders = [
   ["telegram", "Telegram", "rgb(0, 136, 204)"],
   ["viber", "Viber", "rgb(100, 94, 164)"],
 ];
+const displayContentText = (text) =>
+  text.replace(/\[([^\]]+)\]\(https:\/\/[^)\s]+\)/g, "$1");
 
 test("DEV installation simulation disables input, repeats, and cancels cleanly", async ({ page }) => {
   await page.goto("/?mode=cv#projects");
@@ -82,7 +84,11 @@ for (const path of ["/", "/mk/"]) {
     await output.evaluate(node => { node.scrollTop = 0; });
     await page.clock.runFor(1200);
     await expect(response).not.toHaveAttribute("aria-busy", "true");
-    await expect(response.locator("p")).toHaveText(content.sections.find(section => section.id === "about").paragraphs);
+    await expect(response.locator("p")).toHaveText(
+      content.sections
+        .find((section) => section.id === "about")
+        .paragraphs.map(displayContentText),
+    );
     expect(await output.evaluate(node => node.scrollTop)).toBe(0);
     const skipped = await run("experience");
     await expect(skipped).toHaveAttribute("aria-busy", "true");
@@ -94,7 +100,11 @@ for (const path of ["/", "/mk/"]) {
     await page.clock.runFor(24);
     const next = await run("contact");
     await expect(previous).not.toHaveAttribute("aria-busy", "true");
-    await expect(previous.locator("p")).toHaveText(content.sections.find(section => section.id === "about").paragraphs);
+    await expect(previous.locator("p")).toHaveText(
+      content.sections
+        .find((section) => section.id === "about")
+        .paragraphs.map(displayContentText),
+    );
     await expect(next).toHaveAttribute("aria-busy", "true");
     await input.press("Enter");
     await expect(next).not.toHaveAttribute("aria-busy", "true");
@@ -731,6 +741,44 @@ test("every command works in both locales with safe output and no page errors", 
   expect(errors).toEqual([]);
 });
 
+test("inline Markdown content links are clickable in CV and DEV", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [path, locale] of [["/", "en"], ["/mk/", "mk"]]) {
+    await page.goto(path);
+    const content = await (await page.request.get(`/data/v1/${locale}.json`)).json();
+    const universityText = content.sections
+      .find((section) => section.id === "about")
+      .paragraphs.find((text) => text.includes("finki.ukim.mk"));
+    const markdownLink = (text) => {
+      const match = text.match(/\[([^\]]+)\]\((https:\/\/[^)]+)\)/);
+      expect(match).not.toBeNull();
+      return { label: match[1], url: match[2] };
+    };
+    const university = markdownLink(universityText);
+    for (const { selector, link } of [
+      { selector: "#about", link: university },
+    ]) {
+      const anchor = page.locator(`${selector} a[href="${link.url}"]`);
+      await expect(anchor).toHaveText(link.label);
+      await expect(anchor).toHaveAttribute("target", "_blank");
+      await expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
+    }
+
+    await openDev(page);
+    const input = page.locator("#command-input");
+    await input.fill("about");
+    await input.press("Enter");
+    let terminalLink = page
+      .locator(".terminal-entry")
+      .last()
+      .locator(`a[href="${university.url}"]`);
+    await expect(terminalLink).toHaveText(university.label);
+    await expect(terminalLink).toHaveAttribute("target", "_blank");
+  }
+});
+
 test("inline completion accepts, cycles, preserves history and provides keyboard escape", async ({
   page,
 }) => {
@@ -1069,14 +1117,24 @@ test("terminal language switches finish progressive answers and localize new rev
   await input.press("Enter");
   await expect(page.locator("#dev-view")).toHaveAttribute("lang", "mk");
   await expect(previous.locator(".terminal-response")).not.toHaveAttribute("aria-busy", "true");
-  await expect(previous.locator(".terminal-response p")).toHaveText(en.sections.find(section => section.id === "about").paragraphs);
+  await expect(previous.locator(".terminal-response p")).toHaveText(
+    en.sections
+      .find((section) => section.id === "about")
+      .paragraphs.map(displayContentText),
+  );
   await expect(previous).toHaveAttribute("lang", "en");
   await input.fill("about");
   await input.press("Enter");
   await expect(page.getByRole("button", { name: mk.ui.showAnswer, exact: true })).toBeVisible();
   await expect(page.locator(".terminal-entry").last()).toHaveAttribute("lang", "mk");
   await input.press("Escape");
-  await expect(page.locator(".terminal-entry").last().locator(".terminal-response p")).toHaveText(mk.sections.find(section => section.id === "about").paragraphs);
+  await expect(
+    page.locator(".terminal-entry").last().locator(".terminal-response p"),
+  ).toHaveText(
+    mk.sections
+      .find((section) => section.id === "about")
+      .paragraphs.map(displayContentText),
+  );
 });
 
 test("slow terminal language loads queue responses and preserve input drafts", async ({ page }) => {

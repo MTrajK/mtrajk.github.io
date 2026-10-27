@@ -38,7 +38,7 @@ npm run test:e2e
 
 - `content/common.json` contains shared facts, the site domain, links, section order, and artwork.
 - `content/en.json` and `content/mk.json` contain localized text. Keep matching section and item IDs across both files and `common.json`.
-- Schemas in `content/schema/` validate all source data. Content is plain text; rebuild after editing JSON.
+- Schemas in `content/schema/` validate all source data. For inline links, use `[label](https://example.com/)`; multiple links can appear in one sentence. Raw HTML and other Markdown are not supported. Rebuild after editing JSON.
 
 ## Architecture
 

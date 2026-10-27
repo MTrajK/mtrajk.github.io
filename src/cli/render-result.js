@@ -1,4 +1,5 @@
 import { cleanText } from "../core/commands.js";
+import { inlinePlainText } from "../core/inline-links.js";
 import { getShareLinks } from "../core/share.js";
 
 /** @param {import('../core/types.js').Result} result @param {import('../core/types.js').Content} content */
@@ -11,11 +12,13 @@ export function renderText(
   const heading = (value) =>
     lines.push(
       "",
-      color ? `\x1b[36m${cleanText(value)}\x1b[0m` : cleanText(value),
+      color
+        ? `\x1b[36m${cleanText(inlinePlainText(value))}\x1b[0m`
+        : cleanText(inlinePlainText(value)),
     );
   const paragraph = (value) => {
     const limit = Math.max(20, Math.min(120, width));
-    const words = cleanText(value).split(/\s+/);
+    const words = cleanText(inlinePlainText(value)).split(/\s+/);
     let line = "";
     for (let word of words) {
       if (line && line.length + word.length + 1 > limit) {

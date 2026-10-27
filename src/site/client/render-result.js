@@ -1,9 +1,29 @@
 import { getShareLinks } from "../../core/share.js";
+import { isSafeInlineLink, parseInlineLinks } from "../../core/inline-links.js";
 
 export function element(tag, text = "", className = "") {
   const node = document.createElement(tag);
   if (text) node.textContent = text;
   if (className) node.className = className;
+  return node;
+}
+function inlineElement(tag, text, className = "") {
+  const node = element(tag, "", className);
+  for (const part of parseInlineLinks(text)) {
+    if (part.url && isSafeInlineLink(part.url)) {
+      const anchor = element("a", part.text);
+      anchor.href = part.url;
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
+      node.append(anchor);
+    } else {
+      node.append(
+        document.createTextNode(
+          part.url ? `[${part.text}](${part.url})` : part.text,
+        ),
+      );
+    }
+  }
   return node;
 }
 export function renderInstruction(parent, text) {
@@ -52,7 +72,7 @@ export function renderResult(result, content) {
   }
   if (result.type === "sections") {
     for (const section of result.sections) {
-      output.append(element("h2", section.title));
+      output.append(inlineElement("h2", section.title));
       if (section.id === "intro")
         output.append(
           element("h3", content.profile.name),
@@ -64,21 +84,26 @@ export function renderResult(result, content) {
           ? `${content.ui.email}: ${content.profile.email}`
           : "";
       for (const text of section.paragraphs)
-        if (text !== contactEmail) output.append(element("p", text));
+        if (text !== contactEmail) output.append(inlineElement("p", text));
       for (const item of section.items) {
-        output.append(element("h3", item.title), element("p", item.subtitle));
+        output.append(
+          inlineElement("h3", item.title),
+          inlineElement("p", item.subtitle),
+        );
         if (item.organization)
           output.append(
-            element(
+            inlineElement(
               "p",
               `${item.organization} / ${item.client ?? ""}`,
               "terminal-skills",
             ),
           );
-        for (const text of item.paragraphs) output.append(element("p", text));
+        for (const text of item.paragraphs)
+          output.append(inlineElement("p", text));
         if (item.bullets.length) {
           const list = element("ul");
-          for (const text of item.bullets) list.append(element("li", text));
+          for (const text of item.bullets)
+            list.append(inlineElement("li", text));
           output.append(list);
         }
         if (item.tags.length)

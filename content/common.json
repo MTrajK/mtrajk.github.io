@@ -25,14 +25,14 @@
       {
         "id": "endava-payments",
         "organization": "Endava",
-        "client": "Global Payments",
+        "client": "[Global Payments](https://www.globalpayments.com/)",
         "tags": [".NET", "Payments"],
         "links": []
       },
       {
         "id": "inscale-3shape",
         "organization": "Inscale",
-        "client": "3Shape",
+        "client": "[3Shape](https://www.3shape.com/)",
         "tags": [".NET", "CAD/CAM", "3D"],
         "links": []
       }

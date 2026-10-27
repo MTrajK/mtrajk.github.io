@@ -6,6 +6,7 @@ import { renderPage, renderSection, escapeHtml } from "../src/site/templates/pag
 import { executeCommand } from "../src/core/execute-command.js";
 import { renderText, renderBanner } from "../src/cli/render-result.js";
 import { getShareLinks } from "../src/core/share.js";
+import { parseInlineLinks } from "../src/core/inline-links.js";
 import { access, stat } from "node:fs/promises";
 
 const sources = async () => ({
@@ -68,7 +69,10 @@ test("selected experience omits employment periods and retired clients across CV
     const result = executeCommand("experience", content);
     assert.deepEqual(
       result.sections[0].items.map((item) => item.client),
-      ["Global Payments", "3Shape"],
+      [
+        "[Global Payments](https://www.globalpayments.com/)",
+        "[3Shape](https://www.3shape.com/)",
+      ],
     );
     const html = renderPage(content, { css: "/style.css", js: "/main.js" });
     const text = renderText(result, content);
@@ -78,7 +82,7 @@ test("selected experience omits employment periods and retired clients across CV
     );
     assert.ok(!html.includes('class="period"'));
     assert.match(
-      text,
+      text.replace(/\s+/g, " "),
       content.locale === "en"
         ? /billions of dollars annually/
         : /милијарди долари годишно/,
@@ -89,6 +93,52 @@ test("selected experience omits employment periods and retired clients across CV
         .paragraphs.some((text) => text.includes("hello@mtrajk.dev")),
     );
   }
+});
+
+test("inline Markdown links render safely in CV and CLI content", async () => {
+  const [content] = await loadContents();
+  const about = content.sections.find((section) => section.id === "about");
+  const aboutHtml = renderSection(about, content);
+  const universityLink =
+    '<a href="https://finki.ukim.mk/en/" target="_blank" rel="noopener noreferrer">FSCE - Ss. Cyril and Methodius University</a>';
+  assert.ok(aboutHtml.includes(universityLink));
+  const cliAboutText = renderText(executeCommand("about", content), content)
+    .replace(/\s+/g, " ");
+  assert.ok(
+    cliAboutText.includes(
+      "FSCE - Ss. Cyril and Methodius University (https://finki.ukim.mk/en/)",
+    ),
+  );
+
+  const experience = content.sections.find(
+    (section) => section.id === "experience",
+  );
+  const experienceHtml = renderSection(experience, content);
+  assert.ok(experienceHtml.includes(
+    '<a href="https://www.globalpayments.com/" target="_blank" rel="noopener noreferrer">Global Payments</a>',
+  ));
+  assert.ok(experienceHtml.includes(
+    '<a href="https://www.3shape.com/" target="_blank" rel="noopener noreferrer">3Shape</a>',
+  ));
+
+  const multipleLinksHtml = renderSection({
+    ...about,
+    paragraphs: [
+      "Meet [First](https://first.example/) and [Second](https://second.example/).",
+    ],
+  }, content);
+  assert.ok(multipleLinksHtml.includes(
+    '<p>Meet <a href="https://first.example/" target="_blank" rel="noopener noreferrer">First</a> and <a href="https://second.example/" target="_blank" rel="noopener noreferrer">Second</a>.</p>',
+  ));
+
+  const invalid = structuredClone(content);
+  invalid.sections.find((section) => section.id === "about").paragraphs[0] =
+    "Unsafe [link](javascript:alert(1))";
+  const { public: validatePublic } = await validators();
+  assert.throws(
+    () => assertContent(invalid, validatePublic, "en"),
+    /Unsafe inline URL/,
+  );
 });
 
 test("strengths render in the order authored in common data", async () => {
@@ -268,8 +318,16 @@ test("static HTML and command results share facts, and content cannot inject mar
         ...section.paragraphs,
         ...section.items.flatMap((item) => item.paragraphs),
       ]) {
-        if (paragraph !== emailParagraph)
-          assert.ok(html.includes(escapeHtml(paragraph)));
+        if (paragraph !== emailParagraph) {
+          const rendered = parseInlineLinks(paragraph)
+            .map(({ text, url }) =>
+              url
+                ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`
+                : escapeHtml(text),
+            )
+            .join("");
+          assert.ok(html.includes(rendered));
+        }
       }
     }
     const changed = structuredClone(content);
