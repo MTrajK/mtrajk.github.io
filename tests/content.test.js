@@ -100,13 +100,13 @@ test("inline Markdown links render safely in CV and CLI content", async () => {
   const about = content.sections.find((section) => section.id === "about");
   const aboutHtml = renderSection(about, content);
   const universityLink =
-    '<a href="https://finki.ukim.mk/en/" target="_blank" rel="noopener noreferrer">FSCE - Ss. Cyril and Methodius University</a>';
+    '<a href="https://finki.ukim.mk/en/" target="_blank" rel="noopener noreferrer">FCSE - Ss. Cyril and Methodius University</a>';
   assert.ok(aboutHtml.includes(universityLink));
   const cliAboutText = renderText(executeCommand("about", content), content)
     .replace(/\s+/g, " ");
   assert.ok(
     cliAboutText.includes(
-      "FSCE - Ss. Cyril and Methodius University (https://finki.ukim.mk/en/)",
+      "FCSE - Ss. Cyril and Methodius University (https://finki.ukim.mk/en/)",
     ),
   );
 
