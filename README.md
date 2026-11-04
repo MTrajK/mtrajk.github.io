@@ -71,3 +71,7 @@ The CLI package is version 1.0.0 and ready for manual publication. `help` lists 
 - **Verify website and CLI** runs on pull requests, pushes to `master`, or manual dispatch. It checks Windows, macOS, Linux, and Bun.
 - **Publish the website to Pages** is manual: select `master` and enter `DEPLOY`. It validates and builds the site, then deploys `dist` to the configured `github-pages` environment.
 - **Publish CLI** is manual: after deploying the website, select `master` and enter `PUBLISH`. It checks that the live locale data matches, then publishes CLI 1.0.0 to npm with provenance through the `npm-release` environment.
+
+## Improvements
+
+All the improvements can be found in [improvements.md](docs/notes/improvements.md) file.
