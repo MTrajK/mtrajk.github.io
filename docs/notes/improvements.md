@@ -11,3 +11,7 @@
 	- refactor the JavaScript code, into something smaller and cleaner (decoupled). Current JavaScript files are big and spaghetti code
 	- delete duplication (in the tests and also in the implementation)
 	- refactor the unit tests (increase the coverage if it's below 90% - and find if almost all of the flows are covered)
+
+3. Add formatter
+	- a linter already exists, but a formatter is missing (prettier? - or something else, newer)
+	- use `npm run verify` to run all the tests + linter + formatter
