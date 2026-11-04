@@ -292,6 +292,10 @@ test("selected experience data omits employment periods", async () => {
 test("approved image portrait is relocated and optimized", async () => {
   const [content] = await loadContents();
   assert.equal(content.profile.portrait, "/assets/portrait/portrait.webp");
+  await access(new URL("../assets/portrait/source.jpeg", import.meta.url));
+  await assert.rejects(access(new URL("../potrait.jpeg", import.meta.url)), {
+    code: "ENOENT",
+  });
   assert.ok(
     (await stat(new URL("../assets/portrait/portrait.webp", import.meta.url)))
       .size < 102400,
